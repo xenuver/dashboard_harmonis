@@ -1,0 +1,22 @@
+// For format details, see https://aka.ms/devcontainer.json
+{
+	"name": "be + fe",
+	"dockerComposeFile": "./docker-compose.yml",
+	"service": "myworkstation",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"features": {
+		"ghcr.io/devcontainers/features/node:2": {
+			"nodeGypDependencies": true,
+			"version": "26",
+			"npmVersion": "none",
+			"pnpmVersion": "latest",
+			"nvmVersion": "latest"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"installTools": true,
+			"version": "os-provided"
+		}
+	},
+	"updateContentCommand": "./.devcontainer/scripts/updatecontentcommand.sh",
+	"postCreateCommand": "./.devcontainer/scripts/postcreatecommand.sh"
+}

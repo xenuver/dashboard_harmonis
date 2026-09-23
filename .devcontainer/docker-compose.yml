@@ -1,0 +1,35 @@
+version: '3.8' 
+services: 
+  myworkstation:
+    image: mcr.microsoft.com/devcontainers/base:debian
+    command: sleep infinity
+    volumes:
+      - mariadb_socket:/var/run/mariadb
+      - ../..:/workspaces:cached
+
+  mariadb:
+    image: mariadb:lts-ubi10
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+    volumes:
+      - mariadb_socket:/var/run/mariadb
+      - mariadb_config:/etc/mysql/conf.d
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    environment:
+      - PMA_SOCKET=/var/run/mariadb/mariadb.sock
+      - PMA_HOST=mariadb # socket fallback
+      - PMA_PORT=3306 # socket fallback
+    volumes:
+      - mariadb_socket:/var/run/mariadb
+    depends_on:
+      - mariadb
+    ports:
+      - 15001:80
+
+volumes:
+  mariadb_socket:
+  mariadb_config:
+  mariadb_data:
