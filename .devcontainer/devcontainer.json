@@ -17,6 +17,19 @@
 			"version": "os-provided"
 		}
 	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"bmewburn.vscode-intelephense-client",
+				"laravel.vscode-laravel",
+				"dsznajder.es7-react-js-snippets",
+				"bradlc.vscode-tailwindcss",
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				"ms-python.python"
+			]
+		}
+	},
 	"updateContentCommand": "./.devcontainer/scripts/updatecontentcommand.sh",
 	"postCreateCommand": "./.devcontainer/scripts/postcreatecommand.sh"
 }
