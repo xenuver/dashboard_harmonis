@@ -3,30 +3,59 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+/**
+ * Login pakai username, bukan email. Laravel tidak hardcode ke kolom
+ * "email" -- tinggal panggil:
+ *   Auth::attempt(['username' => $request->username, 'password' => $request->password])
+ * dan itu otomatis match ke kolom username di tabel ini.
+ */
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $fillable = [
+        'username', // dipakai untuk login, bukan email
+        'password',
+        'role', // it_staff | owner
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // ── Relasi ─────────────────────────────────────────────
+
+    /**
+     * Semua laporan yang pernah diupload user ini.
+     */
+    public function laporanUploads(): HasMany
+    {
+        return $this->hasMany(LaporanUpload::class, 'uploaded_by');
+    }
+
+    // ── Helper ─────────────────────────────────────────────
+
+    public function isItStaff(): bool
+    {
+        return $this->role === 'it_staff';
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->role === 'owner';
     }
 }
