@@ -2,6 +2,7 @@ version: '3.8'
 services: 
   myworkstation:
     image: mcr.microsoft.com/devcontainers/base:debian
+    restart: no
     command: sleep infinity
     volumes:
       - mariadb_socket:/var/run/mariadb
@@ -9,6 +10,7 @@ services:
 
   mariadb:
     image: mariadb:lts-ubi10
+    restart: no
     environment:
       - MYSQL_ROOT_PASSWORD=admin
     volumes:
@@ -18,6 +20,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin:latest
+    restart: no
     environment:
       - PMA_SOCKET=/var/run/mariadb/mariadb.sock
       - PMA_HOST=mariadb # socket fallback
