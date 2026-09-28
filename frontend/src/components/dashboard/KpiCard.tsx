@@ -11,8 +11,8 @@ export interface KpiCardProps {
   showComparison?: boolean;
   icon?: React.ReactNode;
   className?: string;
+  isLoading?: boolean; // 1. Added loading state prop
 }
-
 
 export const KpiCard: React.FC<KpiCardProps> = function({
   title,
@@ -21,6 +21,7 @@ export const KpiCard: React.FC<KpiCardProps> = function({
   showComparison = false,
   icon,
   className = '',
+  isLoading = false, // Default to false
 }) {
   const getTrendIcon = (trend?: 'up' | 'down' | 'neutral') => {
     if (trend === 'up') return '↑';
@@ -31,31 +32,43 @@ export const KpiCard: React.FC<KpiCardProps> = function({
   return (
     <div className={className}>
       {/* Header: Title & Optional Action/Icon */}
-      <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
         <span>{title}</span>
         {icon && (<span>{icon}</span>)}
       </div>
 
       {/* Main KPI Value */}
       <div>
-        <span>{value}</span>
+        {isLoading ? (
+          // Skeleton for the main value
+          <div className="h-8 w-24 bg-gray-200 animate-pulse rounded" style={{ height: '2rem', width: '6rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+        ) : (
+          <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{value}</span>
+        )}
       </div>
 
       {/* Optional & Hideable Comparison Row */}
-      {showComparison && comparison && (
-        <div>
-          <span>
-            {getTrendIcon(comparison.trend)}
-            <span>{comparison.value}</span>
-          </span>
+      {showComparison && (
+        <div style={{ marginTop: '8px' }}>
+          {isLoading ? (
+             // Skeleton for the comparison text
+            <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" style={{ height: '1rem', width: '8rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+          ) : comparison ? (
+            <>
+              <span>
+                {getTrendIcon(comparison.trend)}
+                <span>{comparison.value}</span>
+              </span>
 
-          {comparison.label && (
-            <span>{comparison.label}</span>
-          )}
+              {comparison.label && (
+                <span style={{ marginLeft: '4px' }}>{comparison.label}</span>
+              )}
+            </>
+          ) : null}
         </div>
       )}
     </div>
   );
 };
 
-export default KpiCard
+export default KpiCard;
