@@ -33,13 +33,13 @@ class SupplierPenjualanController extends Controller
             return response()->json(['message' => 'Belum ada data'], 404); // -> state Kosong
         }
 
-        $query = $upload->produkPenjualan()->where('kategori', $validated['kategori']);
+        $query = $upload->supplierPenjualan();
  
         if (! empty($validated['search'])) {
             $query->cari($validated['search']); // scope dari model ProdukPenjualan
         }
  
-        return $query->orderByDesc('jumlah')
+        return $query->orderByDesc('net_sales_total')
             ->paginate($validated['per_page']);
     }
 }
