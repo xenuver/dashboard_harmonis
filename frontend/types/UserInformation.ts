@@ -1,5 +1,5 @@
 export interface UserInformation {
     id: number,
     username: string,
-    role: "staf_it" | "owner"
+    role: "it_staff" | "owner"
 }
