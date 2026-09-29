@@ -12,7 +12,7 @@ services:
     image: mariadb:lts-ubi10
     restart: no
     environment:
-      - MYSQL_ROOT_PASSWORD=admin
+      - MARIADB_ROOT_PASSWORD=admin
     volumes:
       - mariadb_socket:/var/run/mariadb
       - mariadb_config:/etc/mysql/conf.d
