@@ -2,6 +2,6 @@
 
 use App\Models\SupplierPenjualan;
 
-class ProdukPenjualanTemp extends SupplierPenjualan {
+class SupplierPenjualanTemp extends SupplierPenjualan {
     protected $table = 'supplier_penjualan_temp';
 }
