@@ -35,7 +35,6 @@ class UploadController extends Controller
                 'jenis_laporan' => $validated['jenis_laporan'],
                 'periode_bulan' => $validated['periode_bulan'],
                 'periode_tahun' => $validated['periode_tahun'],
-                'nama_file'     => $validated['file']->getClientOriginalName(),
                 'status'        => 'berhasil',
             ]);
  
@@ -60,10 +59,10 @@ class UploadController extends Controller
                 }
             }
  
-            foreach ($parser->parseProdukPenjualan(2, 'tertinggi') as $produk) {
+            foreach ($parser->parseProdukPenjualan('tertinggi') as $produk) {
                 ProdukPenjualan::create(['upload_id' => $upload->id, ...$produk]);
             }
-            foreach ($parser->parseProdukPenjualan(3, 'terendah') as $produk) {
+            foreach ($parser->parseProdukPenjualan('terendah') as $produk) {
                 ProdukPenjualan::create(['upload_id' => $upload->id, ...$produk]);
             }
             foreach ($parser->parseSupplierPenjualan() as $supplier) {

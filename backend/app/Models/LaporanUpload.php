@@ -18,7 +18,6 @@ class LaporanUpload extends Model
         'jenis_laporan', // ampera | pal | gabungan
         'periode_bulan',
         'periode_tahun',
-        'nama_file',
         'status', // berhasil | gagal
     ];
 
