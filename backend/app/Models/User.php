@@ -22,12 +22,12 @@ class User extends Authenticatable
     protected $fillable = [
         'username', // dipakai untuk login, bukan email
         'password',
+        'enabled', // apakah akunnya bisa digunakan/tersembunyi dari API?
         'role', // it_staff | owner
     ];
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     protected function casts(): array

@@ -19,6 +19,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('username', 50)->unique()->after('name');
             $table->enum('role', ['it_staff', 'owner'])->default('it_staff')->after('username');
+            $table->boolean('enabled')->default(true);
             $table->dropColumn(['name', 'email', 'email_verified_at']);
         });
     }
