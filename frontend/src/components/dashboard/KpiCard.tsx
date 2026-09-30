@@ -17,18 +17,10 @@ export interface KpiCardProps {
 export const KpiCard: React.FC<KpiCardProps> = function({
   title,
   value,
-  comparison,
-  showComparison = false,
   icon,
   className = '',
   isLoading = false, // Default to false
 }) {
-  const getTrendIcon = (trend?: 'up' | 'down' | 'neutral') => {
-    if (trend === 'up') return '↑';
-    if (trend === 'down') return '↓';
-    return null;
-  };
-
   return (
     <div className={className}>
       {/* Header: Title & Optional Action/Icon */}
@@ -46,27 +38,6 @@ export const KpiCard: React.FC<KpiCardProps> = function({
           <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{value}</span>
         )}
       </div>
-
-      {/* Optional & Hideable Comparison Row */}
-      {showComparison && (
-        <div style={{ marginTop: '8px' }}>
-          {isLoading ? (
-             // Skeleton for the comparison text
-            <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" style={{ height: '1rem', width: '8rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
-          ) : comparison ? (
-            <>
-              <span>
-                {getTrendIcon(comparison.trend)}
-                <span>{comparison.value}</span>
-              </span>
-
-              {comparison.label && (
-                <span style={{ marginLeft: '4px' }}>{comparison.label}</span>
-              )}
-            </>
-          ) : null}
-        </div>
-      )}
     </div>
   );
 };
