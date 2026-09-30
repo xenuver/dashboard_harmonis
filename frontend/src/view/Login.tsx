@@ -1,53 +1,82 @@
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
+import { api } from "../services/api";
+import session from '../services/sessionManager';
+
+import type { SubmitEvent } from 'react';
+
 import type {SuccessLoginResponse} from '../../types/LoginResponse';
-import session from '../services/SessionManager';
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 
 export function LoginScreen() {
-  const backendProtocol = location.protocol;
-  const backendHostname = location.hostname;
-  const backendPort = 8000;
+  const [loginMessageText, setLoginMessageText] = useState('');
+  const navigate = useNavigate();
 
-  async function handleLoginAttempt(event: React.SubmitEvent) {
+  async function handleLoginAttempt(event: SubmitEvent) {
     event.preventDefault();
+
+    setLoginMessageText('');
 
     const form = new FormData(event.target);
     // get the field that you want
     const username = form.get("username");
     const password = form.get("password");
 
-    if(typeof username !== "string" || (typeof username === "string" && username.trim().length === 0)) {
-      window.alert("Username tidak boleh kosong");
+    if(typeof username !== "string" || (typeof username === "string" && username.trim().length < 1)) {
+      setLoginMessageText("Username tidak boleh kosong");
       return;
     }
 
-    if(typeof password !== "string" || (typeof password === "string" && password.length === 0)) {
-      window.alert("Password tidak boleh kosong");
+    if(typeof password !== "string" || (typeof password === "string" && password.length < 1)) {
+      setLoginMessageText("Password tidak boleh kosong");
       return;
     }
 
-    const loginInformation = await axios.postForm(`${backendProtocol}//${backendHostname}:${backendPort}/api/login`, {
-      username: username.trim(),
-      password: password,
-    }, {
-      responseType: "json"
-    });
+    try {
+      const loginInformation = await api.postForm(`/api/login`, {
+        username: username.trim(),
+        password: password,
+      }, {
+        responseType: "json",
+      });
 
-    if(loginInformation.status === 200) {
-      window.alert(`anda login sebagai ${username.trim()}`);
+      if(loginInformation.status === 200) {
+        setLoginMessageText(`anda login sebagai ${username.trim()}`);
 
-      try {
-        const la = await loginInformation.data as SuccessLoginResponse;
+        try {
+          const la = await loginInformation.data as SuccessLoginResponse;
 
-        session.setToken(la.token);
-      } catch(e) {
-        console.error(e);
-        window.alert("unexpected login login token value");
+          session.setToken(la.token);
+          session.setIdentity(la.user);
+
+          navigate("/dashboard");
+        } catch(e) {
+          console.error(e);
+          setLoginMessageText("unexpected success login response");
+        }
       }
-    } else if(loginInformation.status === 401) {
-      window.alert(`username atau password salah`);
-    } else {
-      window.alert("Terjadi kesalahan dalam membuat permintaan login");
+    } catch(e) {
+      if(isAxiosError(e)) {
+        if(e.status === 401) {
+          setLoginMessageText(`username atau password salah`);
+        } else if(e.code == "ERR_NETWORK") {
+          console.error(e);
+          console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
+          setLoginMessageText("Terjadi kesalahan dalam mendapatkan respon dari server");
+        } else if (e.code === "ERR_BAD_RESPONSE") {
+          setLoginMessageText("Server tidak merespon dengan format data yang tepat");
+        } else if(e.code === "ECONNABORTED") {
+          setLoginMessageText("Permintaan dibatalkan");
+        } else {
+          console.error(e);
+          console.warn("Terjadi kesalahan dalam membuat permintaan login");
+          setLoginMessageText("Terjadi kesalahan dalam membuat permintaan login");
+        }
+      } else {
+        console.log(e);
+        console.warn("Terjadi kesalahan dalam membuat koneksi");
+      }
     }
   }
 
@@ -57,6 +86,7 @@ export function LoginScreen() {
       <form onSubmit={handleLoginAttempt}>
         <div>Username:&nbsp;</div><input type="text" name="username" minLength={1}></input>
         <div>Password:&nbsp;</div><input type="password" name="password" minLength={1}></input>
+        <div id="login-message">{loginMessageText}</div>
         <button type="submit">masuk</button>
       </form>
     </>
