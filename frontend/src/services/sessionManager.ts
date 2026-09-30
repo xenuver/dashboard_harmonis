@@ -1,8 +1,21 @@
+import type { UserInformation } from "../../types/UserInformation";
+
 const localStorageTokenName: string = "session_token";
-const localStorageUserIdentity: string = "session_identity"; // suggested by ai, but there is better way which will be done later
+const localStorageUserIdentityName: string = "session_identity"; // suggested by ai, but there is better way which will be done later
 
 let sessionToken = localStorage.getItem(localStorageTokenName);
-let cachedIdentity = localStorage.getItem(localStorageUserIdentity);
+let cachedIdentity = localStorage.getItem(localStorageUserIdentityName);
+
+// auto update tokens if updated by other tabs
+window.addEventListener("storage", function(e: StorageEvent) {
+  if(e.key === localStorageTokenName) {
+    sessionToken = localStorage.getItem(localStorageTokenName);
+  }
+
+  if(e.key === localStorageUserIdentityName) {
+    cachedIdentity = localStorage.getItem(localStorageUserIdentityName);
+  }
+});
 
 export default {
   getToken: function(): string | null {
@@ -14,7 +27,7 @@ export default {
     localStorage.setItem(localStorageTokenName, sessionToken);
   },
 
-  getIdentity: function(): object | null {
+  getIdentity: function(): UserInformation | null {
     if(!cachedIdentity) {
       return null;
     }
@@ -28,14 +41,14 @@ export default {
     }
   },
 
-  setIdentity: function(identity: object): void {
+  setIdentity: function(identity: UserInformation): void {
     cachedIdentity = JSON.stringify(identity);
-    localStorage.setItem(localStorageUserIdentity, cachedIdentity);
+    localStorage.setItem(localStorageUserIdentityName, cachedIdentity);
   },
 
   logout: function(): void {
     localStorage.removeItem(localStorageTokenName);
-    localStorage.removeItem(localStorageUserIdentity);
+    localStorage.removeItem(localStorageUserIdentityName);
     sessionToken = null;
     cachedIdentity = null;
   }

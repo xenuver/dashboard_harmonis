@@ -42,10 +42,9 @@ export function LoginScreen() {
       });
 
       if(loginInformation.status === 200) {
-        setLoginMessageText(`anda login sebagai ${username.trim()}`);
-
         try {
           const la = await loginInformation.data as SuccessLoginResponse;
+          setLoginMessageText(`anda login sebagai ${username.trim()}`);
 
           session.setToken(la.token);
           session.setIdentity(la.user);
@@ -53,7 +52,7 @@ export function LoginScreen() {
           navigate("/dashboard");
         } catch(e) {
           console.error(e);
-          setLoginMessageText("unexpected success login response");
+          setLoginMessageText("Respon login berhasil memiliki format yang tidak tepat");
         }
       }
     } catch(e) {
