@@ -7,9 +7,12 @@ import KpiCard from "../components/dashboard/KpiCard";
 import { api } from "../services/api";
 import { formatAngka, formatDate, formatRupiah } from "../services/formatters";
 
+import type { DashboardResponseData } from "../../types/DashboardResponseData";
 import type { Kpi } from "../../types/Models/Kpi";
+import type { Product } from "../../types/Models/Product";
 import type { TrendDataView } from "../../types/TrendDataView";
 import type { TrendData } from "../../types/Models/TrendData";
+import type { Supplier } from "../../types/Models/Supplier";
 
 export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +22,10 @@ export function Dashboard() {
   const [kpiJumlahTransaksi, setKpiJumlahTransaksi] = useState("-");
   const [kpiGrowthMember, setKpiGrowthMember] = useState("-");
 
-  const [trendGraphViewData, setTrendGraphViewData] = useState<TrendDataView[]>();
+  const [trendGraphViewData, setTrendGraphViewData] = useState<TrendDataView[]>([]);
+  const [topProductsList, setTopProductsList] = useState<Product[]>([]);
+  const [worstProductsList, setWorstProductsList] = useState<Product[]>([]);
+  const [topSuppliersList, setTopSuppliersList] = useState<Supplier[]>([]);
 
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
@@ -105,9 +111,13 @@ export function Dashboard() {
             periode_bulan: 8
           }
         });
+        const responseData = response.data as DashboardResponseData;
 
-        consumeKpi(response.data.kpi);
-        consumeGraphData(response.data.trend)
+        consumeKpi(responseData.kpi);
+        consumeGraphData(responseData.trend);
+        setTopProductsList(responseData.top_produk_terlaris);
+        setWorstProductsList(responseData.top_produk_terendah);
+        setTopSuppliersList(responseData.top_supplier);
 
         setError(null);
       } catch (err) {
@@ -152,45 +162,101 @@ export function Dashboard() {
   <table border={1}>
     <tr>
       <td colSpan={2}>Peringkat Produk</td>
-      <td colSpan={2}>Produk paling laris/Produk kurang laris</td>
+      <td colSpan={2}>Produk paling laris</td>
     </tr>
     <tr>
       <td colSpan={2}>Nama Barang</td>
       <td>Qty Terjual</td>
       <td>Jumlah (Rp)</td>
     </tr>
+
+    {topProductsList.map((produk, index) => (
+      <tr key={produk.id ?? index}>
+        <td>{index + 1}</td>
+        <td>{produk.nama_brg}</td>
+        <td>{formatAngka(produk.qty)}</td>
+        <td>{formatRupiah(produk.jumlah)}</td>
+      </tr>
+    ))}
+
+    {/* Fallback row if the list is empty */}
+    {topProductsList.length === 0 && (
+      <tr>
+        <td colSpan={4} style={{ textAlign: 'center' }}>
+          Tidak ada data
+        </td>
+      </tr>
+    )}
+    
     <tr>
-      <td>1</td>
-      <td>cerek</td>
-      <td>998</td>
-      <td>25.000.000</td>
+      <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+    </tr>
+  </table>
+
+  <table border={1}>
+    <tr>
+      <td colSpan={2}>Peringkat Produk</td>
+      <td colSpan={2}>Produk kurang laris</td>
     </tr>
     <tr>
-      <td>2</td>
-      <td>Kue</td>
-      <td>877</td>
-      <td>20.000.000</td>
+      <td colSpan={2}>Nama Barang</td>
+      <td>Qty Terjual</td>
+      <td>Jumlah (Rp)</td>
+    </tr>
+
+    {worstProductsList.map((produk, index) => (
+      <tr key={produk.id ?? index}>
+        <td>{index + 1}</td>
+        <td>{produk.nama_brg}</td>
+        <td>{formatAngka(produk.qty)}</td>
+        <td>{formatRupiah(produk.jumlah)}</td>
+      </tr>
+    ))}
+
+    {/* Fallback row if the list is empty */}
+    {worstProductsList.length === 0 && (
+      <tr>
+        <td colSpan={4} style={{ textAlign: 'center' }}>
+          Tidak ada data
+        </td>
+      </tr>
+    )}
+    
+    <tr>
+      <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+    </tr>
+  </table>
+
+  <table border={1}>
+    <tr>
+      <td colSpan={4}>Peringkat Supplier</td>
     </tr>
     <tr>
-      <td>3</td>
-      <td>Shampo</td>
-      <td>665</td>
-      <td>15.000.000</td>
+      <td colSpan={2}>Nama Supplier</td>
+      <td>Gross Total</td>
+      <td>Net Sales Total</td>
     </tr>
+
+    {topSuppliersList.map((supplier, index) => (
+      <tr key={supplier.id ?? index}>
+        <td>{index + 1}</td>
+        <td>{supplier.nama_supp}</td>
+        <td>{formatRupiah(supplier.gross_total)}</td>
+        <td>{formatRupiah(supplier.net_sales_total)}</td>
+      </tr>
+    ))}
+
+    {/* Fallback row if the list is empty */}
+    {topSuppliersList.length === 0 && (
+      <tr>
+        <td colSpan={4} style={{ textAlign: 'center' }}>
+          Tidak ada data
+        </td>
+      </tr>
+    )}
+    
     <tr>
-      <td>4</td>
-      <td>sabun</td>
-      <td>544</td>
-      <td>10.000.000</td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>Makanan</td>
-      <td>332</td>
-      <td>5.000.000</td>
-    </tr>
-    <tr>
-      <td colSpan={4}>Lihat Peringkat Produk</td>
+      <td colSpan={4}><a href="">Lihat Peringkat Supplier</a></td>
     </tr>
   </table>
 

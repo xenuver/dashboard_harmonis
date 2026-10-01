@@ -1,4 +1,4 @@
-export interface Supplier     {
+export interface Supplier {
     id: number,
     upload_id: number,
     kode_supp: string,

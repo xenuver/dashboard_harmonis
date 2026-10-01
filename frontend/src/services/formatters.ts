@@ -9,7 +9,7 @@ export function formatDate(value: string | number): string {
 }
 
 export function formatRupiah(value: number): string {
-    return formatNumber({integerSeparator:".", decimal: ",", prefix: "Rp ", suffix: " ,-"})(value)
+    return formatNumber({integerSeparator:".", decimal: ",", prefix: "Rp", suffix: ",-"})(value);
 }
 
 export function formatAngka(value: number) {
