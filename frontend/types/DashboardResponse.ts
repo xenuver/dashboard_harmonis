@@ -1,13 +1,11 @@
-import type { Kpi } from "./Kpi"
-import type { Product } from "./Product"
-import type { Supplier } from "./Supplier"
+import type { Kpi } from "./Models/Kpi"
+import type { Product } from "./Models/Product"
+import type { Supplier } from "./Models/Supplier"
+import type { TrendData } from "./Models/TrendData"
 
 export interface DashboardResponseData {
     kpi: Kpi,
-    trend: Record<string, Array<{
-        cabang: string, 
-        total: number
-    }>>,
+    trend: TrendData,
     top_produk_terlaris: Array<Product & {
         kategori: "tertinggi"
     }>,

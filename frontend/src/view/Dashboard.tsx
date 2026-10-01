@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-// import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 
 import KpiCard from "../components/dashboard/KpiCard";
 
 import { api } from "../services/api";
+import { formatAngka, formatDate, formatRupiah } from "../services/formatters";
 
-import type { Kpi } from "../../types/Kpi";
+import type { Kpi } from "../../types/Models/Kpi";
+import type { TrendDataView } from "../../types/TrendDataView";
+import type { TrendData } from "../../types/Models/TrendData";
 
 export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
@@ -16,9 +19,11 @@ export function Dashboard() {
   const [kpiJumlahTransaksi, setKpiJumlahTransaksi] = useState("-");
   const [kpiGrowthMember, setKpiGrowthMember] = useState("-");
 
-  function parseKpi(data: Kpi) {
+  const [trendGraphViewData, setTrendGraphViewData] = useState<TrendDataView[]>();
+
+  function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
-      setKpiTotalSales(`Rp ${data.total_sales}`);
+      setKpiTotalSales(formatRupiah(data.total_sales));
     } else {
       console.warn(`respon total_sales dari backend tidak terduga: ${data?.total_sales}`);
       setKpiTotalSales("-");
@@ -27,45 +32,65 @@ export function Dashboard() {
     if(typeof data?.total_growth === "string") {
       let totalGrowth;
       try {
-        totalGrowth = parseFloat(data.total_growth);
+        totalGrowth = Number(data.total_growth);
 
         if(totalGrowth > 0) {
-          setKpiTotalGrowth(`+${data.total_growth}%`);
+          setKpiTotalGrowth(`+${formatAngka(totalGrowth)}%`);
         } else if (totalGrowth === 0) {
-          setKpiTotalGrowth(`${data.total_growth}%`);
+          setKpiTotalGrowth(`${formatAngka(totalGrowth)}%`);
         } else {
-          setKpiTotalGrowth(`-${data.total_growth}%`);
+          setKpiTotalGrowth(`-${formatAngka(totalGrowth)}%`);
         }
       } catch(e) {
         console.error(e);
-        console.warn(`respon total_growth dari backend tidak terduga: ${data?.total_sales}`);
+        console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
         setKpiTotalGrowth("-");
       }
     } else {
-      console.warn(`respon total_growth dari backend tidak terduga: ${data?.total_sales}`);
+      console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
       setKpiTotalGrowth("-");
     }
 
     if(typeof data?.jumlah_transaksi === "number") {
-      setKpiJumlahTransaksi(`Rp ${data?.jumlah_transaksi}`);
+      setKpiJumlahTransaksi(`${formatAngka(data?.jumlah_transaksi)}`);
     } else {
-      console.warn(`respon jumlah_transaksi dari backend tidak terduga: ${data?.total_sales}`);
+      console.warn(`respon jumlah_transaksi dari backend tidak terduga: ${data?.jumlah_transaksi}`);
       setKpiJumlahTransaksi("-");
     }
 
     if(typeof data?.growth_member === "number") {
       if(data.growth_member > 0) {
-        setKpiGrowthMember(`+${data.growth_member}`);
+        setKpiGrowthMember(`+${formatAngka(data.growth_member)}`);
       } else if (data.growth_member === 0) {
-        setKpiGrowthMember(`${data.growth_member}`);
+        setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
       } else {
-        setKpiGrowthMember(`-${data.growth_member}`);
+        setKpiGrowthMember(`-${formatAngka(data.growth_member)}`);
       }
     } else {
-      console.warn(`respon growth_member dari backend tidak terduga: ${data?.growth_member}`);
+      console.warn(`respon growth_member dari backend tidak terduga: ${formatAngka(data.growth_member)}`);
       setKpiGrowthMember("-");
     }
   }
+
+  function consumeGraphData(input: TrendData): void {
+  const chartData: TrendDataView[] = Object.entries(input).map(([tanggal, items]) => {
+    const row: TrendDataView = {
+      tanggal,
+    };
+
+    items.forEach((item) => {
+      row[item.cabang.toLowerCase()] = item.total;
+    });
+
+    if(typeof row?.tanggal !== "string" && typeof row?.tanggal !== "number") {
+      throw new Error("Field tanggal tidak sesuai!");
+    }
+
+    return row;
+  });
+
+    setTrendGraphViewData(chartData);
+  };
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -81,7 +106,9 @@ export function Dashboard() {
           }
         });
 
-        parseKpi(response.data.kpi);
+        consumeKpi(response.data.kpi);
+        consumeGraphData(response.data.trend)
+
         setError(null);
       } catch (err) {
         if (axiosIsCancel(err)) {
@@ -111,15 +138,16 @@ export function Dashboard() {
   <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} />
   <KpiCard title="Growth Member" value={kpiGrowthMember} />
 
-  {/* <LineChart style={{ width: '100%', aspectRatio: 1.618, maxWidth: 600 }} responsive data={data}>
+  <LineChart style={{ height: 300, maxWidth: 900 }} responsive data={trendGraphViewData}>
     <CartesianGrid />
-    <Line dataKey="Ampera" isAnimationActive={false} />
-    <Line dataKey="Pal" isAnimationActive={false} />
-    <XAxis dataKey="name" />
-    <YAxis />
-    <Tooltip isAnimationActive={false} />
+    <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
+    <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+    <XAxis dataKey="tanggal" tickFormatter={formatDate} />
+    <YAxis width="auto" name="Total Penjualan" />
+    <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : ""} 
+      formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
     <Legend />
-  </LineChart> */}
+  </LineChart>
 
   <table border={1}>
     <tr>
