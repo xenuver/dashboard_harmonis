@@ -1,5 +1,7 @@
 import React from 'react';
 
+import '../../styles/common.css';
+
 export interface KpiCardProps {
   title: string;
   value: string | number;
@@ -12,6 +14,7 @@ export interface KpiCardProps {
   icon?: React.ReactNode;
   className?: string;
   isLoading?: boolean; // 1. Added loading state prop
+  valueToolTip?: string
 }
 
 export const KpiCard: React.FC<KpiCardProps> = function({
@@ -20,6 +23,7 @@ export const KpiCard: React.FC<KpiCardProps> = function({
   icon,
   className = '',
   isLoading = false, // Default to false
+  valueToolTip,
 }) {
   return (
     <div className={className}>
@@ -33,9 +37,9 @@ export const KpiCard: React.FC<KpiCardProps> = function({
       <div>
         {isLoading ? (
           // Skeleton for the main value
-          <div className="h-8 w-24 bg-gray-200 animate-pulse rounded" style={{ height: '2rem', width: '6rem', backgroundColor: '#e5e7eb', borderRadius: '0.25rem', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
+          <div className="h-8 w-24 bg-gray-200 animate-pulse loading-skeleton" style={{ height: '2rem', width: '6rem' }} />
         ) : (
-          <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{value}</span>
+          <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }} title={valueToolTip}>{value}</span>
         )}
       </div>
     </div>

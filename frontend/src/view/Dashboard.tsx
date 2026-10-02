@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
+import { useNavigate } from "react-router-dom";
+import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 
 import KpiCard from "../components/dashboard/KpiCard";
 
 import { api } from "../services/api";
-import { formatAngka, formatDate, formatRupiah } from "../services/formatters";
+import { formatAngka, formatAngkaSingkat, formatDate, formatRupiah, formatRupiahSingkat } from "../services/formatters";
 
 import type { DashboardResponseData } from "../../types/DashboardResponseData";
 import type { Kpi } from "../../types/Models/Kpi";
@@ -14,13 +15,30 @@ import type { TrendDataView } from "../../types/TrendDataView";
 import type { TrendData } from "../../types/Models/TrendData";
 import type { Supplier } from "../../types/Models/Supplier";
 
-export function Dashboard() {
-  const [error, setError] = useState<string | null>(null);
+import '../styles/common.css';
 
-  const [kpiTotalSales, setKpiTotalSales] = useState("-");
-  const [kpiTotalGrowth, setKpiTotalGrowth] = useState("-");
-  const [kpiJumlahTransaksi, setKpiJumlahTransaksi] = useState("-");
-  const [kpiGrowthMember, setKpiGrowthMember] = useState("-");
+const ERROR_CODE_DASHBOARD_NO_ERROR = 0;
+const ERROR_CODE_DASHBOARD_NO_DATA = 1;
+const ERROR_CODE_DASHBOARD_CONNECTION_ERROR = 2;
+const ERROR_CODE_DASHBOARD_UNKNOWN_ERROR = 3;
+
+export function Dashboard() {
+  const navigate = useNavigate();
+
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
+  const [errorMessage, setErrorMessage] = useState<string| null>(null);
+  const [retryNowTrigger, shouldRetryNow] = useState<number>(0);
+
+  // views
+  const [kpiTotalSales, setKpiTotalSales] = useState<string>("-");
+  const [kpiTotalSalesToolTip, setKpiTotalSalesToolTip] = useState<string | undefined>();
+  const [kpiTotalGrowth, setKpiTotalGrowth] = useState<string>("-");
+  const [kpiTotalGrowthToolTip, setKpiTotalGrowthToolTip] = useState<string | undefined>();
+  const [kpiJumlahTransaksi, setKpiJumlahTransaksi] = useState<string>("-");
+  const [kpiJumlahTransaksiToolTip, setKpiJumlahTransaksiToolTip] = useState<string | undefined>();
+  const [kpiGrowthMember, setKpiGrowthMember] = useState<string>("-");
+  const [kpiGrowthMemberToolTip, setKpiGrowthMemberToolTip] = useState<string | undefined>();
 
   const [trendGraphViewData, setTrendGraphViewData] = useState<TrendDataView[]>([]);
   const [topProductsList, setTopProductsList] = useState<Product[]>([]);
@@ -29,10 +47,12 @@ export function Dashboard() {
 
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
-      setKpiTotalSales(formatRupiah(data.total_sales));
+      setKpiTotalSales(formatRupiahSingkat(data.total_sales));
+      setKpiTotalSalesToolTip(`Total penjualan: ${formatRupiah(data.total_sales)}`);
     } else {
       console.warn(`respon total_sales dari backend tidak terduga: ${data?.total_sales}`);
       setKpiTotalSales("-");
+      setKpiTotalSalesToolTip(undefined);
     }
 
     if(typeof data?.total_growth === "string") {
@@ -41,40 +61,58 @@ export function Dashboard() {
         totalGrowth = Number(data.total_growth);
 
         if(totalGrowth > 0) {
-          setKpiTotalGrowth(`+${formatAngka(totalGrowth)}%`);
-        } else if (totalGrowth === 0) {
-          setKpiTotalGrowth(`${formatAngka(totalGrowth)}%`);
+          setKpiTotalGrowth(`+${formatAngkaSingkat(totalGrowth, 3)}%`);
+          setKpiTotalGrowthToolTip(`Total growth: +${totalGrowth}%`);
         } else {
-          setKpiTotalGrowth(`-${formatAngka(totalGrowth)}%`);
+          setKpiTotalGrowth(`${formatAngkaSingkat(totalGrowth, 3)}%`);
+          setKpiTotalGrowthToolTip(`Total growth: ${totalGrowth}%`);
         }
       } catch(e) {
         console.error(e);
         console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
         setKpiTotalGrowth("-");
+        setKpiTotalGrowthToolTip(undefined);
       }
     } else {
       console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
       setKpiTotalGrowth("-");
+      setKpiTotalGrowthToolTip(undefined);
     }
 
     if(typeof data?.jumlah_transaksi === "number") {
       setKpiJumlahTransaksi(`${formatAngka(data?.jumlah_transaksi)}`);
+      setKpiJumlahTransaksiToolTip(`Jumlah transaksi: ${formatAngka(data?.jumlah_transaksi)}`);
     } else {
       console.warn(`respon jumlah_transaksi dari backend tidak terduga: ${data?.jumlah_transaksi}`);
       setKpiJumlahTransaksi("-");
+      setKpiJumlahTransaksiToolTip(undefined);
     }
 
     if(typeof data?.growth_member === "number") {
       if(data.growth_member > 0) {
-        setKpiGrowthMember(`+${formatAngka(data.growth_member)}`);
+        if(data.growth_member >= 100000) {
+          setKpiGrowthMember(`+${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngkaSingkat(data.growth_member)}`);
+        } else {
+          setKpiGrowthMember(`+${formatAngka(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
+        }
       } else if (data.growth_member === 0) {
         setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
+        setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
       } else {
-        setKpiGrowthMember(`-${formatAngka(data.growth_member)}`);
+        if(data.growth_member <= -100000) {
+          setKpiGrowthMember(`${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngkaSingkat(data.growth_member)}`);
+        } else {
+          setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
+        }
       }
     } else {
       console.warn(`respon growth_member dari backend tidak terduga: ${formatAngka(data.growth_member)}`);
       setKpiGrowthMember("-");
+      setKpiGrowthMemberToolTip(undefined);
     }
   }
 
@@ -98,12 +136,18 @@ export function Dashboard() {
     setTrendGraphViewData(chartData);
   };
 
+  function handleRetryApi() {
+    shouldRetryNow((prev) => prev? prev + 1 : prev - 1);
+  }
+
   useEffect(() => {
     const abortController = new AbortController();
 
     async function fetchDashboardData() {
       try {
-        setError(null);
+        setErrorCode(ERROR_CODE_DASHBOARD_NO_ERROR);
+        setErrorMessage(null);
+        setIsLoaded(false);
         const response = await api.get('/api/dashboard', {
           responseType: "json",
           signal: abortController.signal,
@@ -119,18 +163,22 @@ export function Dashboard() {
         setWorstProductsList(responseData.top_produk_terendah);
         setTopSuppliersList(responseData.top_supplier);
 
-        setError(null);
+        setIsLoaded(true);
       } catch (err) {
         if (axiosIsCancel(err)) {
           return; 
         }
 
         if(isAxiosError(err)) {
+          if(err.status === 404) {
+            setErrorCode(ERROR_CODE_DASHBOARD_NO_DATA);
+            return;
+          }
           console.error(err);
-          setError("Terjadi kesalahan dalam mendapatkan data.");
+          setErrorCode(ERROR_CODE_DASHBOARD_CONNECTION_ERROR);
         } else {
           console.error(err);
-          setError('Terjadi kesalahan tidak diketahui');
+          setErrorCode(ERROR_CODE_DASHBOARD_UNKNOWN_ERROR);
         }
       }
     }
@@ -139,126 +187,201 @@ export function Dashboard() {
     return () => {
       abortController.abort();
     };
-  }, []);
+  }, [retryNowTrigger]);
 
   return (
-  <>
-  <KpiCard title="Total Penjualan" value={kpiTotalSales} />
-  <KpiCard title="Total Growth" value={kpiTotalGrowth} />
-  <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} />
-  <KpiCard title="Growth Member" value={kpiGrowthMember} />
+    <>
+      <h1>Dashboard</h1>
+      {errorMessage && <div style={{ color: "red"}}>{errorMessage}</div>}
 
-  <LineChart style={{ height: 300, maxWidth: 900 }} responsive data={trendGraphViewData}>
-    <CartesianGrid />
-    <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
-    <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
-    <XAxis dataKey="tanggal" tickFormatter={formatDate} />
-    <YAxis width="auto" name="Total Penjualan" />
-    <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : ""} 
-      formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
-    <Legend />
-  </LineChart>
+      { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
+        <>
+        <h2>Data Tidak Ditemukan</h2>
+        <p>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</p>
+        <button onClick={() => navigate("/upload-data")}>Menuju Halaman Upload Data</button>
+        </>
+      }
 
-  <table border={1}>
-    <tr>
-      <td colSpan={2}>Peringkat Produk</td>
-      <td colSpan={2}>Produk paling laris</td>
-    </tr>
-    <tr>
-      <td colSpan={2}>Nama Barang</td>
-      <td>Qty Terjual</td>
-      <td>Jumlah (Rp)</td>
-    </tr>
+      { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&
+        <>
+        <h2>Terjadi Kesalahan Koneksi</h2>
+        <p>Data dashboard untuk periode ini tidak dapat dimuat karena kesalahan koneksi. Mohon coba lagi setelah beberapa saat.</p>
+        <button onClick={handleRetryApi}>Coba Lagi</button>
+        </>
+      }
 
-    {topProductsList.map((produk, index) => (
-      <tr key={produk.id ?? index}>
-        <td>{index + 1}</td>
-        <td>{produk.nama_brg}</td>
-        <td>{formatAngka(produk.qty)}</td>
-        <td>{formatRupiah(produk.jumlah)}</td>
-      </tr>
-    ))}
+      { errorCode === ERROR_CODE_DASHBOARD_UNKNOWN_ERROR &&
+        <>
+        <h2>Terjadi Kesalahan Tidak Diketahui</h2>
+        <p>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</p>
+        <button onClick={handleRetryApi}>Coba Lagi</button>
+        </>
+      }
 
-    {/* Fallback row if the list is empty */}
-    {topProductsList.length === 0 && (
-      <tr>
-        <td colSpan={4} style={{ textAlign: 'center' }}>
-          Tidak ada data
-        </td>
-      </tr>
-    )}
-    
-    <tr>
-      <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
-    </tr>
-  </table>
+      {errorCode === ERROR_CODE_DASHBOARD_NO_ERROR && 
+        <>
+          <KpiCard title="Total Penjualan" value={kpiTotalSales} valueToolTip={kpiTotalSalesToolTip} isLoading={!isLoaded} />
+          <KpiCard title="Total Growth" value={kpiTotalGrowth} valueToolTip={kpiTotalGrowthToolTip} isLoading={!isLoaded} />
+          <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} valueToolTip={kpiJumlahTransaksiToolTip} isLoading={!isLoaded} />
+          <KpiCard title="Growth Member" value={kpiGrowthMember} valueToolTip={kpiGrowthMemberToolTip} isLoading={!isLoaded} />
 
-  <table border={1}>
-    <tr>
-      <td colSpan={2}>Peringkat Produk</td>
-      <td colSpan={2}>Produk kurang laris</td>
-    </tr>
-    <tr>
-      <td colSpan={2}>Nama Barang</td>
-      <td>Qty Terjual</td>
-      <td>Jumlah (Rp)</td>
-    </tr>
+          { isLoaded === true ? 
+          <ResponsiveContainer width="75%" aspect={1.67} maxHeight={300}>
+            <LineChart responsive data={trendGraphViewData}>
+              <CartesianGrid />
+              <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
+              <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+              <XAxis dataKey="tanggal" tickFormatter={formatDate} />
+              <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
+              <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
+                formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
+              <Legend />
+            </LineChart>
+          </ResponsiveContainer>
+            :
+          <ResponsiveContainer width="75%" aspect={1.67} maxHeight={300}>
+            <LineChart responsive data={[]}>
+              <CartesianGrid />
+              <Line isAnimationActive={false} name="Memuat..." fill="black" stroke="black" />
+              <XAxis dataKey="tanggal" />
+              <YAxis width="auto" name="Total Penjualan" />
+              <Legend />
+            </LineChart>
+          </ResponsiveContainer>
+          }
 
-    {worstProductsList.map((produk, index) => (
-      <tr key={produk.id ?? index}>
-        <td>{index + 1}</td>
-        <td>{produk.nama_brg}</td>
-        <td>{formatAngka(produk.qty)}</td>
-        <td>{formatRupiah(produk.jumlah)}</td>
-      </tr>
-    ))}
+          <table border={1}>
+            <tr>
+              <td colSpan={2}>Peringkat Produk</td>
+              <td colSpan={2}>Produk paling laris</td>
+            </tr>
+            <tr>
+              <td colSpan={2}>Nama Barang</td>
+              <td>Qty Terjual</td>
+              <td>Jumlah (Rp)</td>
+            </tr>
 
-    {/* Fallback row if the list is empty */}
-    {worstProductsList.length === 0 && (
-      <tr>
-        <td colSpan={4} style={{ textAlign: 'center' }}>
-          Tidak ada data
-        </td>
-      </tr>
-    )}
-    
-    <tr>
-      <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
-    </tr>
-  </table>
+            { isLoaded === true ?
+              topProductsList.length > 0 ?
+                topProductsList.map((produk, index) => (
+                  <tr key={produk.id ?? index}>
+                    <td>{index + 1}</td>
+                    <td>{produk.nama_brg}</td>
+                    <td>{formatAngka(produk.qty)}</td>
+                    <td>{formatRupiah(produk.jumlah)}</td>
+                  </tr>
+                ))
+              :
+                // Fallback row if the list is empty
+                <tr>
+                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
+                    Tidak ada data
+                  </td>
+                </tr>
+            :
+               [0,0,0,0,0,0,0,0,0,0].map((index) => (
+                  <tr>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  </tr>
+                ))
+            }
+            
+            <tr>
+              <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+            </tr>
+          </table>
 
-  <table border={1}>
-    <tr>
-      <td colSpan={4}>Peringkat Supplier</td>
-    </tr>
-    <tr>
-      <td colSpan={2}>Nama Supplier</td>
-      <td>Gross Total</td>
-      <td>Net Sales Total</td>
-    </tr>
+          <table border={1}>
+            <tr>
+              <td colSpan={2}>Peringkat Produk</td>
+              <td colSpan={2}>Produk kurang laris</td>
+            </tr>
+            <tr>
+              <td colSpan={2}>Nama Barang</td>
+              <td>Qty Terjual</td>
+              <td>Jumlah (Rp)</td>
+            </tr>
 
-    {topSuppliersList.map((supplier, index) => (
-      <tr key={supplier.id ?? index}>
-        <td>{index + 1}</td>
-        <td>{supplier.nama_supp}</td>
-        <td>{formatRupiah(supplier.gross_total)}</td>
-        <td>{formatRupiah(supplier.net_sales_total)}</td>
-      </tr>
-    ))}
+            { isLoaded === true ?
+              worstProductsList.length > 0 ?
+                worstProductsList.map((produk, index) => (
+                  <tr key={produk.id ?? index}>
+                    <td>{index + 1}</td>
+                    <td>{produk.nama_brg}</td>
+                    <td>{formatAngka(produk.qty)}</td>
+                    <td>{formatRupiah(produk.jumlah)}</td>
+                  </tr>
+                ))
+              :
+                // Fallback row if the list is empty
+                <tr>
+                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
+                    Tidak ada data
+                  </td>
+                </tr>
+            :
+               [0,0,0,0,0,0,0,0,0,0].map((index) => (
+                  <tr>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  </tr>
+                ))
+            }
+            
+            <tr>
+              <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+            </tr>
+          </table>
 
-    {/* Fallback row if the list is empty */}
-    {topSuppliersList.length === 0 && (
-      <tr>
-        <td colSpan={4} style={{ textAlign: 'center' }}>
-          Tidak ada data
-        </td>
-      </tr>
-    )}
-    
-    <tr>
-      <td colSpan={4}><a href="">Lihat Peringkat Supplier</a></td>
-    </tr>
-  </table>
+          <table border={1}>
+            <tr>
+              <td colSpan={4}>Peringkat Supplier</td>
+            </tr>
+            <tr>
+              <td colSpan={2}>Nama Supplier</td>
+              <td>Gross Total</td>
+              <td>Net Sales Total</td>
+            </tr>
+
+            { isLoaded === true ?
+              topSuppliersList.length > 0 ?
+                topSuppliersList.map((supplier, index) => (
+                  <tr key={supplier.id ?? index}>
+                    <td>{index + 1}</td>
+                    <td>{supplier.nama_supp}</td>
+                    <td>{formatRupiah(supplier.gross_total)}</td>
+                    <td>{formatRupiah(supplier.net_sales_total)}</td>
+                  </tr>
+                ))
+              :
+                // Fallback row if the list is empty
+                <tr>
+                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
+                    Tidak ada data
+                  </td>
+                </tr>
+            :
+               [0,0,0,0,0,0,0,0,0,0].map((index) => (
+                  <tr>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  </tr>
+                ))
+            }
+            
+            <tr>
+              <td colSpan={4}><a href="">Lihat Peringkat Supplier</a></td>
+            </tr>
+          </table>
+        </>
+      }
 
   </>);
 }
