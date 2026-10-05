@@ -57,16 +57,18 @@ export function LoginScreen() {
       }
     } catch(e) {
       if(isAxiosError(e)) {
-        if(e.status === 401) {
-          setLoginMessageText(`username atau password salah`);
-        } else if(e.code == "ERR_NETWORK") {
+        const status = e.status || e.response?.status;
+
+        if (status === 401) {
+          setLoginMessageText("username atau password salah");
+        } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
           setLoginMessageText("Terjadi kesalahan dalam mendapatkan respon dari server");
         } else if (e.code === "ERR_BAD_RESPONSE") {
           setLoginMessageText("Server tidak merespon dengan format data yang tepat");
-        } else if(e.code === "ECONNABORTED") {
-          setLoginMessageText("Permintaan dibatalkan");
+        } else if (e.code === "ECONNABORTED" || e.code === "ERR_CANCELED") {
+          setLoginMessageText("Permintaan dibatalkan atau waktu habis");
         } else {
           console.error(e);
           console.warn("Terjadi kesalahan dalam membuat permintaan login");
