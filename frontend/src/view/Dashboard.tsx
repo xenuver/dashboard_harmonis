@@ -198,7 +198,7 @@ export function Dashboard() {
         <>
         <h2>Data Tidak Ditemukan</h2>
         <p>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</p>
-        <button onClick={() => navigate("/upload-data")}>Menuju Halaman Upload Data</button>
+        <button onClick={() => navigate("/upload")}>Menuju Halaman Upload Data</button>
         </>
       }
 
@@ -264,7 +264,7 @@ export function Dashboard() {
             { isLoaded === true ?
               topProductsList.length > 0 ?
                 topProductsList.map((produk, index) => (
-                  <tr key={produk.id ?? index}>
+                  <tr key={index}>
                     <td>{index + 1}</td>
                     <td>{produk.nama_brg}</td>
                     <td>{formatAngka(produk.qty)}</td>
@@ -279,14 +279,14 @@ export function Dashboard() {
                   </td>
                 </tr>
             :
-               [0,0,0,0,0,0,0,0,0,0].map((index) => (
-                  <tr>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  </tr>
-                ))
+              Array.from({ length: 10 }).map((_, index) => (
+                <tr key={index}>
+                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
+                </tr>
+              ))
             }
             
             <tr>
@@ -323,7 +323,7 @@ export function Dashboard() {
                   </td>
                 </tr>
             :
-               [0,0,0,0,0,0,0,0,0,0].map((index) => (
+               Array.from({ length: 10 }).map(() => (
                   <tr>
                     <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
                     <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
@@ -366,7 +366,7 @@ export function Dashboard() {
                   </td>
                 </tr>
             :
-               [0,0,0,0,0,0,0,0,0,0].map((index) => (
+               Array.from({ length: 10 }).map(() => (
                   <tr>
                     <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
                     <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
