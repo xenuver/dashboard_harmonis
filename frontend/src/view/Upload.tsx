@@ -1,4 +1,4 @@
-import { useState as reactuseState } from "react";
+import { useState as reactUseState } from "react";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
@@ -8,8 +8,8 @@ import type { SubmitEvent as ReactSubmitEvent } from "react";
 export function Upload() {
   const navigate = useNavigate();
 
-  const [uploadMessageText, setUploadMessageText] = reactuseState<string>("");
-  const [uploadSuccess, setUploadSuccess] = reactuseState<boolean>(false);
+  const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
+  const [uploadSuccess, setUploadSuccess] = reactUseState<boolean>(false);
 
   const yearOptions: number[] = [];
 
