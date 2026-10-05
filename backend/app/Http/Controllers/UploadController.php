@@ -23,6 +23,17 @@ class UploadController extends Controller
             'file'          => 'required|file|mimes:xlsx',
             'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
+
+        $dataExists = LaporanUpload::where('jenis_laporan', $validated['jenis_laporan'])
+            ->where('periode_bulan', $validated['periode_bulan'])
+            ->where('periode_tahun', $validated['periode_tahun'])
+            ->exists();
+
+        if ($dataExists) {
+            return response()->json([
+                'message' => 'Laporan untuk periode dan jenis ini sudah pernah diunggah.',
+            ], 409);
+        }
  
         $parser = new LaporanExcelParser($validated['file']);
         $isGabungan = $validated['jenis_laporan'] === 'gabungan';
