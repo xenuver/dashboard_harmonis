@@ -1,12 +1,15 @@
 import { useState as reactuseState } from "react";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 
 import type { SubmitEvent as ReactSubmitEvent } from "react";
 
 export function Upload() {
+  const navigate = useNavigate();
+
   const [uploadMessageText, setUploadMessageText] = reactuseState<string>("");
-  const [isUploading, setIsUploading] = reactuseState<boolean>(false);
+  const [uploadSuccess, setUploadSuccess] = reactuseState<boolean>(false);
 
   const yearOptions: number[] = [];
 
@@ -20,6 +23,7 @@ export function Upload() {
   async function handleFormSubmit(event: ReactSubmitEvent) {
     event.preventDefault();
     setUploadMessageText("");
+    setUploadSuccess(false);
 
     const uploadInformation = new FormData(event.target);
 
@@ -68,7 +72,6 @@ export function Upload() {
     }
 
     try {
-      setIsUploading(true);
       const uploadRequest = await api.postForm("/api/upload", {
         jenis_laporan: jenisLaporan,
         periode_bulan: periodeBulan,
@@ -77,8 +80,8 @@ export function Upload() {
       }, {
         responseType: "json",
       });
-      if(uploadRequest.status === 201) {
-        setUploadMessageText("Upload berhasil");
+      if(uploadRequest.status === 200) {
+        setUploadSuccess(true);
       }
     } catch(e) {
       if(isAxiosError(e)) {
@@ -86,6 +89,8 @@ export function Upload() {
 
         if (status === 401) {
           setUploadMessageText("username atau password salah");
+        } else if(status === 409) {
+          setUploadMessageText("data sudah ada");
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
@@ -103,8 +108,6 @@ export function Upload() {
         console.log(e);
         console.warn("Terjadi kesalahan dalam membuat koneksi");
       }
-    } finally {
-      setIsUploading(false);
     }
   }
 
@@ -139,6 +142,12 @@ export function Upload() {
         <p>Tekan tombol di bawah untuk mulai memilih file</p>
         <input type="file" name="file" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required={true} />
         <div id="upload-message">{uploadMessageText}</div>
+        { uploadSuccess &&
+          <>
+            <div>Upload berhasil. Tekan tombol berikut untuk menuju halaman dasboard sekarang:</div>
+            <button onClick={() => navigate("/dashboard")}>Menuju halaman dashboard</button>
+          </>
+        }
         <button type="submit">Unggah File</button>
       </form>
     </div>
