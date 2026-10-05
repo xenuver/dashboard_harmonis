@@ -28,7 +28,7 @@ export function Dashboard() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
   const [errorMessage, setErrorMessage] = useState<string| null>(null);
-  const [retryNowTrigger, shouldRetryNow] = useState<number>(0);
+  const [retryNowTrigger, shouldRetryNow] = useState<boolean>(false);
 
   // views
   const [kpiTotalSales, setKpiTotalSales] = useState<string>("-");
@@ -137,7 +137,7 @@ export function Dashboard() {
   };
 
   function handleRetryApi() {
-    shouldRetryNow((prev) => prev? prev + 1 : prev - 1);
+    shouldRetryNow((prev) => !prev);
   }
 
   useEffect(() => {
