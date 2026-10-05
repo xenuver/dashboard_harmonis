@@ -21,6 +21,7 @@ class UploadController extends Controller
             'periode_bulan' => 'required|integer|min:1|max:12',
             'periode_tahun' => 'required|integer',
             'file'          => 'required|file|mimes:xlsx',
+            'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
  
         $parser = new LaporanExcelParser($validated['file']);

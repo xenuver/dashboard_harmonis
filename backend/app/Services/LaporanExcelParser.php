@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Imports\LaporanImport;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ExcelType;
 
 class LaporanExcelParser
 {
@@ -13,7 +14,7 @@ class LaporanExcelParser
     public function __construct(UploadedFile $file, bool $isGabungan = false)
     {
         $this->importer = new LaporanImport($isGabungan);
-        Excel::import($this->importer, $file);
+        Excel::import($this->importer, $file, null, ExcelType::XLSX);
     }
 
     public function parseKpiSummary(): array
