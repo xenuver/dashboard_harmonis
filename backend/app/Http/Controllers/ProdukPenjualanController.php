@@ -42,7 +42,6 @@ class ProdukPenjualanController extends Controller
             $query->cari($validated['search']); // scope dari model ProdukPenjualan
         }
  
-        return $query->orderByDesc('jumlah')
-            ->paginate($validated['per_page']);
+        return $query->paginate($validated['per_page']);
     }
 }
