@@ -203,16 +203,14 @@ export function ProdukPenjualan() {
           }
         </table>
       }
-      { (errorCode === ERROR_CODE_SEARCH_NO_ERROR || errorCode === ERROR_CODE_SEARCH_NO_DATA) &&
+      { (errorCode === ERROR_CODE_SEARCH_NO_ERROR || errorCode === ERROR_CODE_SEARCH_NO_DATA || errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR) &&
         <div>
           <div>
             <div>Halaman...</div>
             { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
-            <p>^^^ halaman 1</p>
             {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
             <div>{currentPage}</div>
             {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
-            <p>vvv halaman terakhir</p>
             { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
           </div>
           <div>{`Menampilkan produk ${productPerPage * (currentPage - 1)}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`}</div>
