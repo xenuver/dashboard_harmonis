@@ -29,7 +29,6 @@ export function ProdukPenjualan() {
 
   const [isLoaded, setIsLoaded] = reactUseState < boolean > (false);
   const [errorCode, setErrorCode] = reactUseState < number > (ERROR_CODE_SEARCH_NO_ERROR);
-  const [errorMessage, setErrorMessage] = reactUseState < string | null > (null);
   const [retryNowTrigger, shouldRetryNow] = reactUseState < boolean > (false);
   const [resetSearchTrigger, shouldResetSearchNow] = reactUseState < boolean > (false);
 
@@ -50,7 +49,6 @@ export function ProdukPenjualan() {
     async function fetchData() {
       setErrorCode(ERROR_CODE_SEARCH_NO_ERROR);
       setDaftarProduk([]);
-      setErrorMessage(null);
       setTotalProducts(0);
       setIsLoaded(false);
 
