@@ -31,4 +31,19 @@ class AuthController extends Controller
             'token' => $token,
         ]);
     }
+
+    public function whoAmI(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        return response()->json([
+            'id'       => $user->id,
+            'username' => $user->username,
+            'role'     => $user->role,
+        ]);
+    }
 }
