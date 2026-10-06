@@ -51,6 +51,7 @@ export function ProdukPenjualan() {
       setErrorCode(ERROR_CODE_SEARCH_NO_ERROR);
       setDaftarProduk([]);
       setErrorMessage(null);
+      setTotalProducts(0);
       setIsLoaded(false);
 
       // construct query params
@@ -60,8 +61,11 @@ export function ProdukPenjualan() {
         periode_tahun: yearNow,
         periode_bulan: monthNow,
         per_page: productPerPage,
-        kategori: sortirTingkatProduk,
-        search: kataKunciPencarian,
+        kategori: sortirTingkatProduk
+      }
+
+      if(kataKunciPencarian) {
+        Object.defineProperty(body, "search", {value: kataKunciPencarian, enumerable: true});
       }
 
       try {
@@ -110,6 +114,7 @@ export function ProdukPenjualan() {
   useEffect(function() {
     // pastikan kode tidak dijalankan pada tahap mounting
     if(searchHasMounted.current) {
+      setIsLoaded(false);
       setCurrentPage(1);
       retrySearchNow();
     } else {
@@ -133,7 +138,7 @@ export function ProdukPenjualan() {
       <div>
         <div><input type="radio" name="sortir_tingkat" value="terendah" onChange={(e) => setSortirTingkatProduk(e.target.value) } checked={ sortirTingkatProduk === "terendah" } />Terendah</div>
       </div>
-      <input type="text" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" />
+      <input type="text" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" onKeyUp={(e) => e.keyCode === 13 && resetSearchNow()} />
       <button onClick={resetSearchNow}>Cari</button>
 
       { errorCode === ERROR_CODE_SEARCH_NO_DATA && 
@@ -179,7 +184,7 @@ export function ProdukPenjualan() {
                 <td>{produk.satuan}</td>
                 <td>{formatRupiah(produk.harga_jual)}</td>
                 <td>{formatRupiah(produk.jumlah)}</td>
-                <td>{formatAngka(produk.qty)}</td>
+                <td className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</td>
                 <td>{formatAngka(produk.stok)}</td>
               </tr>
             ))
@@ -204,10 +209,15 @@ export function ProdukPenjualan() {
         <div>
           <div>
             <div>Halaman...</div>
-            {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div>}
+            { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
+            <p>^^^ halaman 1</p>
+            {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
             <div>{currentPage}</div>
             {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
+            <p>vvv halaman terakhir</p>
+            { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
           </div>
+          <div>{`Menampilkan produk ${productPerPage * (currentPage - 1)}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`}</div>
           <div>
             <div>Produk per halaman</div>
             <select onChange={(e) => setProductPerPage(parseInt(e.target.value))} defaultValue={10}>

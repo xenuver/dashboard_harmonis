@@ -14,7 +14,7 @@ export function Upload() {
   const yearOptions: number[] = [];
 
   const yearNow = new Date().getFullYear();
-  const monthNow = new Date().getMonth();
+  const monthNow = new Date().getMonth() + 1;
 
   for (let i = 0; i < 100; i++) {
     yearOptions.push(yearNow - i);

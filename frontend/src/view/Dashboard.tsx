@@ -45,6 +45,9 @@ export function Dashboard() {
   const [worstProductsList, setWorstProductsList] = useState<Product[]>([]);
   const [topSuppliersList, setTopSuppliersList] = useState<Supplier[]>([]);
 
+  const yearNow = new Date().getFullYear();
+  const monthNow = new Date().getMonth() + 1;
+
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
       setKpiTotalSales(formatRupiahSingkat(data.total_sales));
@@ -152,7 +155,8 @@ export function Dashboard() {
           responseType: "json",
           signal: abortController.signal,
           params: {
-            periode_bulan: 8
+            periode_bulan: monthNow,
+            periode_tahun: yearNow,
           }
         });
         const responseData = response.data as DashboardResponseData;
@@ -290,7 +294,7 @@ export function Dashboard() {
             }
             
             <tr>
-              <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+              <td colSpan={4}><a href="/produk-penjualan" onClick={(e)=> {e.preventDefault(); navigate("/produk-penjualan");}}>Lihat Peringkat Produk</a></td>
             </tr>
           </table>
 
@@ -334,7 +338,7 @@ export function Dashboard() {
             }
             
             <tr>
-              <td colSpan={4}><a href="">Lihat Peringkat Produk</a></td>
+              <td colSpan={4}><a href="/produk-penjualan" onClick={(e)=> {e.preventDefault(); navigate("/produk-penjualan");}}>Lihat Peringkat Produk</a></td>
             </tr>
           </table>
 
