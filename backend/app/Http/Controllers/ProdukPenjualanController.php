@@ -15,6 +15,7 @@ class ProdukPenjualanController extends Controller
             'periode_tahun' => date('Y'),
             'kategori'      => 'tertinggi',
             'per_page'      => 10,
+            'page'          => 1,
         ]);
 
         $validated = $request->validate([
@@ -24,6 +25,7 @@ class ProdukPenjualanController extends Controller
             'kategori'      => 'required|in:tertinggi,terendah',
             'search'        => 'nullable|string',
             'per_page'      => 'integer',
+            'page'          => 'integer',
         ]);
  
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
