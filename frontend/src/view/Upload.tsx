@@ -42,6 +42,7 @@ export function Upload() {
         parseInt(periodeBulan);
       } catch(e) {
         setUploadMessageText("periode bulan yang dimasukkan harus merupakan angka");
+        console.warn(e);
         return;
       }
     } else {
@@ -54,6 +55,7 @@ export function Upload() {
         parseInt(periodeTahun);
       } catch(e) {
         setUploadMessageText("periode tahun yang dimasukkan harus merupakan angka");
+        console.warn(e);
         return;
       }
     } else {
