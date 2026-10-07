@@ -6,8 +6,15 @@ import session from '../services/sessionManager';
 
 import type { SubmitEvent } from 'react';
 
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { FieldGroup, FieldLabel, Field } from "@/components/ui/field";
+
 import type {SuccessLoginResponse} from '../../types/LoginResponse';
 import { isAxiosError } from 'axios';
+
+import "../styles/index.css";
 
 export function LoginScreen() {
   const [loginMessageText, setLoginMessageText] = useState('');
@@ -44,7 +51,7 @@ export function LoginScreen() {
       if(loginInformation.status === 200) {
         try {
           const la = await loginInformation.data as SuccessLoginResponse;
-          setLoginMessageText(`anda login sebagai ${username.trim()}`);
+          // setLoginMessageText(`anda login sebagai ${username.trim()}`);
 
           session.setToken(la.token);
           session.setIdentity(la.user);
@@ -83,13 +90,36 @@ export function LoginScreen() {
 
   return (
     <>
-      <h1>Harmonis Dashboard</h1>
-      <form onSubmit={handleLoginAttempt}>
-        <div>Username:&nbsp;</div><input type="text" name="username" minLength={1}></input>
-        <div>Password:&nbsp;</div><input type="password" name="password" minLength={1}></input>
-        <div id="login-message">{loginMessageText}</div>
-        <button type="submit">masuk</button>
-      </form>
+      <div className="flex min-h-screen w-full items-center justify-center p-4">
+        <Card className="w-full max-w-lg self-center -translate-y-12">
+          <form onSubmit={handleLoginAttempt}>
+            <CardHeader>
+              <CardTitle>Masuk</CardTitle>
+              <CardDescription className="mb-3">
+                Masuk dengan nama pengguna anda untuk mengakses aplikasi ini
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FieldGroup className="flex flex-col gap-4">
+                <Field className="grid">
+                  <FieldLabel htmlFor="username">Nama Pengguna</FieldLabel>
+                  <Input type="text" name="username" required />
+                </Field>
+                <Field className="grid">
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <Input type="password" name="password" required />
+                </Field>
+              </FieldGroup>
+                <div className="text-red-600 mb-1 mt-1">
+                  {loginMessageText}
+                </div>
+            </CardContent>
+            <CardFooter className="flex-col gap-2">
+              <Button type="submit" className="w-full h-10">Masuk</Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </>
   )
 }

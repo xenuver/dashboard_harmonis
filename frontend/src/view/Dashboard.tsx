@@ -2,8 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
+import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
 
 import KpiCard from "../components/dashboard/KpiCard";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { buttonVariants, Button } from "@/components/ui/button";
 
 import { api } from "../services/api";
 import { formatAngka, formatAngkaSingkat, formatDate, formatRupiah, formatRupiahSingkat } from "../services/formatters";
@@ -15,7 +20,7 @@ import type { TrendDataView } from "../../types/TrendDataView";
 import type { TrendData } from "../../types/Models/TrendData";
 import type { Supplier } from "../../types/Models/Supplier";
 
-import '../styles/common.css';
+import '../styles/dashboard.css';
 
 const ERROR_CODE_DASHBOARD_NO_ERROR = 0;
 const ERROR_CODE_DASHBOARD_NO_DATA = 1;
@@ -27,7 +32,6 @@ export function Dashboard() {
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
-  const [errorMessage, setErrorMessage] = useState<string| null>(null);
   const [retryNowTrigger, shouldRetryNow] = useState<boolean>(false);
 
   // views
@@ -95,10 +99,10 @@ export function Dashboard() {
       if(data.growth_member > 0) {
         if(data.growth_member >= 100000) {
           setKpiGrowthMember(`+${formatAngkaSingkat(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: ${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: +${formatAngkaSingkat(data.growth_member)}`);
         } else {
           setKpiGrowthMember(`+${formatAngka(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: +${formatAngka(data.growth_member)}`);
         }
       } else if (data.growth_member === 0) {
         setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
@@ -106,10 +110,10 @@ export function Dashboard() {
       } else {
         if(data.growth_member <= -100000) {
           setKpiGrowthMember(`${formatAngkaSingkat(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: ${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: -${formatAngkaSingkat(data.growth_member)}`);
         } else {
           setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: -${formatAngka(data.growth_member)}`);
         }
       }
     } else {
@@ -149,7 +153,6 @@ export function Dashboard() {
     async function fetchDashboardData() {
       try {
         setErrorCode(ERROR_CODE_DASHBOARD_NO_ERROR);
-        setErrorMessage(null);
         setIsLoaded(false);
         const response = await api.get('/api/dashboard', {
           responseType: "json",
@@ -195,198 +198,262 @@ export function Dashboard() {
 
   return (
     <>
-      <h1>Dashboard</h1>
-      {errorMessage && <div style={{ color: "red"}}>{errorMessage}</div>}
+      <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Dashboard</h1>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
-        <>
-        <h2>Data Tidak Ditemukan</h2>
-        <p>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</p>
-        <button onClick={() => navigate("/upload")}>Menuju Halaman Upload Data</button>
-        </>
+        <Card className="m-5">
+          <CardContent>
+            <CardTitle className="text-center">Data Tidak Tersedia</CardTitle>
+            <CardDescription className="text-center">Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</CardDescription>
+            <a href="/upload" onClick={() => navigate("/upload")} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+              Menuju Halaman Upload Data
+            </a>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&
-        <>
-        <h2>Terjadi Kesalahan Koneksi</h2>
-        <p>Data dashboard untuk periode ini tidak dapat dimuat karena kesalahan koneksi. Mohon coba lagi setelah beberapa saat.</p>
-        <button onClick={handleRetryApi}>Coba Lagi</button>
-        </>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Kesalahan Koneksi</CardTitle>
+            <CardDescription>Data dashboard tidak dapat dimuat karena kesalahan koneksi. Periksa koneksi anda dan coba lagi.</CardDescription>
+            <Button onClick={handleRetryApi} className="mt-3">Coba Lagi</Button>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_UNKNOWN_ERROR &&
-        <>
-        <h2>Terjadi Kesalahan Tidak Diketahui</h2>
-        <p>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</p>
-        <button onClick={handleRetryApi}>Coba Lagi</button>
-        </>
+        <Card className="m-5">
+          <CardContent>
+            <CardTitle className="text-center">Kesalahan Tidak Diketahui</CardTitle>
+            <CardDescription className="text-center">Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
+            <Button onClick={handleRetryApi}>Coba Lagi</Button>
+          </CardContent>
+        </Card>
       }
 
       {errorCode === ERROR_CODE_DASHBOARD_NO_ERROR && 
         <>
-          <KpiCard title="Total Penjualan" value={kpiTotalSales} valueToolTip={kpiTotalSalesToolTip} isLoading={!isLoaded} />
-          <KpiCard title="Total Growth" value={kpiTotalGrowth} valueToolTip={kpiTotalGrowthToolTip} isLoading={!isLoaded} />
-          <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} valueToolTip={kpiJumlahTransaksiToolTip} isLoading={!isLoaded} />
-          <KpiCard title="Growth Member" value={kpiGrowthMember} valueToolTip={kpiGrowthMemberToolTip} isLoading={!isLoaded} />
+          <div className="pt-6 pb-6 m-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <KpiCard title="Total Penjualan" value={kpiTotalSales} tooltip={kpiTotalSalesToolTip} isLoading={!isLoaded} icon={Landmark} />
+              <KpiCard title="Total Growth" value={kpiTotalGrowth} tooltip={kpiTotalGrowthToolTip} isLoading={!isLoaded} icon={ChartNoAxesCombined} />
+              <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} tooltip={kpiJumlahTransaksiToolTip} isLoading={!isLoaded} icon={Receipt} />
+              <KpiCard title="Growth Member" value={kpiGrowthMember} tooltip={kpiGrowthMemberToolTip} isLoading={!isLoaded} icon={IdCard} />
+            </div>
+          </div>
 
-          { isLoaded === true ? 
-          <ResponsiveContainer width="75%" aspect={1.67} maxHeight={300}>
-            <LineChart responsive data={trendGraphViewData}>
-              <CartesianGrid />
-              <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
-              <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
-              <XAxis dataKey="tanggal" tickFormatter={formatDate} />
-              <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
-              <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
-                formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
-              <Legend />
-            </LineChart>
-          </ResponsiveContainer>
-            :
-          <ResponsiveContainer width="75%" aspect={1.67} maxHeight={300}>
-            <LineChart responsive data={[]}>
-              <CartesianGrid />
-              <Line isAnimationActive={false} name="Memuat..." fill="black" stroke="black" />
-              <XAxis dataKey="tanggal" />
-              <YAxis width="auto" name="Total Penjualan" />
-              <Legend />
-            </LineChart>
-          </ResponsiveContainer>
-          }
+          <Card className="pb-6 m-5">
+            <CardHeader>
+              <CardTitle>Grafik Penjualan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              { isLoaded === true ? 
+                <div className="w-full h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart responsive data={trendGraphViewData}>
+                      <CartesianGrid />
+                      <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
+                      <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+                      <XAxis dataKey="tanggal" tickFormatter={formatDate} />
+                      <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
+                      <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
+                        formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
+                      <Legend />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                :
+                <div className="w-full h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart responsive data={[]}>
+                      <CartesianGrid />
+                      <Line isAnimationActive={false} name="Memuat..." fill="black" stroke="black" />
+                      <XAxis dataKey="tanggal" />
+                      <YAxis width="auto" name="Total Penjualan" />
+                      <Legend />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              }
+            </CardContent>
+          </Card>
 
-          <table border={1}>
-            <tr>
-              <td colSpan={2}>Peringkat Produk</td>
-              <td colSpan={2}>Produk paling laris</td>
-            </tr>
-            <tr>
-              <td colSpan={2}>Nama Barang</td>
-              <td>Qty Terjual</td>
-              <td>Jumlah (Rp)</td>
-            </tr>
+          <Card className="m-5">
+            <CardHeader>
+              <CardTitle>Produk Terlaris</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table className="border">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>No</TableHead>
+                    <TableHead>Nama Barang</TableHead>
+                    <TableHead>Qty Terjual</TableHead>
+                    <TableHead>Jumlah (Rp)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  { isLoaded === true ?
+                    topProductsList.length > 0 ?
+                      topProductsList.map((produk, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{produk.nama_brg}</TableCell>
+                          <TableCell className={produk.qty < 0? "text-purple-700" : undefined}>{formatAngka(produk.qty)}</TableCell>
+                          <TableCell className={produk.qty < 0? "text-purple-700" : undefined}>{formatAngka(produk.jumlah)}</TableCell>
+                        </TableRow>
+                      ))
+                    :
+                      // Fallback row if the list is empty
+                      <TableRow>
+                        <TableCell  colSpan={4} rowSpan={10} style={{ textAlign: 'center' }}>
+                          Tidak ada data
+                        </TableCell >
+                      </TableRow>
+                  :
+                    Array.from({ length: 10 }).map((_, index) => (
+                      <TableRow key={index}>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                      </TableRow>
+                    ))
+                  }
+                </TableBody>
 
-            { isLoaded === true ?
-              topProductsList.length > 0 ?
-                topProductsList.map((produk, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{produk.nama_brg}</td>
-                    <td>{formatAngka(produk.qty)}</td>
-                    <td>{formatRupiah(produk.jumlah)}</td>
-                  </tr>
-                ))
-              :
-                // Fallback row if the list is empty
-                <tr>
-                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
-                    Tidak ada data
-                  </td>
-                </tr>
-            :
-              Array.from({ length: 10 }).map((_, index) => (
-                <tr key={index}>
-                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                </tr>
-              ))
-            }
-            
-            <tr>
-              <td colSpan={4}><a href="/produk-penjualan" onClick={(e)=> {e.preventDefault(); navigate("/produk-penjualan");}}>Lihat Peringkat Produk</a></td>
-            </tr>
-          </table>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/produk-penjualan"); }} className="inline-flex items-center gap-2">
+                        <span className="text-blue-500">Lihat Peringkat Produk</span>
+                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </CardContent>
+          </Card>
 
-          <table border={1}>
-            <tr>
-              <td colSpan={2}>Peringkat Produk</td>
-              <td colSpan={2}>Produk kurang laris</td>
-            </tr>
-            <tr>
-              <td colSpan={2}>Nama Barang</td>
-              <td>Qty Terjual</td>
-              <td>Jumlah (Rp)</td>
-            </tr>
+          <Card className="m-5">
+            <CardHeader>
+              <CardTitle>Produk Kurang Laris</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table className="border">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>No</TableHead>
+                    <TableHead>Nama Barang</TableHead>
+                    <TableHead>Qty Terjual</TableHead>
+                    <TableHead>Jumlah (Rp)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  { isLoaded === true ?
+                    worstProductsList.length > 0 ?
+                      worstProductsList.map((produk, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{produk.nama_brg}</TableCell>
+                          <TableCell className={produk.qty < 0? "text-purple-700" : undefined} >{formatAngka(produk.qty)}</TableCell>
+                          <TableCell className={produk.qty < 0? "text-purple-700" : undefined}>{formatAngka(produk.jumlah)}</TableCell>
+                        </TableRow>
+                      ))
+                    :
+                      // Fallback row if the list is empty
+                      <TableRow>
+                        <TableCell  colSpan={4} rowSpan={10} style={{ textAlign: 'center' }}>
+                          Tidak ada data
+                        </TableCell >
+                      </TableRow>
+                  :
+                    Array.from({ length: 10 }).map((_, index) => (
+                      <TableRow key={index}>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                      </TableRow>
+                    ))
+                  }
+                </TableBody>
 
-            { isLoaded === true ?
-              worstProductsList.length > 0 ?
-                worstProductsList.map((produk, index) => (
-                  <tr key={produk.id ?? index}>
-                    <td>{index + 1}</td>
-                    <td>{produk.nama_brg}</td>
-                    <td>{formatAngka(produk.qty)}</td>
-                    <td>{formatRupiah(produk.jumlah)}</td>
-                  </tr>
-                ))
-              :
-                // Fallback row if the list is empty
-                <tr>
-                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
-                    Tidak ada data
-                  </td>
-                </tr>
-            :
-               Array.from({ length: 10 }).map(() => (
-                  <tr>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  </tr>
-                ))
-            }
-            
-            <tr>
-              <td colSpan={4}><a href="/produk-penjualan" onClick={(e)=> {e.preventDefault(); navigate("/produk-penjualan");}}>Lihat Peringkat Produk</a></td>
-            </tr>
-          </table>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/produk-penjualan"); }} className="inline-flex items-center gap-2">
+                        <span className="text-blue-500">Lihat Peringkat Produk</span>
+                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </CardContent>
+          </Card>
 
-          <table border={1}>
-            <tr>
-              <td colSpan={4}>Peringkat Supplier</td>
-            </tr>
-            <tr>
-              <td colSpan={2}>Nama Supplier</td>
-              <td>Gross Total</td>
-              <td>Net Sales Total</td>
-            </tr>
+          <Card className="m-5">
+            <CardHeader>
+              <CardTitle>Supplier Teratas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table className="border">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>No</TableHead>
+                    <TableHead>Nama Supplier</TableHead>
+                    <TableHead>Gross Total</TableHead>
+                    <TableHead>Net Sales Total</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  { isLoaded === true ?
+                    topSuppliersList.length > 0 ?
+                      topSuppliersList.map((supplier, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{supplier.nama_supp}</TableCell>
+                          <TableCell>{formatRupiah(supplier.gross_total)}</TableCell>
+                          <TableCell>{formatRupiah(supplier.net_sales_total)}</TableCell>
+                        </TableRow>
+                      ))
+                    :
+                      // Fallback row if the list is empty
+                      <TableRow>
+                        <TableCell  colSpan={4} rowSpan={10} style={{ textAlign: 'center' }}>
+                          Tidak ada data
+                        </TableCell >
+                      </TableRow>
+                  :
+                    Array.from({ length: 10 }).map((_, index) => (
+                      <TableRow key={index}>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                      </TableRow>
+                    ))
+                  }
 
-            { isLoaded === true ?
-              topSuppliersList.length > 0 ?
-                topSuppliersList.map((supplier, index) => (
-                  <tr key={supplier.id ?? index}>
-                    <td>{index + 1}</td>
-                    <td>{supplier.nama_supp}</td>
-                    <td>{formatRupiah(supplier.gross_total)}</td>
-                    <td>{formatRupiah(supplier.net_sales_total)}</td>
-                  </tr>
-                ))
-              :
-                // Fallback row if the list is empty
-                <tr>
-                  <td colSpan={4} rowSpan={5} style={{ textAlign: 'center' }}>
-                    Tidak ada data
-                  </td>
-                </tr>
-            :
-               Array.from({ length: 10 }).map(() => (
-                  <tr>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                    <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                  </tr>
-                ))
-            }
-            
-            <tr>
-              <td colSpan={4}><a href="">Lihat Peringkat Supplier</a></td>
-            </tr>
-          </table>
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TableCell colSpan={4}>
+                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/supplier-penjualan"); }} className="inline-flex items-center gap-2">
+                        <span className="text-blue-500">Lihat Peringkat Supplier</span>
+                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </CardContent>
+          </Card>
         </>
       }
-
   </>);
 }
 

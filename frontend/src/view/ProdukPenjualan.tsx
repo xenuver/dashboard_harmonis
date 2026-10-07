@@ -4,6 +4,15 @@ import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { formatAngka, formatRupiah } from "../services/formatters";
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+
 import type { ProductSearchResponse } from "../../types/ProductSearchResponse";
 import type { Product } from "../../types/Models/Product";
 
@@ -121,110 +130,161 @@ export function ProdukPenjualan() {
   }, [jenisLaporanSaatIni, productPerPage, sortirTingkatProduk, resetSearchTrigger]);
 
     return (<>
-      <h1>Peringkat Produk</h1>
-      <div>Cabang saat ini:</div>
-      <select required={true} onChange={(e) => setJenisLaporanSaatIni(e.target.value)}>
-        {
-          ["ampera", "pal", "gabungan"].map((value, index) => (
-            <option tabIndex={index + 1} value={value} key={index} defaultValue={0}>{value}</option>
-          ))
-        }
-      </select>
-      <div>
-        <div><input type="radio" name="sortir_tingkat" value="tertinggi" onChange={(e) => setSortirTingkatProduk(e.target.value)} checked={ sortirTingkatProduk === "tertinggi" } />Tertinggi</div>
-      </div>
-      <div>
-        <div><input type="radio" name="sortir_tingkat" value="terendah" onChange={(e) => setSortirTingkatProduk(e.target.value) } checked={ sortirTingkatProduk === "terendah" } />Terendah</div>
-      </div>
-      <input type="text" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" onKeyUp={(e) => e.keyCode === 13 && resetSearchNow()} />
-      <button onClick={resetSearchNow}>Cari</button>
+      <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Produk</h1>
+      <Card className="m-5">
+        <CardContent>
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Field>
+              <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
+              <Select defaultValue="gabungan" name="jenislaporan" onValueChange={(value) => value && setJenisLaporanSaatIni(value)}>
+                <SelectTrigger className="w-45">
+                  <SelectValue placeholder="Pilih Jenis Laporan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    ["ampera", "pal", "gabungan"].map((value, index) => (
+                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="kategori">Kategori Laporan:</FieldLabel>
+              <ToggleGroup defaultValue={["tertinggi"]} variant="outline" onValueChange={(e) => setSortirTingkatProduk(e[0])} spacing={0}>
+                <ToggleGroupItem value="tertinggi">Tertinggi</ToggleGroupItem>
+                <ToggleGroupItem value="terendah">Terendah</ToggleGroupItem>
+              </ToggleGroup>
+            </Field>
+          </FieldGroup>
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel htmlFor="cariproduk">Barcode atau Kata Kunci Produk:</FieldLabel>
+              <Input type="text" name="cariproduk" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" onKeyUp={(e) => e.keyCode === 13 && resetSearchNow()} />
+              <Button onClick={resetSearchNow}>Cari</Button>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      { errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR && 
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Kesalahan Koneksi</CardTitle>
+            <CardDescription>Terjadi kesalahan koneksi. Mohon coba lagi.</CardDescription>
+            <Button onClick={retrySearchNow} className="mt-3">Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      }
 
       { errorCode === ERROR_CODE_SEARCH_NO_DATA && 
-        <div>
-          <div>Produk tidak ditemukan. Pastikan kode atau kata kunci produk dimasukkan dengan benar</div>
-        </div>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Produk Tidak Ditemukan</CardTitle>
+            <CardDescription>Produk tidak ditemukan. Pastikan kode atau nama produk dimasukkan dengan benar.</CardDescription>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
-        <div>
-          <div>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</div>
-          <button onClick={()=> navigate("/upload") }>Menuju halaman unggah data</button>
-        </div>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Laporan Tidak Tersedia</CardTitle>
+            <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
+            <a href="/upload" onClick={() => navigate("/upload")} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+              Menuju Halaman Upload Data
+            </a>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_UNKNOWN_ERROR &&
-        <>
-        <div>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</div>
-        <button onClick={retrySearchNow}>Coba Lagi</button>
-        </>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Laporan Tidak Tersedia</CardTitle>
+            <CardDescription>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
+            <Button onClick={retrySearchNow} className="mt-3">Coba Lagi</Button>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_NO_ERROR && 
-        <table border={1}>
-          <tr>
-            <td>no</td>
-            <td>barcode</td>
-            <td>kode barang</td>
-            <td>nama barang</td>
-            <td>satuan</td>
-            <td>harga jual</td>
-            <td>jumlah (omzet)</td>
-            <td>qty (terjual)</td>
-            <td>sisa stok</td>
-          </tr>
-          { isLoaded === true ?
-            daftarProduk.map((produk, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{produk.barcode}</td>
-                <td>{produk.kode_brg}</td>
-                <td>{produk.nama_brg}</td>
-                <td>{produk.satuan}</td>
-                <td>{formatRupiah(produk.harga_jual)}</td>
-                <td>{formatRupiah(produk.jumlah)}</td>
-                <td className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</td>
-                <td>{formatAngka(produk.stok)}</td>
-              </tr>
-            ))
-          :
-            Array.from({ length: productPerPage }).map((_, index) => (
-              <tr key={index}>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-              </tr>
-            ))
-          }
-        </table>
+        <Card className="m-5">
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableHead>No</TableHead>
+                <TableHead>Barcode</TableHead>
+                <TableHead>Kode Barang</TableHead>
+                <TableHead>Nama barang</TableHead>
+                <TableHead>Satuan</TableHead>
+                <TableHead>Harga Jual</TableHead>
+                <TableHead>Jumlah (Omzet)</TableHead>
+                <TableHead>Qty (terjual)</TableHead>
+                <TableHead>Sisa Stok</TableHead>
+              </TableHeader>
+              <TableBody>
+                { isLoaded === true ?
+                  daftarProduk.map((produk, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{produk.barcode}</TableCell>
+                      <TableCell>{produk.kode_brg}</TableCell>
+                      <TableCell>{produk.nama_brg}</TableCell>
+                      <TableCell>{produk.satuan}</TableCell>
+                      <TableCell>{formatRupiah(produk.harga_jual)}</TableCell>
+                      <TableCell>{formatRupiah(produk.jumlah)}</TableCell>
+                      <TableCell className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</TableCell>
+                      <TableCell>{formatAngka(produk.stok)}</TableCell>
+                    </TableRow>
+                  ))
+                :
+                  Array.from({ length: productPerPage }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       }
+
       { (errorCode === ERROR_CODE_SEARCH_NO_ERROR || errorCode === ERROR_CODE_SEARCH_NO_DATA || errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR) &&
-        <div>
-          <div>
-            <div>Halaman...</div>
-            { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
-            {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
-            <div>{currentPage}</div>
-            {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
-            { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
-          </div>
-          <div>{`Menampilkan produk ${productPerPage * (currentPage - 1)}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`}</div>
-          <div>
-            <div>Produk per halaman</div>
-            <select onChange={(e) => setProductPerPage(parseInt(e.target.value))} defaultValue={10}>
-            {
-              [10,20,50].map((value, index) => (
-                <option tabIndex={index + 1} value={value} key={index}>{value}</option>
-              ))
-            }
-            </select>
-          </div>
-        </div>
+        <Card className="m-5">
+          <CardContent>
+            <div>
+              <div>Halaman...</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
+                {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
+                <div>{currentPage}</div>
+                {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
+                { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
+              </div>
+            </div>
+            <div>{`Menampilkan produk ${productPerPage * (currentPage - 1)}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`}</div>
+            <div>
+              <div>Produk per halaman</div>
+              <select onChange={(e) => setProductPerPage(parseInt(e.target.value))} defaultValue={10}>
+              {
+                [10,20,50].map((value, index) => (
+                  <option tabIndex={index + 1} value={value} key={index}>{value}</option>
+                ))
+              }
+              </select>
+            </div>
+          </CardContent>
+        </Card>
       }
     </>);
 }

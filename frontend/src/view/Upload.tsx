@@ -4,17 +4,26 @@ import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 
 import type { SubmitEvent as ReactSubmitEvent } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const months = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
 
 export function Upload() {
   const navigate = useNavigate();
 
-  const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
-  const [uploadSuccess, setUploadSuccess] = reactUseState<boolean>(false);
-
-  const yearOptions: number[] = [];
-
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
+
+  const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
+  const [uploadSuccess, setUploadSuccess] = reactUseState<boolean>(false);
+  const [pickedMonth, setPickedMonth] = reactUseState<number>(monthNow);
+
+  const yearOptions: number[] = [];
 
   for (let i = 0; i < 100; i++) {
     yearOptions.push(yearNow - i);
@@ -114,43 +123,87 @@ export function Upload() {
   }
 
   return (<>
-    <h1>Upload Data</h1>
+    <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Upload Data</h1>
     <div>
       <form onSubmit={handleFormSubmit}>
-        <h2>Informasi Laporan</h2>
-        <select required={true} name="jenis_laporan" defaultValue="ampera">
-          {
-            ["ampera", "pal", "gabungan"].map((value, index) => (
-              <option tabIndex={index + 1} value={value} key={index} defaultValue={0}>{value}</option>
-            ))
-          }
-        </select>
-        <select required={true} name="periode_bulan" defaultValue={monthNow}>
-          {
-            ["Januari","Februari","Maret","April","Mei","Juni","Juli",
-            "Agustus","September","Oktober","November","Desember"].map((value, index) => (
-              <option tabIndex={index + 1} value={index + 1} key={index} defaultValue={0}>{value}</option>
-            ))
-          }
-        </select>
-        <select required={true} name="periode_tahun" defaultValue={yearOptions[0]}>
-          {
-            yearOptions.map((value, index) => (
-            <option tabIndex={index + 1} value={value} key={index}>{value}</option>
-          ))
-          }
-        </select>
-        <h2>Unggah File</h2>
-        <p>Tekan tombol di bawah untuk mulai memilih file</p>
-        <input type="file" name="file" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required={true} />
-        <div id="upload-message">{uploadMessageText}</div>
-        { uploadSuccess &&
-          <>
-            <div>Upload berhasil. Tekan tombol berikut untuk menuju halaman dasboard sekarang:</div>
-            <button onClick={() => navigate("/dashboard")}>Menuju halaman dashboard</button>
-          </>
-        }
-        <button type="submit">Unggah File</button>
+        <Card className="m-5">
+          <CardHeader>
+            <CardTitle>Informasi Laporan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Jenis Laporan:</FieldLabel>
+                <Select required={true} name="jenis_laporan" defaultValue="ampera">
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="Pilih Jenis Laporan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      ["ampera", "pal", "gabungan"].map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Bulan Laporan:</FieldLabel>
+                <Select 
+                    required={true} 
+                    name="periode_bulan" 
+                    value={pickedMonth} 
+                    onValueChange={(value) => value && setPickedMonth(value)}
+                  >
+                    <SelectTrigger className="w-45">
+                      <SelectValue placeholder="Pilih Bulan Laporan">
+                        {pickedMonth ? months[parseInt(months[monthNow]) - 1] : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {months.map((value, index) => (
+                        <SelectItem value={(index + 1).toString()} key={index}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Tahun Laporan:</FieldLabel>
+                <Select required={true} name="periode_tahun" defaultValue={yearNow}>
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="Pilih Tahun Laporan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      yearOptions.map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldGroup>
+          </CardContent>
+        </Card>
+        <Card className="m-5">
+          <CardHeader>
+            <CardTitle>Unggah File</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Tekan tombol di bawah untuk mulai memilih file</p>
+            <input type="file" name="file" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required={true} />
+            <div id="upload-message">{uploadMessageText}</div>
+            { uploadSuccess &&
+              <>
+                <div>Upload berhasil. Tekan tombol berikut untuk menuju halaman dasboard sekarang:</div>
+                <button onClick={() => navigate("/dashboard")}>Menuju halaman dashboard</button>
+              </>
+            }
+            <button type="submit">Unggah File</button>
+          </CardContent>
+        </Card>
       </form>
     </div>
   </>);
