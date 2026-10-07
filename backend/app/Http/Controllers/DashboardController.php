@@ -47,11 +47,10 @@ class DashboardController extends Controller
             'kpi' => $upload->kpiSummary,
             'trend' => $trend,
             'top_produk_terlaris' => $upload->produkPenjualan()
-                ->tertinggi()->orderByDesc('jumlah')->limit(10)->get(),
+                ->tertinggi()->limit(10)->get(),
             'top_produk_terendah' => $upload->produkPenjualan()
-                ->terendah()->orderBy('jumlah')->limit(10)->get(),
-            'top_supplier' => $upload->supplierPenjualan()
-                ->orderByDesc('net_sales_total')->limit(10)->get(),
+                ->terendah()->limit(10)->get(),
+            'top_supplier' => $upload->supplierPenjualan()->limit(10)->get(),
         ]);
     }
 }
