@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
-import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
+import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight, FileUp } from "lucide-react";
 
 import KpiCard from "../components/dashboard/KpiCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
@@ -28,8 +28,6 @@ const ERROR_CODE_DASHBOARD_CONNECTION_ERROR = 2;
 const ERROR_CODE_DASHBOARD_UNKNOWN_ERROR = 3;
 
 export function Dashboard() {
-  const navigate = useNavigate();
-
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
   const [retryNowTrigger, shouldRetryNow] = useState<boolean>(false);
@@ -202,12 +200,12 @@ export function Dashboard() {
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
         <Card className="m-5">
-          <CardContent>
-            <CardTitle className="text-center">Data Tidak Tersedia</CardTitle>
-            <CardDescription className="text-center">Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</CardDescription>
-            <a href="/upload" onClick={() => navigate("/upload")} className={buttonVariants({ variant: "secondary", size: "sm" })}>
-              Menuju Halaman Upload Data
-            </a>
+          <CardContent className="grid place-items-center gap-2 pt-5 pb-5">
+            <CardTitle>Data Tidak Tersedia</CardTitle>
+            <CardDescription>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</CardDescription>
+            <Link to="/upload" className={buttonVariants({ variant: "default" })}>
+              <FileUp />Menuju Halaman Upload Data
+            </Link>
           </CardContent>
         </Card>
       }
@@ -326,10 +324,10 @@ export function Dashboard() {
                 <TableFooter>
                   <TableRow>
                     <TableCell colSpan={4}>
-                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/produk-penjualan"); }} className="inline-flex items-center gap-2">
+                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
                         <span className="text-blue-500">Lihat Peringkat Produk</span>
                         <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </a>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -384,10 +382,10 @@ export function Dashboard() {
                 <TableFooter>
                   <TableRow>
                     <TableCell colSpan={4}>
-                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/produk-penjualan"); }} className="inline-flex items-center gap-2">
+                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
                         <span className="text-blue-500">Lihat Peringkat Produk</span>
                         <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </a>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -442,10 +440,10 @@ export function Dashboard() {
                 <TableFooter>
                   <TableRow>
                     <TableCell colSpan={4}>
-                      <a href="/produk-penjualan" onClick={(e) => { e.preventDefault(); navigate("/supplier-penjualan"); }} className="inline-flex items-center gap-2">
+                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
                         <span className="text-blue-500">Lihat Peringkat Supplier</span>
                         <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </a>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 </TableFooter>
