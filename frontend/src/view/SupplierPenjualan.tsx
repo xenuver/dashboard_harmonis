@@ -1,8 +1,11 @@
 import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { FileUp } from "lucide-react";
 import { formatRupiah } from "../services/formatters";
+
+import { Button, buttonVariants } from "@/components/ui/button";
 
 import type { SupplierSearchResponse } from "../../types/SupplierSearchResponse";
 import type { Supplier } from "../../types/Models/Supplier";
@@ -14,7 +17,6 @@ const ERROR_CODE_SEARCH_CONNECTION_ERROR = 3;
 const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 
 export function SupplierPenjualan() {
-  const navigate = useNavigate();
   const searchHasMounted = useRef(false);
 
   const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("ampera");
@@ -140,7 +142,9 @@ export function SupplierPenjualan() {
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
         <div>
           <div>Laporan supplier untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</div>
-          <button onClick={()=> navigate("/upload") }>Menuju halaman unggah data</button>
+          <Link to="/upload" className={buttonVariants({ variant: "default" })}>
+            <FileUp />Menuju Halaman Upload Data
+          </Link>
         </div>
       }
 

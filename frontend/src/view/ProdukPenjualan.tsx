@@ -1,7 +1,7 @@
 import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { formatAngka, formatRupiah } from "../services/formatters";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,7 +23,6 @@ const ERROR_CODE_SEARCH_CONNECTION_ERROR = 3;
 const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 
 export function ProdukPenjualan() {
-  const navigate = useNavigate();
   const searchHasMounted = useRef(false);
 
   const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("ampera");
@@ -191,9 +190,9 @@ export function ProdukPenjualan() {
           <CardContent className="grid place-items-center pt-5 pb-5">
             <CardTitle>Laporan Tidak Tersedia</CardTitle>
             <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
-            <a href="/upload" onClick={() => navigate("/upload")} className={buttonVariants({ variant: "secondary", size: "sm" })}>
+            <Link to="/upload" className={buttonVariants({ variant: "default" })}>
               Menuju Halaman Upload Data
-            </a>
+            </Link>
           </CardContent>
         </Card>
       }
