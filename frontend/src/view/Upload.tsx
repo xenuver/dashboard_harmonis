@@ -1,6 +1,5 @@
 import { useState as reactUseState, useRef as reactUseRef } from "react";
 import { api } from "../services/api";
-import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 
 import type { SubmitEvent as ReactSubmitEvent } from "react";
@@ -21,8 +20,6 @@ const months = [
 ];
 
 export function Upload() {
-  const navigate = useNavigate();
-
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
 
