@@ -28,15 +28,3 @@ api.interceptors.response.use((done)=> Promise.resolve(done), function(error: Ax
 
   return Promise.reject(error);
 });
-
-// Handle automatic logout on 401 Unauthorized
-// api.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       SessionManager.logout();
-//       window.location.href = "/login";
-//     }
-//     return Promise.reject(error);
-//   }
-// );
