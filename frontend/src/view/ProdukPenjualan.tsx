@@ -3,6 +3,7 @@ import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { Link } from "react-router-dom";
 import { formatAngka, formatRupiah } from "../services/formatters";
+import { FileUp } from "lucide-react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -191,7 +192,7 @@ export function ProdukPenjualan() {
             <CardTitle>Laporan Tidak Tersedia</CardTitle>
             <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
             <Link to="/upload" className={buttonVariants({ variant: "default" })}>
-              Menuju Halaman Upload Data
+              <FileUp />Menuju Halaman Upload Data
             </Link>
           </CardContent>
         </Card>
