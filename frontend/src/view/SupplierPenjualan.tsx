@@ -128,7 +128,7 @@ export function SupplierPenjualan() {
   }, [jenisLaporanSaatIni, supplierPerPage, resetSearchTrigger]);
 
     return (<>
-      <h1>Peringkat Supplier</h1>
+      <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Supplier</h1>
       <Card className="m-5">
         <CardContent>
           <FieldGroup className="gap-4">
