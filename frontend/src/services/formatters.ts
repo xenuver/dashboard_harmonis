@@ -2,9 +2,9 @@ import formatNumber from "format-number";
 
 export function formatDate(value: string | number): string {
   const date = new Date(value);
-  const day = date.toLocaleString('default', { day: '2-digit' });
-  const month = date.toLocaleString('default', { month: 'short' });
-  const year = date.toLocaleString('default', { year: 'numeric' });
+  const day = date.toLocaleString(['id-ID', 'default'], { day: 'numeric' });
+  const month = date.toLocaleString(['id-ID', 'default'], { month: 'short' });
+  const year = date.toLocaleString(['id-ID', 'default'], { year: 'numeric' });
   return `${day} ${month} ${year}`;
 }
 
