@@ -3,7 +3,8 @@ import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { Link } from "react-router-dom";
 import { formatAngka, formatRupiah } from "../services/formatters";
-import { FileUp } from "lucide-react";
+import { FileUp, RotateCcw, ArrowLeft, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +27,7 @@ const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 export function ProdukPenjualan() {
   const searchHasMounted = useRef(false);
 
-  const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("ampera");
+  const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
   const [kataKunciPencarian, setKataKunciPencarian] = reactUseState < string | undefined > (undefined);
   const [sortirTingkatProduk, setSortirTingkatProduk] = reactUseState("tertinggi");
   const [productPerPage, setProductPerPage] = reactUseState(10);
@@ -123,6 +124,7 @@ export function ProdukPenjualan() {
     if(searchHasMounted.current) {
       setIsLoaded(false);
       setCurrentPage(1);
+      setMaxPage(1);
       retrySearchNow();
     } else {
       searchHasMounted.current = true;
@@ -133,11 +135,11 @@ export function ProdukPenjualan() {
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Produk</h1>
       <Card className="m-5">
         <CardContent>
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
               <Select defaultValue="gabungan" name="jenislaporan" onValueChange={(value) => value && setJenisLaporanSaatIni(value)}>
-                <SelectTrigger className="w-45">
+                <SelectTrigger>
                   <SelectValue placeholder="Pilih Jenis Laporan" />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,11 +159,27 @@ export function ProdukPenjualan() {
               </ToggleGroup>
             </Field>
           </FieldGroup>
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel htmlFor="cariproduk">Barcode atau Kata Kunci Produk:</FieldLabel>
-              <Input type="text" name="cariproduk" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" onKeyUp={(e) => e.keyCode === 13 && resetSearchNow()} />
-              <Button onClick={resetSearchNow}>Cari</Button>
+          <FieldGroup className="gap-4">
+            <Field className="flex flex-col gap-2 w-full">
+              <FieldLabel htmlFor="cariproduk">
+                Cari Kode Barang atau Nama barang:
+              </FieldLabel>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                <Input 
+                  type="text" 
+                  name="cariproduk" 
+                  className="w-full sm:flex-1 min-w-0"
+                  onChange={(e) => setKataKunciPencarian(e.target.value)} 
+                  placeholder="Masukkan kode barang atau nama barang di sini" 
+                  onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
+                />
+                <Button 
+                  onClick={resetSearchNow} 
+                  className="w-full sm:w-auto shrink-0 px-4"
+                >
+                  Cari
+                </Button>
+              </div>
             </Field>
           </FieldGroup>
         </CardContent>
@@ -172,7 +190,7 @@ export function ProdukPenjualan() {
           <CardContent className="grid place-items-center pt-5 pb-5">
             <CardTitle>Kesalahan Koneksi</CardTitle>
             <CardDescription>Terjadi kesalahan koneksi. Mohon coba lagi.</CardDescription>
-            <Button onClick={retrySearchNow} className="mt-3">Coba Lagi</Button>
+            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
           </CardContent>
         </Card>
       }
@@ -191,7 +209,7 @@ export function ProdukPenjualan() {
           <CardContent className="grid place-items-center pt-5 pb-5">
             <CardTitle>Laporan Tidak Tersedia</CardTitle>
             <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
-            <Link to="/upload" className={buttonVariants({ variant: "default" })}>
+            <Link to="/upload" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>
               <FileUp />Menuju Halaman Upload Data
             </Link>
           </CardContent>
@@ -203,7 +221,7 @@ export function ProdukPenjualan() {
           <CardContent className="grid place-items-center pt-5 pb-5">
             <CardTitle>Laporan Tidak Tersedia</CardTitle>
             <CardDescription>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
-            <Button onClick={retrySearchNow} className="mt-3">Coba Lagi</Button>
+            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
           </CardContent>
         </Card>
       }
@@ -233,23 +251,23 @@ export function ProdukPenjualan() {
                       <TableCell>{produk.nama_brg}</TableCell>
                       <TableCell>{produk.satuan}</TableCell>
                       <TableCell>{formatRupiah(produk.harga_jual)}</TableCell>
-                      <TableCell>{formatRupiah(produk.jumlah)}</TableCell>
+                      <TableCell className={produk.jumlah < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(produk.jumlah)}</TableCell>
                       <TableCell className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</TableCell>
-                      <TableCell>{formatAngka(produk.stok)}</TableCell>
+                      <TableCell className={produk.stok <= 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.stok)}</TableCell>
                     </TableRow>
                   ))
                 :
                   Array.from({ length: productPerPage }).map((_, index) => (
                     <TableRow key={index}>
-                      <TableCell><Skeleton className="h-4 w-10" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-30" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-30" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-50" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-5" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-10" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-20" /></TableCell>
                     </TableRow>
                   ))
                 }
@@ -263,25 +281,52 @@ export function ProdukPenjualan() {
         <Card className="m-5">
           <CardContent>
             <div>
-              <div>Halaman...</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
-                {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
-                <div>{currentPage}</div>
-                {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
-                { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
+              <div className="flex items-center justify-center gap-2">
+                { currentPage - 1 > 0 && 
+                  <Button onClick={() => setCurrentPage(currentPage - 1)}><ArrowLeft />Sebelumnya</Button>
+                }
+                { currentPage - 2 >= 1 &&
+                <>
+                  <Button onClick={() => setCurrentPage(1)}>{1}</Button>
+                  <div>...</div>
+                </>
+                }
+                {currentPage - 1 > 0 && <Button onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</Button> }
+                <Button disabled={true}>{currentPage}</Button>
+                {currentPage + 1 <= maxPage && <Button onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</Button>}
+                { currentPage + 2 <= maxPage && 
+                  <>
+                    <div>...</div>
+                    <Button onClick={() => setCurrentPage(maxPage)}>{maxPage}</Button>
+                  </>
+                }
+                {currentPage + 1 <= maxPage && 
+                  <Button onClick={() => setCurrentPage(currentPage + 1)}>Selanjutnya<ArrowRight /></Button>
+                }
               </div>
             </div>
-            <div>{`Menampilkan produk ${productPerPage * (currentPage - 1)}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`}</div>
-            <div>
-              <div>Produk per halaman</div>
-              <select onChange={(e) => setProductPerPage(parseInt(e.target.value))} defaultValue={10}>
-              {
-                [10,20,50].map((value, index) => (
-                  <option tabIndex={index + 1} value={value} key={index}>{value}</option>
-                ))
-              }
-              </select>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div>
+                {totalProducts > 0 
+                  ? `Menampilkan produk ${productPerPage * (currentPage - 1) + 1}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`
+                  : '\u00A0'}
+              </div>
+              <div className="flex items-center gap-2">
+                <div>Produk per halaman</div>
+                <Select defaultValue={10} name="jenislaporan" onValueChange={(value) => value && setProductPerPage(value)}>
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      [10, 20, 50].map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>

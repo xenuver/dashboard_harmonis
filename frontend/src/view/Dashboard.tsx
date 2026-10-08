@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
-import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight, FileUp } from "lucide-react";
+import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight, FileUp, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import KpiCard from "../components/dashboard/KpiCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
@@ -203,7 +204,7 @@ export function Dashboard() {
           <CardContent className="grid place-items-center gap-2 pt-5 pb-5">
             <CardTitle>Data Tidak Tersedia</CardTitle>
             <CardDescription>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</CardDescription>
-            <Link to="/upload" className={buttonVariants({ variant: "default" })}>
+            <Link to="/upload" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>
               <FileUp />Menuju Halaman Upload Data
             </Link>
           </CardContent>
@@ -215,7 +216,7 @@ export function Dashboard() {
           <CardContent className="grid place-items-center pt-5 pb-5">
             <CardTitle>Kesalahan Koneksi</CardTitle>
             <CardDescription>Data dashboard tidak dapat dimuat karena kesalahan koneksi. Periksa koneksi anda dan coba lagi.</CardDescription>
-            <Button onClick={handleRetryApi} className="mt-3">Coba Lagi</Button>
+            <Button onClick={handleRetryApi} className="mt-3"><RotateCcw />Coba Lagi</Button>
           </CardContent>
         </Card>
       }
@@ -225,7 +226,7 @@ export function Dashboard() {
           <CardContent>
             <CardTitle className="text-center">Kesalahan Tidak Diketahui</CardTitle>
             <CardDescription className="text-center">Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
-            <Button onClick={handleRetryApi}>Coba Lagi</Button>
+            <Button onClick={handleRetryApi}><RotateCcw />Coba Lagi</Button>
           </CardContent>
         </Card>
       }
@@ -312,10 +313,10 @@ export function Dashboard() {
                   :
                     Array.from({ length: 10 }).map((_, index) => (
                       <TableRow key={index}>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-10" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
                       </TableRow>
                     ))
                   }
@@ -370,10 +371,10 @@ export function Dashboard() {
                   :
                     Array.from({ length: 10 }).map((_, index) => (
                       <TableRow key={index}>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-10" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
                       </TableRow>
                     ))
                   }
@@ -428,10 +429,10 @@ export function Dashboard() {
                   :
                     Array.from({ length: 10 }).map((_, index) => (
                       <TableRow key={index}>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
-                        <TableCell><Skeleton className="h-4 w-62.5" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-10" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
+                        <TableCell><Skeleton className="h-4 min-w-30" /></TableCell>
                       </TableRow>
                     ))
                   }

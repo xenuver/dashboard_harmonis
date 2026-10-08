@@ -2,10 +2,17 @@ import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { Link } from "react-router-dom";
-import { FileUp } from "lucide-react";
+import { FileUp, RotateCcw, ArrowLeft, ArrowRight } from "lucide-react";
 import { formatRupiah } from "../services/formatters";
+import { cn } from "@/lib/utils";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import type { SupplierSearchResponse } from "../../types/SupplierSearchResponse";
 import type { Supplier } from "../../types/Models/Supplier";
@@ -19,7 +26,7 @@ const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 export function SupplierPenjualan() {
   const searchHasMounted = useRef(false);
 
-  const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("ampera");
+  const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
   const [kataKunciPencarian, setKataKunciPencarian] = reactUseState < string | undefined > (undefined);
   const [supplierPerPage, setSupplierPerPage] = reactUseState(10);
   const [daftarSupplier, setDaftarSupplier] = reactUseState < Supplier[] > ([]);
@@ -122,93 +129,184 @@ export function SupplierPenjualan() {
 
     return (<>
       <h1>Peringkat Supplier</h1>
-      <div>Cabang saat ini:</div>
-      <select required={true} onChange={(e) => setJenisLaporanSaatIni(e.target.value)}>
-        {
-          ["ampera", "pal", "gabungan"].map((value, index) => (
-            <option tabIndex={index + 1} value={value} key={index} defaultValue={0}>{value}</option>
-          ))
-        }
-      </select>
-      <input type="text" onChange={(e) => setKataKunciPencarian(e.target.value)} placeholder="Masukkan kata kunci di sini" onKeyUp={(e) => e.keyCode === 13 && resetSearchNow()} />
-      <button onClick={resetSearchNow}>Cari</button>
+      <Card className="m-5">
+        <CardContent>
+          <FieldGroup className="gap-4">
+            <Field>
+              <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
+              <Select defaultValue="gabungan" name="jenislaporan" onValueChange={(value) => value && setJenisLaporanSaatIni(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Jenis Laporan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    ["ampera", "pal", "gabungan"].map((value, index) => (
+                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </Field>
+          </FieldGroup>
+          <FieldGroup className="gap-4">
+            <Field className="flex flex-col gap-2 w-full">
+              <FieldLabel htmlFor="cariproduk">
+                Cari Kode Barang atau Nama barang:
+              </FieldLabel>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                <Input 
+                  type="text" 
+                  name="cariproduk" 
+                  className="w-full sm:flex-1 min-w-0"
+                  onChange={(e) => setKataKunciPencarian(e.target.value)} 
+                  placeholder="Masukkan kode barang atau nama barang di sini" 
+                  onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
+                />
+                <Button 
+                  onClick={resetSearchNow} 
+                  className="w-full sm:w-auto shrink-0 px-4"
+                >
+                  Cari
+                </Button>
+              </div>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
+
+      { errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR && 
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Kesalahan Koneksi</CardTitle>
+            <CardDescription>Terjadi kesalahan koneksi. Mohon coba lagi.</CardDescription>
+            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      }
 
       { errorCode === ERROR_CODE_SEARCH_NO_DATA && 
-        <div>
-          <div>Supplier tidak ditemukan. Pastikan kode atau kata kunci supplier dimasukkan dengan benar</div>
-        </div>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Supplier Tidak Ditemukan</CardTitle>
+            <CardDescription>Supplier tidak ditemukan. Pastikan kode atau nama supplier dimasukkan dengan benar.</CardDescription>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
-        <div>
-          <div>Laporan supplier untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</div>
-          <Link to="/upload" className={buttonVariants({ variant: "default" })}>
-            <FileUp />Menuju Halaman Upload Data
-          </Link>
-        </div>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Laporan Tidak Tersedia</CardTitle>
+            <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
+            <Link to="/upload" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>
+              <FileUp />Menuju Halaman Upload Data
+            </Link>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_UNKNOWN_ERROR &&
-        <>
-        <div>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</div>
-        <button onClick={retrySearchNow}>Coba Lagi</button>
-        </>
+        <Card className="m-5">
+          <CardContent className="grid place-items-center pt-5 pb-5">
+            <CardTitle>Laporan Tidak Tersedia</CardTitle>
+            <CardDescription>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
+            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
+          </CardContent>
+        </Card>
       }
 
       { errorCode === ERROR_CODE_SEARCH_NO_ERROR && 
-        <table border={1}>
-          <tr>
-            <td>no</td>
-            <td>kode supplier</td>
-            <td>nama supplier</td>
-            <td>gross total</td>
-            <td>net sales total</td>
-          </tr>
-          { isLoaded === true ?
-            daftarSupplier.map((supplier, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{supplier.kode_supp}</td>
-                <td>{supplier.nama_supp}</td>
-                <td>{formatRupiah(supplier.gross_total)}</td>
-                <td>{formatRupiah(supplier.net_sales_total)}</td>
-              </tr>
-            ))
-          :
-            Array.from({ length: supplierPerPage }).map((_, index) => (
-              <tr key={index}>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-                <td className="bg-gray-200 animate-pulse loading-skeleton">&nbsp;</td>
-              </tr>
-            ))
-          }
-        </table>
+        <Card className="m-5">
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableHead>No</TableHead>
+                <TableHead>Kode Supplier</TableHead>
+                <TableHead>Nama Supplier</TableHead>
+                <TableHead>Gross Total</TableHead>
+                <TableHead>Net Sales Total</TableHead>
+              </TableHeader>
+              <TableBody>
+                { isLoaded === true ?
+                  daftarSupplier.map((supplier, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{supplier.kode_supp}</TableCell>
+                      <TableCell>{supplier.nama_supp}</TableCell>
+                      <TableCell className={supplier.gross_total < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(supplier.gross_total)}</TableCell>
+                      <TableCell className={supplier.net_sales_total < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(supplier.net_sales_total)}</TableCell>
+                    </TableRow>
+                  ))
+                :
+                  Array.from({ length: supplierPerPage }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><Skeleton className="h-5 min-w-5" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-20" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                      <TableCell><Skeleton className="h-5 min-w-30" /></TableCell>
+                    </TableRow>
+                  ))
+                }
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       }
+
       { (errorCode === ERROR_CODE_SEARCH_NO_ERROR || errorCode === ERROR_CODE_SEARCH_NO_DATA || errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR) &&
-        <div>
-          <div>
-            <div>Halaman...</div>
-            { currentPage - 2 >= 1 && <div onClick={() => setCurrentPage(1)}>{1}</div> }
-            {currentPage - 1 > 0 && <div onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</div> }
-            <div>{currentPage}</div>
-            {currentPage + 1 <= maxPage && <div onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</div>}
-            { currentPage + 2 <= maxPage && <div onClick={() => setCurrentPage(maxPage)}>{maxPage}</div> }
-          </div>
-          <div>{`Menampilkan supplier ${supplierPerPage * (currentPage - 1)}-${(supplierPerPage * (currentPage - 1)) + daftarSupplier.length} dari ${totalSuppliers}`}</div>
-          <div>
-            <div>Supplier per halaman</div>
-            <select onChange={(e) => setSupplierPerPage(parseInt(e.target.value))} defaultValue={10}>
-            {
-              [10,20,50].map((value, index) => (
-                <option tabIndex={index + 1} value={value} key={index}>{value}</option>
-              ))
-            }
-            </select>
-          </div>
-        </div>
+        <Card className="m-5">
+          <CardContent>
+            <div>
+              <div className="flex items-center justify-center gap-2">
+                { currentPage - 1 > 0 && 
+                  <Button onClick={() => setCurrentPage(currentPage - 1)}><ArrowLeft />Sebelumnya</Button>
+                }
+                { currentPage - 2 >= 1 &&
+                <>
+                  <Button onClick={() => setCurrentPage(1)}>{1}</Button>
+                  <div>...</div>
+                </>
+                }
+                {currentPage - 1 > 0 && <Button onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</Button> }
+                <Button disabled={true}>{currentPage}</Button>
+                {currentPage + 1 <= maxPage && <Button onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</Button>}
+                { currentPage + 2 <= maxPage && 
+                  <>
+                    <div>...</div>
+                    <Button onClick={() => setCurrentPage(maxPage)}>{maxPage}</Button>
+                  </>
+                }
+                {currentPage + 1 <= maxPage && 
+                  <Button onClick={() => setCurrentPage(currentPage + 1)}>Selanjutnya<ArrowRight /></Button>
+                }
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div>
+                {totalSuppliers > 0 
+                  ? `Menampilkan produk ${supplierPerPage * (currentPage - 1) + 1}-${(supplierPerPage * (currentPage - 1)) + daftarSupplier.length} dari ${totalSuppliers}`
+                  : '\u00A0'}
+              </div>
+              <div className="flex items-center gap-2">
+                <div>Produk per halaman</div>
+                <Select defaultValue={10} name="jenislaporan" onValueChange={(value) => value && setSupplierPerPage(value)}>
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      [10, 20, 50].map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       }
     </>);
 }
