@@ -53,7 +53,7 @@ export function Dashboard() {
 
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
-      setKpiTotalSales(formatRupiahSingkat(data.total_sales));
+      setKpiTotalSales(formatRupiah(data.total_sales));
       setKpiTotalSalesToolTip(`Total penjualan: ${formatRupiah(data.total_sales)}`);
     } else {
       console.warn(`respon total_sales dari backend tidak terduga: ${data?.total_sales}`);
