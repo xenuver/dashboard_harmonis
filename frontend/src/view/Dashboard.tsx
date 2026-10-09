@@ -8,7 +8,7 @@ import KpiCard from "../components/dashboard/KpiCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailableCard";
 import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
@@ -223,50 +223,31 @@ export function Dashboard() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel>Jenis Laporan:</FieldLabel>
-              <Select required={true} name="jenis_laporan" defaultValue="gabungan" onValueChange={(value) => {if(value){ setPickedJenisLaporan(value); handleRetryApi(); }}}>
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Pilih Jenis Laporan" />
-                </SelectTrigger>
-                <SelectContent>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow} onChange={(event) => { setPickedJenisLaporan(event.target.value); handleRetryApi(); }}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
-                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
                     ))
                   }
-                </SelectContent>
-              </Select>
+              </NativeSelect>
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <Select required={true} name="periode_bulan" defaultValue={monthNow} onValueChange={(value) => {if(value){ setPickedMonth(value); handleRetryApi(); }}}>
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Pilih Bulan Laporan">
-                    {pickedMonth ? months[parseInt(months[monthNow]) - 1] : undefined}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {months.map((value, index) => (
-                  <SelectItem value={(index + 1).toString()} key={index}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); handleRetryApi(); }}>
+                {months.map((value, index) => (
+                  <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
+                ))}
+              </NativeSelect>
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <Select required={true} name="periode_tahun" defaultValue={yearNow} onValueChange={(value) => {if(value){ setPickedYear(value); handleRetryApi(); }}}>
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Pilih Tahun Laporan" />
-                </SelectTrigger>
-                <SelectContent>
-                  {
-                    yearOptions.map((value, index) => (
-                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
-                    ))
-                  }
-                </SelectContent>
-              </Select>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => { setPickedYear(parseInt(event.target.value)); handleRetryApi(); }}>
+                {
+                  yearOptions.map((value, index) => (
+                    <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
+                  ))
+                }
+              </NativeSelect>
             </Field>
           </FieldGroup>
         </CardContent>

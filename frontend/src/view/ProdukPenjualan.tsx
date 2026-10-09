@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -140,18 +140,13 @@ export function ProdukPenjualan() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
-              <Select defaultValue="gabungan" name="jenislaporan" onValueChange={(value) => value && setJenisLaporanSaatIni(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih Jenis Laporan" />
-                </SelectTrigger>
-                <SelectContent>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
-                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
                     ))
                   }
-                </SelectContent>
-              </Select>
+              </NativeSelect>
             </Field>
             <Field>
               <FieldLabel htmlFor="kategori">Kategori Laporan:</FieldLabel>
@@ -293,18 +288,13 @@ export function ProdukPenjualan() {
               </div>
               <div className="flex items-center gap-2">
                 <div>Produk per halaman</div>
-                <Select defaultValue={10} name="jenislaporan" onValueChange={(value) => value && setProductPerPage(value)}>
-                  <SelectTrigger className="w-45">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {
-                      [10, 20, 50].map((value, index) => (
-                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
+                <NativeSelect defaultValue={10} name="jenislaporan" onChange={(event) => setProductPerPage(parseInt(event.target.value)) }>
+                  {
+                    [10, 20, 50].map((value, index) => (
+                      <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
+                    ))
+                  }
+                </NativeSelect>
               </div>
             </div>
           </CardContent>
