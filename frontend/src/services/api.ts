@@ -22,7 +22,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((done)=> Promise.resolve(done), function(error: AxiosError) {
   if(error.status === 401) {
     if(sessionManager.getToken()) {
-      sessionManager.logout();
+      sessionManager.deleteTokens();
+      location.href = "/login";
     }
   }
 

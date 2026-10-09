@@ -51,10 +51,5 @@ export default {
     localStorage.removeItem(localStorageUserIdentityName);
     sessionToken = null;
     cachedIdentity = null;
-  },
-
-  logout: function(): void {
-    this.deleteTokens();
-    location.href = "/login";
   }
 }
