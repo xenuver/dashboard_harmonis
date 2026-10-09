@@ -5,11 +5,11 @@ import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
 
 import KpiCard from "../components/dashboard/KpiCard";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailableCard";
 import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
 import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
@@ -355,19 +355,14 @@ export function Dashboard() {
                     ))
                   }
                 </TableBody>
-
-                <TableFooter>
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
-                        <span className="text-blue-500">Lihat Peringkat Produk</span>
-                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
             </CardContent>
+            <CardFooter>
+              <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
+                <span className="text-blue-500 font-medium">Lihat Peringkat Produk</span>
+                <ArrowRight className="w-5 h-5 stroke-blue-500" />
+              </Link>
+            </CardFooter>
           </Card>
 
           <Card className="m-5">
@@ -413,19 +408,14 @@ export function Dashboard() {
                     ))
                   }
                 </TableBody>
-
-                <TableFooter>
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
-                        <span className="text-blue-500">Lihat Peringkat Produk</span>
-                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
             </CardContent>
+            <CardFooter>
+              <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
+                <span className="text-blue-500 font-medium">Lihat Peringkat Produk</span>
+                <ArrowRight className="w-5 h-5 stroke-blue-500" />
+              </Link>
+            </CardFooter>
           </Card>
 
           <Card className="m-5">
@@ -472,18 +462,14 @@ export function Dashboard() {
                   }
 
                 </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell colSpan={4}>
-                      <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
-                        <span className="text-blue-500">Lihat Peringkat Supplier</span>
-                        <ArrowRight className="w-4 h-4 stroke-blue-500" />
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
             </CardContent>
+            <CardFooter>
+              <Link to="/supplier-penjualan" className="inline-flex items-center gap-2">
+                <span className="text-blue-500 font-medium">Lihat Peringkat Supplier</span>
+                <ArrowRight className="w-5 h-5 stroke-blue-500" />
+              </Link>
+            </CardFooter>
           </Card>
         </>
       }
