@@ -69,6 +69,7 @@ export function Upload() {
     if(typeof jenisLaporan !== "string") {
       setUploadMessageState(UPLOAD_MESSAGE_FAIL);
       setUploadMessageText("jenis laporan yang dimasukkan harus merupakan teks");
+      setRestrictFormChange(false);
       return;
     }
 
@@ -78,12 +79,14 @@ export function Upload() {
       } catch(e) {
         setUploadMessageState(UPLOAD_MESSAGE_FAIL);
         setUploadMessageText("periode bulan yang dimasukkan harus merupakan angka");
+        setRestrictFormChange(false);
         console.warn(e);
         return;
       }
     } else {
       setUploadMessageState(UPLOAD_MESSAGE_FAIL);
       setUploadMessageText("periode bulan yang dimasukkan harus merupakan angka");
+      setRestrictFormChange(false);
       return;
     }
 
@@ -93,12 +96,14 @@ export function Upload() {
       } catch(e) {
         setUploadMessageState(UPLOAD_MESSAGE_FAIL);
         setUploadMessageText("periode tahun yang dimasukkan harus merupakan angka");
+        setRestrictFormChange(false);
         console.warn(e);
         return;
       }
     } else {
       setUploadMessageState(UPLOAD_MESSAGE_FAIL);
       setUploadMessageText("periode tahun yang dimasukkan harus merupakan angka");
+      setRestrictFormChange(false);
       return;
     }
 
@@ -106,11 +111,13 @@ export function Upload() {
       if(!fileLaporan.name.endsWith(".xlsx") && fileLaporan.name !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")  {
         setUploadMessageState(UPLOAD_MESSAGE_FAIL);
         setUploadMessageText("file laporan harus dalam format xslx");
+        setRestrictFormChange(false);
         return;
       }
     } else {
       setUploadMessageState(UPLOAD_MESSAGE_FAIL);
       setUploadMessageText("File laporan harus berbentuk file .xlsx");
+      setRestrictFormChange(false);
       return;
     }
 
@@ -173,7 +180,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow}>
+                <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow} disabled={restrictFormChange}>
                     {
                       ["ampera", "pal", "gabungan"].map((value, index) => (
                         <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -183,7 +190,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Bulan Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow}>
+                <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} disabled={restrictFormChange}>
                   {months.map((value, index) => (
                     <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                   ))}
@@ -191,7 +198,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Tahun Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow}>
+                <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} disabled={restrictFormChange}>
                   {
                     yearOptions.map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
