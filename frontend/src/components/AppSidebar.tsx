@@ -11,7 +11,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, FileUp, ShoppingCart, Truck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Branding from "./NavBranding";
 
 const navigationItems = [
@@ -23,6 +23,7 @@ const navigationItems = [
 
 export function AppSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
+  const { pathname } = useLocation();
 
   return (
     <Sidebar variant="sidebar" collapsible="icon">
@@ -37,7 +38,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton tooltip={item.title} onClick={() => isMobile && setOpenMobile(false)}>
+                  <SidebarMenuButton tooltip={item.title} onClick={() => isMobile && setOpenMobile(false)} isActive={pathname === item.url}>
                     <Link to={item.url} className="flex items-center gap-2 w-full h-full">
                       <item.icon className="h-4 w-4 shrink-0" />
                       <span>{item.title}</span>
