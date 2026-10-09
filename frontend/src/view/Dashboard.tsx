@@ -286,8 +286,8 @@ export function Dashboard() {
 
       {errorCode === ERROR_CODE_DASHBOARD_NO_ERROR && 
         <>
-          <div className="pt-6 pb-6 m-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="m-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <KpiCard title="Total Penjualan" value={kpiTotalSales} tooltip={kpiTotalSalesToolTip} isLoading={!isLoaded} icon={Landmark} />
               <KpiCard title="Total Growth" value={kpiTotalGrowth} tooltip={kpiTotalGrowthToolTip} isLoading={!isLoaded} icon={ChartNoAxesCombined} />
               <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} tooltip={kpiJumlahTransaksiToolTip} isLoading={!isLoaded} icon={Receipt} />
