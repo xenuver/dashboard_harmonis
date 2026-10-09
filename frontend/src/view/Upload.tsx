@@ -224,7 +224,7 @@ export function Upload() {
             }
             <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} disabled={restrictFormChange} />
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={resetAttachmentState} disabled={restrictFormChange}>
+              <Button variant="destructive" onClick={resetAttachmentState}  disabled={restrictFormChange}>
                 Reset File
               </Button>
               <Button type="submit" disabled={restrictFormChange}>
