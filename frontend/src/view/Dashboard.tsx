@@ -7,6 +7,8 @@ import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "luci
 import KpiCard from "../components/dashboard/KpiCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailableCard";
 import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
@@ -24,15 +26,27 @@ import type { Supplier } from "../../types/Models/Supplier";
 
 import '../styles/dashboard.css';
 
+const months = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
 const ERROR_CODE_DASHBOARD_NO_ERROR = 0;
 const ERROR_CODE_DASHBOARD_NO_DATA = 1;
 const ERROR_CODE_DASHBOARD_CONNECTION_ERROR = 2;
 const ERROR_CODE_DASHBOARD_UNKNOWN_ERROR = 3;
 
 export function Dashboard() {
+  const yearNow = new Date().getFullYear();
+  const monthNow = new Date().getMonth() + 1;
+
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
   const [retryNowTrigger, shouldRetryNow] = useState<boolean>(false);
+
+  const [pickedJenisLaporan, setPickedJenisLaporan] = useState<string> ("gabungan");
+  const [pickedMonth, setPickedMonth] = useState<number>(monthNow);
+  const [pickedYear, setPickedYear] = useState<number>(yearNow);
 
   // views
   const [kpiTotalSales, setKpiTotalSales] = useState<string>("-");
@@ -49,8 +63,11 @@ export function Dashboard() {
   const [worstProductsList, setWorstProductsList] = useState<Product[]>([]);
   const [topSuppliersList, setTopSuppliersList] = useState<Supplier[]>([]);
 
-  const yearNow = new Date().getFullYear();
-  const monthNow = new Date().getMonth() + 1;
+  const yearOptions: number[] = [];
+
+  for (let i = 0; i < 100; i++) {
+    yearOptions.push(yearNow - i);
+  }
 
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
@@ -158,8 +175,9 @@ export function Dashboard() {
           responseType: "json",
           signal: abortController.signal,
           params: {
-            periode_bulan: monthNow,
-            periode_tahun: yearNow,
+            jenis_laporan: pickedJenisLaporan,
+            periode_bulan: pickedMonth,
+            periode_tahun: pickedYear,
           }
         });
         const responseData = response.data as DashboardResponseData;
@@ -199,6 +217,65 @@ export function Dashboard() {
   return (
     <>
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Dashboard</h1>
+
+        <Card className="m-5">
+          <CardContent>
+            <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+              <Field>
+                <FieldLabel>Jenis Laporan:</FieldLabel>
+                <Select required={true} name="jenis_laporan" defaultValue="gabungan" onValueChange={(value) => {if(value){ setPickedJenisLaporan(value); handleRetryApi(); }}}>
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="Pilih Jenis Laporan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      ["ampera", "pal", "gabungan"].map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Bulan Laporan:</FieldLabel>
+                <Select 
+                    required={true} 
+                    name="periode_bulan" 
+                    defaultValue={monthNow} 
+                    onValueChange={(value) => {if(value){ setPickedMonth(value); handleRetryApi(); }}}
+                  >
+                    <SelectTrigger className="w-45">
+                      <SelectValue placeholder="Pilih Bulan Laporan">
+                        {pickedMonth ? months[parseInt(months[monthNow]) - 1] : undefined}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {months.map((value, index) => (
+                        <SelectItem value={(index + 1).toString()} key={index}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Tahun Laporan:</FieldLabel>
+                <Select required={true} name="periode_tahun" defaultValue={yearNow} onValueChange={(value) => {if(value){ setPickedYear(value); handleRetryApi(); }}}>
+                  <SelectTrigger className="w-45">
+                    <SelectValue placeholder="Pilih Tahun Laporan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {
+                      yearOptions.map((value, index) => (
+                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldGroup>
+          </CardContent>
+        </Card>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
         <ReportUnavailableCard className="m-5" />
