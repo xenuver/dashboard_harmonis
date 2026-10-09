@@ -8,7 +8,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Button } from "@/components/ui/button";
 import { Dropzone, type ExcelDropzoneRef } from "../components/upload/ExcelDropZone";
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX, FileUp } from "lucide-react";
 
 const UPLOAD_MESSAGE_NOTHING = 0;
 const UPLOAD_MESSAGE_SUCCESS = 1;
@@ -228,6 +228,7 @@ export function Upload() {
                 Reset File
               </Button>
               <Button type="submit" disabled={restrictFormChange}>
+                <FileUp className="w-5 h-5" />
                 Unggah File
               </Button>
             </div>

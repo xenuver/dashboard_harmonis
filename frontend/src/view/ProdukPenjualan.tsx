@@ -2,7 +2,7 @@ import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { formatAngka, formatRupiah } from "../services/formatters";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -174,6 +174,7 @@ export function ProdukPenjualan() {
                   onClick={resetSearchNow} 
                   className="w-full sm:w-auto shrink-0 px-4"
                 >
+                  <Search className="w-5 h-5" />
                   Cari
                 </Button>
               </div>

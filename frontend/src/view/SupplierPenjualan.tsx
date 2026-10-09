@@ -1,7 +1,7 @@
 import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { formatRupiah } from "../services/formatters";
 
 import { Button, } from "@/components/ui/button";
@@ -163,6 +163,7 @@ export function SupplierPenjualan() {
                   onClick={resetSearchNow} 
                   className="w-full sm:w-auto shrink-0 px-4"
                 >
+                  <Search className="w-5 h-5" />
                   Cari
                 </Button>
               </div>

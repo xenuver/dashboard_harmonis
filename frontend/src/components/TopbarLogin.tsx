@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import sessionManager from "../services/sessionManager";
+import { LogOut } from "lucide-react";
 
 export function TopbarLogin() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export function TopbarLogin() {
             <DropdownMenuGroup>
               <DropdownMenuLabel>Masuk sebagai {sessionManager.getIdentity()?.username || "seseorang"}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive" onClick={async () => {await sessionManager.revokeCurrentToken(); sessionManager.deleteTokens(); navigate("/login");}}>Keluar</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive" onClick={async () => {await sessionManager.revokeCurrentToken(); sessionManager.deleteTokens(); navigate("/login");}}><LogOut className="w-5 h-5" />Keluar</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { FieldGroup, FieldLabel, Field } from "@/components/ui/field";
+import { LogIn } from 'lucide-react';
 
 import type {SuccessLoginResponse} from '../../types/LoginResponse';
 import { isAxiosError } from 'axios';
@@ -115,7 +116,7 @@ export function LoginScreen() {
                 </div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-              <Button type="submit" className="w-full h-10">Masuk</Button>
+              <Button type="submit" className="w-full h-10"><LogIn className="w-5 h-5" />Masuk</Button>
             </CardFooter>
           </form>
         </Card>
