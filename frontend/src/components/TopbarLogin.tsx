@@ -37,7 +37,7 @@ export function TopbarLogin() {
             <DropdownMenuGroup>
               <DropdownMenuLabel>Masuk sebagai {sessionManager.getIdentity()?.username || "seseorang"}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive" onClick={() => {sessionManager.deleteTokens(); navigate("/login");}}>Keluar</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive" onClick={async () => {await sessionManager.revokeCurrentToken(); sessionManager.deleteTokens(); navigate("/login");}}>Keluar</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

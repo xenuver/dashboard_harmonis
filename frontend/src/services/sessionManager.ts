@@ -1,3 +1,5 @@
+import { api } from "../services/api";
+
 import type { UserInformation } from "../../types/UserInformation";
 
 const localStorageTokenName: string = "session_token";
@@ -44,6 +46,15 @@ export default {
   setIdentity: function(identity: UserInformation): void {
     cachedIdentity = JSON.stringify(identity);
     localStorage.setItem(localStorageUserIdentityName, cachedIdentity);
+  },
+
+  revokeCurrentToken: async function() { // sadly this has to be async due to axios
+    try {
+      await api.post("/api/logout");
+    } catch(e) {
+      console.error(e);
+      console.warn("Gagal revoke token");
+    }
   },
 
   deleteTokens: function(): void {
