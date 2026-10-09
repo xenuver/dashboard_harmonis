@@ -1,6 +1,5 @@
 // api.ts
 import { create as axiosCreate, AxiosError } from "axios";
-import SessionManager from "./sessionManager";
 import sessionManager from "./sessionManager";
 
 const backendProtocol = location.protocol;
@@ -12,7 +11,7 @@ export const api = axiosCreate({
 });
 
 api.interceptors.request.use((config) => {
-  const token = SessionManager.getToken();
+  const token = sessionManager.getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
