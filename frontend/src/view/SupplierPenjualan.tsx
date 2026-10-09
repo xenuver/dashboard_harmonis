@@ -220,17 +220,19 @@ export function SupplierPenjualan() {
           <CardContent>
             <Table>
               <TableHeader>
-                <TableHead>No</TableHead>
-                <TableHead>Kode Supplier</TableHead>
-                <TableHead>Nama Supplier</TableHead>
-                <TableHead>Gross Total</TableHead>
-                <TableHead>Net Sales Total</TableHead>
+                <TableRow>
+                  <TableHead>No</TableHead>
+                  <TableHead>Kode Supplier</TableHead>
+                  <TableHead>Nama Supplier</TableHead>
+                  <TableHead>Gross Total</TableHead>
+                  <TableHead>Net Sales Total</TableHead>
+                </TableRow>
               </TableHeader>
               <TableBody>
                 { isLoaded === true ?
                   daftarSupplier.map((supplier, index) => (
                     <TableRow key={index}>
-                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{(supplierPerPage * (currentPage - 1) + 1) + index}</TableCell>
                       <TableCell>{supplier.kode_supp}</TableCell>
                       <TableCell>{supplier.nama_supp}</TableCell>
                       <TableCell className={supplier.gross_total < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(supplier.gross_total)}</TableCell>

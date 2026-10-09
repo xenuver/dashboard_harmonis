@@ -231,21 +231,23 @@ export function ProdukPenjualan() {
           <CardContent>
             <Table>
               <TableHeader>
-                <TableHead>No</TableHead>
-                <TableHead>Barcode</TableHead>
-                <TableHead>Kode Barang</TableHead>
-                <TableHead>Nama barang</TableHead>
-                <TableHead>Satuan</TableHead>
-                <TableHead>Harga Jual</TableHead>
-                <TableHead>Jumlah (Omzet)</TableHead>
-                <TableHead>Qty (terjual)</TableHead>
-                <TableHead>Sisa Stok</TableHead>
+                <TableRow>
+                  <TableHead>No</TableHead>
+                  <TableHead>Barcode</TableHead>
+                  <TableHead>Kode Barang</TableHead>
+                  <TableHead>Nama barang</TableHead>
+                  <TableHead>Satuan</TableHead>
+                  <TableHead>Harga Jual</TableHead>
+                  <TableHead>Jumlah (Omzet)</TableHead>
+                  <TableHead>Qty (terjual)</TableHead>
+                  <TableHead>Sisa Stok</TableHead>
+                </TableRow>
               </TableHeader>
               <TableBody>
                 { isLoaded === true ?
                   daftarProduk.map((produk, index) => (
                     <TableRow key={index}>
-                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{(productPerPage * (currentPage - 1) + 1) + index}</TableCell>
                       <TableCell>{produk.barcode}</TableCell>
                       <TableCell>{produk.kode_brg}</TableCell>
                       <TableCell>{produk.nama_brg}</TableCell>
