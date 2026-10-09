@@ -1,18 +1,20 @@
 import { useState as reactUseState, useEffect, useRef } from "react";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
-import { Link } from "react-router-dom";
-import { FileUp, RotateCcw, ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { formatRupiah } from "../services/formatters";
-import { cn } from "@/lib/utils";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Button, } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailableCard";
+import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
+import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
+import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
 
 import type { SupplierSearchResponse } from "../../types/SupplierSearchResponse";
 import type { Supplier } from "../../types/Models/Supplier";
@@ -175,44 +177,19 @@ export function SupplierPenjualan() {
       </Card>
 
       { errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR && 
-        <Card className="m-5">
-          <CardContent className="grid place-items-center pt-5 pb-5">
-            <CardTitle>Kesalahan Koneksi</CardTitle>
-            <CardDescription>Terjadi kesalahan koneksi. Mohon coba lagi.</CardDescription>
-            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
-          </CardContent>
-        </Card>
+        <NoConnectionCard className="m-5" retryTrigger={retrySearchNow} />
       }
 
       { errorCode === ERROR_CODE_SEARCH_NO_DATA && 
-        <Card className="m-5">
-          <CardContent className="grid place-items-center pt-5 pb-5">
-            <CardTitle>Supplier Tidak Ditemukan</CardTitle>
-            <CardDescription>Supplier tidak ditemukan. Pastikan kode atau nama supplier dimasukkan dengan benar.</CardDescription>
-          </CardContent>
-        </Card>
+        <NoDataFoundCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
-        <Card className="m-5">
-          <CardContent className="grid place-items-center pt-5 pb-5">
-            <CardTitle>Laporan Tidak Tersedia</CardTitle>
-            <CardDescription>Laporan produk untuk jenis dan masa yang dimasukkan masih belum tersedia. Silahkan unggah laporan penjualan untuk jenis dan masa tersebut terlebih dahulu.</CardDescription>
-            <Link to="/upload" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>
-              <FileUp />Menuju Halaman Upload Data
-            </Link>
-          </CardContent>
-        </Card>
+        <ReportUnavailableCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_SEARCH_UNKNOWN_ERROR &&
-        <Card className="m-5">
-          <CardContent className="grid place-items-center pt-5 pb-5">
-            <CardTitle>Laporan Tidak Tersedia</CardTitle>
-            <CardDescription>Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
-            <Button onClick={retrySearchNow} className="mt-3"><RotateCcw />Coba Lagi</Button>
-          </CardContent>
-        </Card>
+        <UnknownErrorCard className="m-5" retryTrigger={retrySearchNow} />
       }
 
       { errorCode === ERROR_CODE_SEARCH_NO_ERROR && 

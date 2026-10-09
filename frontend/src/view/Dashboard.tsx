@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
-import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight, FileUp, RotateCcw } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
 
 import KpiCard from "../components/dashboard/KpiCard";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { buttonVariants, Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailableCard";
+import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
+import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
 
 import { api } from "../services/api";
 import { formatAngka, formatAngkaSingkat, formatDate, formatRupiah, formatRupiahSingkat } from "../services/formatters";
@@ -200,35 +201,15 @@ export function Dashboard() {
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Dashboard</h1>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
-        <Card className="m-5">
-          <CardContent className="grid place-items-center gap-2 pt-5 pb-5">
-            <CardTitle>Data Tidak Tersedia</CardTitle>
-            <CardDescription>Data dashboard untuk periode ini belum tersedia. Silakan unggah data terlebih dahulu.</CardDescription>
-            <Link to="/upload" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>
-              <FileUp />Menuju Halaman Upload Data
-            </Link>
-          </CardContent>
-        </Card>
+        <ReportUnavailableCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&
-        <Card className="m-5">
-          <CardContent className="grid place-items-center pt-5 pb-5">
-            <CardTitle>Kesalahan Koneksi</CardTitle>
-            <CardDescription>Data dashboard tidak dapat dimuat karena kesalahan koneksi. Periksa koneksi anda dan coba lagi.</CardDescription>
-            <Button onClick={handleRetryApi} className="mt-3"><RotateCcw />Coba Lagi</Button>
-          </CardContent>
-        </Card>
+        <NoConnectionCard className="m-5" retryTrigger={handleRetryApi} />
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_UNKNOWN_ERROR &&
-        <Card className="m-5">
-          <CardContent>
-            <CardTitle className="text-center">Kesalahan Tidak Diketahui</CardTitle>
-            <CardDescription className="text-center">Terjadi kesalahan yang tidak diketahui. Mohon coba lagi setelah beberapa saat.</CardDescription>
-            <Button onClick={handleRetryApi}><RotateCcw />Coba Lagi</Button>
-          </CardContent>
-        </Card>
+        <UnknownErrorCard className="m-5" retryTrigger={handleRetryApi} />
       }
 
       {errorCode === ERROR_CODE_DASHBOARD_NO_ERROR && 
