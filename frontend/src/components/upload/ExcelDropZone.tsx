@@ -12,6 +12,7 @@ interface DropzoneProps extends DropzoneOptions {
   icon?: React.ReactNode
   label?: string
   description?: string
+  disabled: boolean
 }
 
 export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({

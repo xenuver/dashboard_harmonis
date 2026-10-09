@@ -23,6 +23,8 @@ export function Upload() {
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
 
+  const [restrictFormChange, setRestrictFormChange] = reactUseState<boolean>(false);
+
   const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
   const [uploadMessageState, setUploadMessageState] = reactUseState<number>(0);
   const [pickedMonth, setPickedMonth] = reactUseState<number>(monthNow);
@@ -51,6 +53,7 @@ export function Upload() {
     event.preventDefault();
     setUploadMessageText("");
     setUploadMessageState(UPLOAD_MESSAGE_NOTHING);
+    setRestrictFormChange(true);
 
     const uploadInformation = new FormData(event.target);
 
@@ -149,6 +152,8 @@ export function Upload() {
         console.log(e);
         console.warn("Terjadi kesalahan dalam membuat koneksi");
       }
+    } finally {
+      setRestrictFormChange(false);
     }
   }
 
@@ -164,7 +169,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <Select required={true} name="jenis_laporan" defaultValue="ampera">
+                <Select required={true} name="jenis_laporan" defaultValue="ampera" disabled={restrictFormChange}>
                   <SelectTrigger className="w-45">
                     <SelectValue placeholder="Pilih Jenis Laporan" />
                   </SelectTrigger>
@@ -184,6 +189,7 @@ export function Upload() {
                     name="periode_bulan" 
                     value={pickedMonth} 
                     onValueChange={(value) => value && setPickedMonth(value)}
+                    disabled={restrictFormChange}
                   >
                     <SelectTrigger className="w-45">
                       <SelectValue placeholder="Pilih Bulan Laporan">
@@ -201,7 +207,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Tahun Laporan:</FieldLabel>
-                <Select required={true} name="periode_tahun" defaultValue={yearNow}>
+                <Select required={true} name="periode_tahun" defaultValue={yearNow} disabled={restrictFormChange}>
                   <SelectTrigger className="w-45">
                     <SelectValue placeholder="Pilih Tahun Laporan" />
                   </SelectTrigger>
@@ -242,12 +248,12 @@ export function Upload() {
                 </CardContent>
               </Card>
             }
-            <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} />
+            <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} disabled={restrictFormChange} />
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={resetAttachmentState}>
+              <Button variant="outline" onClick={resetAttachmentState} disabled={restrictFormChange}>
                 Reset File
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={restrictFormChange}>
                 Unggah File
               </Button>
             </div>
