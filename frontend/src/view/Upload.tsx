@@ -141,18 +141,20 @@ export function Upload() {
 
         if(status === 409) {
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
-          setUploadMessageText("data sudah ada");
+          setUploadMessageText("Data untuk periode ini sudah ada");
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
-          setUploadMessageText("Terjadi kesalahan dalam mendapatkan respon dari server");
+          setUploadMessageText("Terjadi kesalahan dalam mengirmkan data ke server");
         } else if (e.code === "ERR_BAD_RESPONSE") {
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
-          setUploadMessageText("Server tidak merespon dengan format data yang tepat");
+          console.error(e);
+          console.warn("Server tidak merespon dengan format data yang tepat");
+          setUploadMessageText("Terjadi kesalahan dalam membaca respon dari server");
         } else if (e.code === "ECONNABORTED" || e.code === "ERR_CANCELED") {
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
-          setUploadMessageText("Permintaan dibatalkan atau waktu habis");
+          setUploadMessageText("Permintaan dibatalkan atau waktu tunggu habis");
         } else {
           console.error(e);
           console.warn("Terjadi kesalahan dalam membuat permintaan upload");
