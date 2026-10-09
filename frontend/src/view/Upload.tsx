@@ -25,6 +25,10 @@ export function Upload() {
 
   const [restrictFormChange, setRestrictFormChange] = reactUseState<boolean>(false);
 
+  const jenisLaporanDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
+  const periodeBulanDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
+  const periodeTahunDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
+
   const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
   const [uploadMessageState, setUploadMessageState] = reactUseState<number>(0);
   const [attachedFile, setAttachedFile] = reactUseState<File | null>(null);
@@ -43,6 +47,15 @@ export function Upload() {
   }
 
   const resetAttachmentState = function() {
+    if(jenisLaporanDropdownRef.current) {
+      jenisLaporanDropdownRef.current.selectedIndex = 0;
+    }
+    if(periodeBulanDropdownRef.current) {
+      periodeBulanDropdownRef.current.value = monthNow.toString();
+    }
+    if(periodeTahunDropdownRef.current) {
+      periodeTahunDropdownRef.current.value = yearNow.toString();
+    }
     clearAttachedFile();
     setUploadMessageState(UPLOAD_MESSAGE_NOTHING);
     setUploadMessageText("");
@@ -168,7 +181,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow}>
+                <NativeSelect ref={jenisLaporanDropdownRef} required={true} name="jenis_laporan" defaultValue={monthNow}>
                     {
                       ["ampera", "pal", "gabungan"].map((value, index) => (
                         <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -178,7 +191,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Bulan Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow}>
+                <NativeSelect ref={periodeBulanDropdownRef} required={true} name="periode_bulan" defaultValue={monthNow}>
                   {months.map((value, index) => (
                     <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                   ))}
@@ -186,7 +199,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Tahun Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow}>
+                <NativeSelect ref={periodeTahunDropdownRef} required={true} name="periode_tahun" defaultValue={yearNow}>
                   {
                     yearOptions.map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
