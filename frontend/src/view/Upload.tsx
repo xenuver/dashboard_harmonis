@@ -25,9 +25,7 @@ export function Upload() {
 
   const [restrictFormChange, setRestrictFormChange] = reactUseState<boolean>(false);
 
-  const jenisLaporanDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
-  const periodeBulanDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
-  const periodeTahunDropdownRef = reactUseRef<HTMLSelectElement | null>(null);
+  const uploadFormRef = reactUseRef<HTMLFormElement | null>(null);
 
   const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
   const [uploadMessageState, setUploadMessageState] = reactUseState<number>(0);
@@ -47,14 +45,8 @@ export function Upload() {
   }
 
   const resetAttachmentState = function() {
-    if(jenisLaporanDropdownRef.current) {
-      jenisLaporanDropdownRef.current.selectedIndex = 0;
-    }
-    if(periodeBulanDropdownRef.current) {
-      periodeBulanDropdownRef.current.value = monthNow.toString();
-    }
-    if(periodeTahunDropdownRef.current) {
-      periodeTahunDropdownRef.current.value = yearNow.toString();
+    if(uploadFormRef.current) {
+      uploadFormRef.current.reset();
     }
     clearAttachedFile();
     setUploadMessageState(UPLOAD_MESSAGE_NOTHING);
@@ -172,7 +164,7 @@ export function Upload() {
   return (<>
     <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Upload Data</h1>
     <div>
-      <form onSubmit={handleFormSubmit}>
+      <form onSubmit={handleFormSubmit} ref={uploadFormRef}>
         <Card className="m-5">
           <CardHeader>
             <CardTitle>Informasi Laporan</CardTitle>
@@ -181,7 +173,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <NativeSelect ref={jenisLaporanDropdownRef} required={true} name="jenis_laporan" defaultValue={monthNow}>
+                <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow}>
                     {
                       ["ampera", "pal", "gabungan"].map((value, index) => (
                         <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -191,7 +183,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Bulan Laporan:</FieldLabel>
-                <NativeSelect ref={periodeBulanDropdownRef} required={true} name="periode_bulan" defaultValue={monthNow}>
+                <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow}>
                   {months.map((value, index) => (
                     <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                   ))}
@@ -199,7 +191,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Tahun Laporan:</FieldLabel>
-                <NativeSelect ref={periodeTahunDropdownRef} required={true} name="periode_tahun" defaultValue={yearNow}>
+                <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow}>
                   {
                     yearOptions.map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -238,7 +230,7 @@ export function Upload() {
             <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} disabled={restrictFormChange} />
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 mt-4">
               <Button variant="destructive" onClick={resetAttachmentState}  disabled={restrictFormChange}>
-                Reset File
+                Reset Form
               </Button>
               <Button type="submit" disabled={restrictFormChange}>
                 <FileUp className="w-5 h-5" />
