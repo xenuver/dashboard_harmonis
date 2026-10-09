@@ -91,7 +91,7 @@ export function LoginScreen() {
   return (
     <>
       <div className="flex min-h-screen w-full items-center justify-center p-4">
-        <Card className="w-full max-w-lg self-center -translate-y-12">
+        <Card className="w-full max-w-lg self-center -translate-y-20">
           <form onSubmit={handleLoginAttempt}>
             <CardHeader>
               <CardTitle>Masuk</CardTitle>

@@ -1,9 +1,7 @@
-import Sidebar from "../components/SideBar";
-
-export function UiTest() {
-  return (<>
-    <Sidebar />
-  </>);
+export function DashboardLayout() {
+  return (
+    <></>
+  );
 }
 
-export default UiTest;
+export default DashboardLayout;
