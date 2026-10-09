@@ -46,4 +46,25 @@ class AuthController extends Controller
             'role'     => $user->role,
         ]);
     }
+
+    public function logOut(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated or invalid token'], 401);
+        }
+
+        $currentToken = $request->user()->currentAccessToken();
+
+        if (method_exists($currentToken, 'delete')) {
+            $currentToken->delete();
+        } else {
+            Auth::guard('web')->logout(); // SPA Cookie Session
+        }
+
+        return response()->json([
+            'message'       => "anda telah keluar",
+        ]);
+    }
 }

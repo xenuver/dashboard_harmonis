@@ -12,6 +12,7 @@ Route::post('/login', [AuthController::class, 'login']);
  
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/whoami', [AuthController::class, 'whoAmI']);
+    Route::get('/logout', [AuthController::class, 'logOut']);
     Route::post('/upload', [UploadController::class, 'store']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/produk-penjualan', [ProdukPenjualanController::class, 'index']);
