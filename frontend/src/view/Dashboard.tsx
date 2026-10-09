@@ -218,64 +218,59 @@ export function Dashboard() {
     <>
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Dashboard</h1>
 
-        <Card className="m-5">
-          <CardContent>
-            <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
-              <Field>
-                <FieldLabel>Jenis Laporan:</FieldLabel>
-                <Select required={true} name="jenis_laporan" defaultValue="gabungan" onValueChange={(value) => {if(value){ setPickedJenisLaporan(value); handleRetryApi(); }}}>
-                  <SelectTrigger className="w-45">
-                    <SelectValue placeholder="Pilih Jenis Laporan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {
-                      ["ampera", "pal", "gabungan"].map((value, index) => (
-                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field>
-                <FieldLabel>Bulan Laporan:</FieldLabel>
-                <Select 
-                    required={true} 
-                    name="periode_bulan" 
-                    defaultValue={monthNow} 
-                    onValueChange={(value) => {if(value){ setPickedMonth(value); handleRetryApi(); }}}
-                  >
-                    <SelectTrigger className="w-45">
-                      <SelectValue placeholder="Pilih Bulan Laporan">
-                        {pickedMonth ? months[parseInt(months[monthNow]) - 1] : undefined}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {months.map((value, index) => (
-                        <SelectItem value={(index + 1).toString()} key={index}>
-                          {value}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-              </Field>
-              <Field>
-                <FieldLabel>Tahun Laporan:</FieldLabel>
-                <Select required={true} name="periode_tahun" defaultValue={yearNow} onValueChange={(value) => {if(value){ setPickedYear(value); handleRetryApi(); }}}>
-                  <SelectTrigger className="w-45">
-                    <SelectValue placeholder="Pilih Tahun Laporan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {
-                      yearOptions.map((value, index) => (
-                        <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </Field>
-            </FieldGroup>
-          </CardContent>
-        </Card>
+      <Card className="m-5">
+        <CardContent>
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+            <Field>
+              <FieldLabel>Jenis Laporan:</FieldLabel>
+              <Select required={true} name="jenis_laporan" defaultValue="gabungan" onValueChange={(value) => {if(value){ setPickedJenisLaporan(value); handleRetryApi(); }}}>
+                <SelectTrigger className="w-45">
+                  <SelectValue placeholder="Pilih Jenis Laporan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    ["ampera", "pal", "gabungan"].map((value, index) => (
+                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel>Bulan Laporan:</FieldLabel>
+              <Select required={true} name="periode_bulan" defaultValue={monthNow} onValueChange={(value) => {if(value){ setPickedMonth(value); handleRetryApi(); }}}>
+                <SelectTrigger className="w-45">
+                  <SelectValue placeholder="Pilih Bulan Laporan">
+                    {pickedMonth ? months[parseInt(months[monthNow]) - 1] : undefined}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {months.map((value, index) => (
+                  <SelectItem value={(index + 1).toString()} key={index}>
+                      {value}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel>Tahun Laporan:</FieldLabel>
+              <Select required={true} name="periode_tahun" defaultValue={yearNow} onValueChange={(value) => {if(value){ setPickedYear(value); handleRetryApi(); }}}>
+                <SelectTrigger className="w-45">
+                  <SelectValue placeholder="Pilih Tahun Laporan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    yearOptions.map((value, index) => (
+                      <SelectItem tabIndex={index + 1} value={value} key={index}>{value}</SelectItem>
+                    ))
+                  }
+                </SelectContent>
+              </Select>
+            </Field>
+          </FieldGroup>
+        </CardContent>
+      </Card>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
         <ReportUnavailableCard className="m-5" />
