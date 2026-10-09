@@ -148,7 +148,7 @@ export function SupplierPenjualan() {
               </Select>
             </Field>
           </FieldGroup>
-          <FieldGroup className="gap-4">
+          <FieldGroup className="gap-4 mt-4">
             <Field className="flex flex-col gap-2 w-full">
               <FieldLabel htmlFor="cariproduk">
                 Cari Kode Barang atau Nama barang:
