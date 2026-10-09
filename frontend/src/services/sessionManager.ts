@@ -2,6 +2,8 @@ import { api } from "../services/api";
 
 import type { UserInformation } from "../../types/UserInformation";
 
+import { isEqual as lodashIsEqual } from "lodash";
+
 const localStorageTokenName: string = "session_token";
 const localStorageUserIdentityName: string = "session_identity"; // suggested by ai, but there is better way which will be done later
 
@@ -40,6 +42,26 @@ export default {
       console.error(e);
       console.warn("Failed to parse JSON");
       return null;
+    }
+  },
+
+  updateIdentity: async function() {
+    if(!this.getToken()) {
+      return;
+    }
+
+    try {
+      const userInformationRequest = await api.get("/api/whoami", {
+        responseType: "json"
+      });
+      const userInformation = userInformationRequest.data as UserInformation;
+
+      if(!lodashIsEqual(this.getIdentity(), userInformation)) {
+        this.setIdentity(userInformation);
+      }
+    } catch(e) {
+      console.error(e);
+      console.warn("Terjadi kesalahan dalam memperbarui profil");
     }
   },
 
