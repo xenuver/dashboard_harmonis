@@ -51,7 +51,7 @@ export function KpiCard({
         ) : tooltip ? (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger>
                 <div className="w-fit cursor-help text-2xl font-bold tracking-tight">
                   {value}
                 </div>
