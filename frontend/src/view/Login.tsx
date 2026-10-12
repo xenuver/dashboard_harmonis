@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { api } from "../services/api";
 import session from '../services/sessionManager';
@@ -20,6 +20,20 @@ import "../styles/index.css";
 export function LoginScreen() {
   const [loginMessageText, setLoginMessageText] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(window.location.search);
+
+  useEffect(function(){
+    let cancelled = false;
+
+    if(!cancelled && searchParams.get("reason") === "invalid_session") {
+      console.log("invalid session");
+      setLoginMessageText("Sesi sudah kedaluwarsa atau tidak valid");
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  },[]);
 
   async function handleLoginAttempt(event: SubmitEvent) {
     event.preventDefault();

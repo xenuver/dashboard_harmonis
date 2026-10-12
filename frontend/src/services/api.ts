@@ -22,7 +22,7 @@ api.interceptors.response.use((done)=> Promise.resolve(done), function(error: Ax
   if(error.status === 401) {
     if(sessionManager.getToken()) {
       sessionManager.deleteTokens();
-      window.location.href = "/login";
+      window.location.href = "/login?reason=invalid_session";
     }
   }
 
