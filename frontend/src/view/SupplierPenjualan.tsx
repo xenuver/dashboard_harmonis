@@ -136,7 +136,7 @@ export function SupplierPenjualan() {
           <FieldGroup className="gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
