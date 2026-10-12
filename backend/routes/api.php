@@ -7,10 +7,11 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProdukPenjualanController;
 use App\Http\Controllers\SupplierPenjualanController;
+use App\Http\Middleware\EnsureUserIsEnabled;
 
 Route::post('/login', [AuthController::class, 'login']);
  
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function () {
     Route::get('/whoami', [AuthController::class, 'whoAmI']);
     Route::post('/logout', [AuthController::class, 'logOut']);
     Route::post('/upload', [UploadController::class, 'store']);

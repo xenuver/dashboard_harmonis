@@ -24,7 +24,7 @@ class AuthController extends Controller
         }
  
         $user = Auth::user();
-        $token = $user->createToken('dashboard-token')->plainTextToken;
+        $token = $user->createToken('dashboard-token', ['*'], now()->addHour())->plainTextToken;
  
         return response()->json([
             'user'  => $user->only('id', 'username', 'role'),
@@ -58,7 +58,9 @@ class AuthController extends Controller
         $currentToken = $request->user()->currentAccessToken();
 
         if (method_exists($currentToken, 'delete')) {
-            $currentToken->delete();
+            $currentToken->update([
+                'expires_at' => now()->subSecond(),
+            ]);
         } else {
             Auth::guard('web')->logout(); // SPA Cookie Session
         }
