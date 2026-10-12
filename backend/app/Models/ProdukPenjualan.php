@@ -47,12 +47,12 @@ class ProdukPenjualan extends Model
 
     public function scopeTertinggi(Builder $query): Builder
     {
-        return $query->where('kategori', 'tertinggi');
+        return $query->where('kategori', 'tertinggi')->OrderByDesc('qty');
     }
 
     public function scopeTerendah(Builder $query): Builder
     {
-        return $query->where('kategori', 'terendah');
+        return $query->where('kategori', 'terendah')->OrderBy('qty');
     }
 
     public function scopeCari(Builder $query, string $keyword): Builder

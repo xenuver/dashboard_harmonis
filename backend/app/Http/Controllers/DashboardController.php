@@ -50,7 +50,7 @@ class DashboardController extends Controller
                 ->tertinggi()->limit(10)->get(),
             'top_produk_terendah' => $upload->produkPenjualan()
                 ->terendah()->limit(10)->get(),
-            'top_supplier' => $upload->supplierPenjualan()->limit(10)->get(),
+            'top_supplier' => $upload->supplierPenjualan()->OrderByDesc('net_sales_total')->limit(10)->get(),
         ]);
     }
 }

@@ -41,6 +41,14 @@ class ProdukPenjualanController extends Controller
         if (! empty($validated['search'])) {
             $query->cari($validated['search']); // scope dari model ProdukPenjualan
         }
+
+        if($validated['kategori'] === "tertinggi") {
+            $query->OrderByDesc('qty');
+        }
+
+        if($validated['kategori'] === "terendah") {
+            $query->OrderBy('qty');
+        }
  
         return $query->paginate($validated['per_page']);
     }
