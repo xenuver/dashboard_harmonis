@@ -24,7 +24,7 @@ const App = () => {
       </Route>
 
       <Route element={<AutoRedirectIfSignedOut />}>
-        <Route path="/" />
+        <Route path="/" element={<div />} />
         <Route element={<LoggedInLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<Upload />} />
