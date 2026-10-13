@@ -2,7 +2,7 @@ import { api } from "../services/api";
 
 import type { UserInformation } from "../../types/UserInformation";
 
-import { isEqual as lodashIsEqual } from "lodash";
+import lodashIsEqual from "lodash/isEqual";
 
 const localStorageTokenName: string = "session_token";
 const localStorageUserIdentityName: string = "session_identity"; // suggested by ai, but there is better way which will be done later
