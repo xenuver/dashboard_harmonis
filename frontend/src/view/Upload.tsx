@@ -182,7 +182,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <NativeSelect required={true} name="jenis_laporan" defaultValue={monthNow} disabled={restrictFormChange}>
+                <NativeSelect required={true} name="jenis_laporan" defaultValue="gabungan" disabled={restrictFormChange}>
                     {
                       ["ampera", "pal", "gabungan"].map((value, index) => (
                         <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
