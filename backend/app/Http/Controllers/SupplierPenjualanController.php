@@ -24,7 +24,7 @@ class SupplierPenjualanController extends Controller
             'periode_tahun' => 'required|integer',
             'search'        => 'nullable|string',
             'per_page'      => 'required|in:10,20,50|integer',
-            'page'          => 'integer',
+            'page'          => 'integer|min:1',
         ]);
  
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
