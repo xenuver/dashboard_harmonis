@@ -9,7 +9,7 @@ use App\Http\Controllers\ProdukPenjualanController;
 use App\Http\Controllers\SupplierPenjualanController;
 use App\Http\Middleware\EnsureUserIsEnabled;
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login');
 
 Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function () {
     Route::get('/whoami', [AuthController::class, 'whoAmI']);
