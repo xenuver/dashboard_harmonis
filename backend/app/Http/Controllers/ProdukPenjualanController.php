@@ -24,7 +24,7 @@ class ProdukPenjualanController extends Controller
             'periode_tahun' => 'required|integer',
             'kategori'      => 'required|in:tertinggi,terendah',
             'search'        => 'nullable|string',
-            'per_page'      => 'integer',
+            'per_page'      => 'required|in:10,20,50|integer',
             'page'          => 'integer',
         ]);
  
