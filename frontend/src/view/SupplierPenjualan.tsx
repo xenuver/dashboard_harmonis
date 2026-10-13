@@ -19,6 +19,11 @@ import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
 import type { SupplierSearchResponse } from "../../types/SupplierSearchResponse";
 import type { Supplier } from "../../types/Models/Supplier";
 
+const months = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
 const ERROR_CODE_SEARCH_NO_ERROR = 0;
 const ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE = 1; // request valid, tapi laporan belum ada
 const ERROR_CODE_SEARCH_NO_DATA = 2;
@@ -28,7 +33,18 @@ const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 export function SupplierPenjualan() {
   const searchHasMounted = useRef(false);
 
+  const yearNow = new Date().getFullYear();
+  const monthNow = new Date().getMonth() + 1;
+
+  const yearOptions: number[] = [];
+
+  for (let i = 0; i < 100; i++) {
+    yearOptions.push(yearNow - i);
+  }
+
   const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
+  const [pickedMonth, setPickedMonth] = reactUseState<number>(monthNow);
+  const [pickedYear, setPickedYear] = reactUseState<number>(yearNow);
   const [kataKunciPencarian, setKataKunciPencarian] = reactUseState < string | undefined > (undefined);
   const [supplierPerPage, setSupplierPerPage] = reactUseState(10);
   const [daftarSupplier, setDaftarSupplier] = reactUseState < Supplier[] > ([]);
@@ -41,9 +57,6 @@ export function SupplierPenjualan() {
   const [errorCode, setErrorCode] = reactUseState < number > (ERROR_CODE_SEARCH_NO_ERROR);
   const [retryNowTrigger, shouldRetryNow] = reactUseState < boolean > (false);
   const [resetSearchTrigger, shouldResetSearchNow] = reactUseState < boolean > (false);
-
-  const yearNow = new Date().getFullYear();
-  const monthNow = new Date().getMonth() + 1;
 
   function retrySearchNow() {
     shouldRetryNow((prev) => !prev);
@@ -66,8 +79,8 @@ export function SupplierPenjualan() {
       const body = {
         page: currentPage,
         jenis_laporan: jenisLaporanSaatIni,
-        periode_tahun: yearNow,
-        periode_bulan: monthNow,
+        periode_tahun: pickedYear,
+        periode_bulan: pickedMonth,
         per_page: supplierPerPage,
       }
 
@@ -133,7 +146,7 @@ export function SupplierPenjualan() {
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Supplier</h1>
       <Card className="m-5">
         <CardContent>
-          <FieldGroup className="gap-4">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
               <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
@@ -142,6 +155,24 @@ export function SupplierPenjualan() {
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
                     ))
                   }
+              </NativeSelect>
+            </Field>
+            <Field>
+              <FieldLabel>Bulan Laporan:</FieldLabel>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); retrySearchNow(); }}>
+                {months.map((value, index) => (
+                  <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </Field>
+            <Field>
+              <FieldLabel>Tahun Laporan:</FieldLabel>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => { setPickedYear(parseInt(event.target.value)); retrySearchNow(); }}>
+                {
+                  yearOptions.map((value, index) => (
+                    <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
+                  ))
+                }
               </NativeSelect>
             </Field>
           </FieldGroup>

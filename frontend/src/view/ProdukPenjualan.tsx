@@ -20,6 +20,11 @@ import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
 import type { ProductSearchResponse } from "../../types/ProductSearchResponse";
 import type { Product } from "../../types/Models/Product";
 
+const months = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
 const ERROR_CODE_SEARCH_NO_ERROR = 0;
 const ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE = 1; // request valid, tapi laporan belum ada
 const ERROR_CODE_SEARCH_NO_DATA = 2;
@@ -29,7 +34,18 @@ const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 export function ProdukPenjualan() {
   const searchHasMounted = useRef(false);
 
+  const yearNow = new Date().getFullYear();
+  const monthNow = new Date().getMonth() + 1;
+
+  const yearOptions: number[] = [];
+
+  for (let i = 0; i < 100; i++) {
+    yearOptions.push(yearNow - i);
+  }
+
   const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
+  const [pickedMonth, setPickedMonth] = reactUseState<number>(monthNow);
+  const [pickedYear, setPickedYear] = reactUseState<number>(yearNow);
   const [kataKunciPencarian, setKataKunciPencarian] = reactUseState < string | undefined > (undefined);
   const [sortirTingkatProduk, setSortirTingkatProduk] = reactUseState("tertinggi");
   const [productPerPage, setProductPerPage] = reactUseState(10);
@@ -43,9 +59,6 @@ export function ProdukPenjualan() {
   const [errorCode, setErrorCode] = reactUseState < number > (ERROR_CODE_SEARCH_NO_ERROR);
   const [retryNowTrigger, shouldRetryNow] = reactUseState < boolean > (false);
   const [resetSearchTrigger, shouldResetSearchNow] = reactUseState < boolean > (false);
-
-  const yearNow = new Date().getFullYear();
-  const monthNow = new Date().getMonth() + 1;
 
   function retrySearchNow() {
     shouldRetryNow((prev) => !prev);
@@ -68,8 +81,8 @@ export function ProdukPenjualan() {
       const body = {
         page: currentPage,
         jenis_laporan: jenisLaporanSaatIni,
-        periode_tahun: yearNow,
-        periode_bulan: monthNow,
+        periode_tahun: pickedYear,
+        periode_bulan: pickedMonth,
         per_page: productPerPage,
         kategori: sortirTingkatProduk
       }
@@ -137,7 +150,7 @@ export function ProdukPenjualan() {
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Produk</h1>
       <Card className="m-5">
         <CardContent>
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
               <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
@@ -154,6 +167,24 @@ export function ProdukPenjualan() {
                 <ToggleGroupItem value="tertinggi">Tertinggi</ToggleGroupItem>
                 <ToggleGroupItem value="terendah">Terendah</ToggleGroupItem>
               </ToggleGroup>
+            </Field>
+            <Field>
+              <FieldLabel>Bulan Laporan:</FieldLabel>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); retrySearchNow(); }}>
+                {months.map((value, index) => (
+                  <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </Field>
+            <Field>
+              <FieldLabel>Tahun Laporan:</FieldLabel>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => { setPickedYear(parseInt(event.target.value)); retrySearchNow(); }}>
+                {
+                  yearOptions.map((value, index) => (
+                    <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
+                  ))
+                }
+              </NativeSelect>
             </Field>
           </FieldGroup>
           <FieldGroup className="gap-4 mt-4">
