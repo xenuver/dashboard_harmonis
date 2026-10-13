@@ -20,7 +20,7 @@ class ProdukPenjualanController extends Controller
 
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
-            'periode_bulan' => 'required|integer',
+            'periode_bulan' => 'required|integer|min:1|max:12',
             'periode_tahun' => 'required|integer',
             'kategori'      => 'required|in:tertinggi,terendah',
             'search'        => 'nullable|string',
