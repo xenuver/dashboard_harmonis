@@ -19,3 +19,9 @@ Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function 
     Route::get('/produk-penjualan', [ProdukPenjualanController::class, 'index']);
     Route::get('/supplier-penjualan', [SupplierPenjualanController::class, 'index']);
 });
+
+Route::fallback(function () {
+    return response()->json([
+        'message' => 'Not Found',
+    ], 404);
+});
