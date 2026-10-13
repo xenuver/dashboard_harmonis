@@ -116,7 +116,7 @@ export function Dashboard() {
       if(data.growth_member > 0) {
         if(data.growth_member >= 100000) {
           setKpiGrowthMember(`+${formatAngkaSingkat(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: +${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: +${formatAngka(data.growth_member)}`);
         } else {
           setKpiGrowthMember(`+${formatAngka(data.growth_member)}`);
           setKpiGrowthMemberToolTip(`Growth member: +${formatAngka(data.growth_member)}`);
@@ -127,10 +127,10 @@ export function Dashboard() {
       } else {
         if(data.growth_member <= -100000) {
           setKpiGrowthMember(`${formatAngkaSingkat(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: -${formatAngkaSingkat(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
         } else {
           setKpiGrowthMember(`${formatAngka(data.growth_member)}`);
-          setKpiGrowthMemberToolTip(`Growth member: -${formatAngka(data.growth_member)}`);
+          setKpiGrowthMemberToolTip(`Growth member: ${formatAngka(data.growth_member)}`);
         }
       }
     } else {
