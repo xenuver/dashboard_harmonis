@@ -10,21 +10,24 @@ import { LoggedInLayout } from "./layouts/LoggedInLayout";
 import { LoggedOutLayout } from "./layouts/LoggedOutLayout";
 import AutoRedirectIfSignedIn from "./components/routes/auth/AutoRedirectIfSignedIn";
 import AutoRedirectIfSignedOut from "./components/routes/auth/AutoRedirectIfSignedOut";
+import RedirectToLoginOrDashboard from "./components/routes/auth/RedirectToLoginOrDashboard";
 
 import './styles/index.css';
 
 const App = () => {
   return (
     <Routes>
+      <Route element={<RedirectToLoginOrDashboard />}>
+        <Route path="/" element={<div />} />
+      </Route>
+
       <Route element={<AutoRedirectIfSignedIn />}>
-        <Route path="/" />
         <Route element={<LoggedOutLayout />}>
           <Route path="/login" element={<LoginScreen />} />
         </Route>
       </Route>
 
       <Route element={<AutoRedirectIfSignedOut />}>
-        <Route path="/" element={<div />} />
         <Route element={<LoggedInLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<Upload />} />
