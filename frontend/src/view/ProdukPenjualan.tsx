@@ -139,7 +139,7 @@ export function ProdukPenjualan() {
         <CardContent>
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
             <Field>
-              <FieldLabel htmlFor="jenislaporan">Cabang saat ini:</FieldLabel>
+              <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
               <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
