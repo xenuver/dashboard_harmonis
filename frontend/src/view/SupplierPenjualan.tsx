@@ -147,16 +147,16 @@ export function SupplierPenjualan() {
           </FieldGroup>
           <FieldGroup className="gap-4 mt-4">
             <Field className="flex flex-col gap-2 w-full">
-              <FieldLabel htmlFor="cariproduk">
-                Cari Kode Barang atau Nama barang:
+              <FieldLabel htmlFor="carisupplier">
+                Cari Kode Supplier atau Nama supplier:
               </FieldLabel>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
                 <Input 
                   type="text" 
-                  name="cariproduk" 
+                  name="carisupplier" 
                   className="w-full sm:flex-1 min-w-0"
                   onChange={(e) => setKataKunciPencarian(e.target.value)} 
-                  placeholder="Masukkan kode barang atau nama barang di sini" 
+                  placeholder="Masukkan kode supplier atau nama supplier di sini" 
                   onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
                 />
                 <Button 
@@ -261,11 +261,11 @@ export function SupplierPenjualan() {
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div>
                 {totalSuppliers > 0 
-                  ? `Menampilkan produk ${supplierPerPage * (currentPage - 1) + 1}-${(supplierPerPage * (currentPage - 1)) + daftarSupplier.length} dari ${totalSuppliers}`
+                  ? `Menampilkan supplier ${supplierPerPage * (currentPage - 1) + 1}-${(supplierPerPage * (currentPage - 1)) + daftarSupplier.length} dari ${totalSuppliers}`
                   : '\u00A0'}
               </div>
               <div className="flex items-center gap-2">
-                <div>Produk per halaman</div>
+                <div>Supplier per halaman</div>
                 <NativeSelect defaultValue={10} name="jenislaporan" onChange={(event) => setSupplierPerPage(parseInt(event.target.value)) }>
                   {
                     [10, 20, 50].map((value, index) => (
