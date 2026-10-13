@@ -15,6 +15,7 @@ class SupplierPenjualanController extends Controller
             'periode_tahun' => date('Y'),
             'kategori'      => 'tertinggi',
             'per_page'      => 10,
+            'page'          => 1,
         ]);
 
         $validated = $request->validate([
@@ -23,6 +24,7 @@ class SupplierPenjualanController extends Controller
             'periode_tahun' => 'required|integer',
             'search'        => 'nullable|string',
             'per_page'      => 'required|in:10,20,50|integer',
+            'page'          => 'integer',
         ]);
  
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
