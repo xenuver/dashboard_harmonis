@@ -85,10 +85,10 @@ export function Dashboard() {
         totalGrowth = Number(data.total_growth);
 
         if(totalGrowth > 0) {
-          setKpiTotalGrowth(`+${formatAngkaSingkat(totalGrowth, 3)}%`);
+          setKpiTotalGrowth(`+${formatAngkaSingkat(totalGrowth, 2)}%`);
           setKpiTotalGrowthToolTip(`Total growth: +${totalGrowth}%`);
         } else {
-          setKpiTotalGrowth(`${formatAngkaSingkat(totalGrowth, 3)}%`);
+          setKpiTotalGrowth(`${formatAngkaSingkat(totalGrowth, 2)}%`);
           setKpiTotalGrowthToolTip(`Total growth: ${totalGrowth}%`);
         }
       } catch(e) {
