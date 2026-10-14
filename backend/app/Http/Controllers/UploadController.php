@@ -16,13 +16,6 @@ class UploadController extends Controller
 {
     public function store(Request $request)
     {
-        // Jika pengguna bukan staf IT, tolak upload
-        if(!$request->user()->isItStaff()) {
-            return response()->json([
-                'message' => 'Anda tidak diperbolehkan untuk upload'
-            ], 403);
-        }
-
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
             'periode_bulan' => 'required|integer|min:1|max:12',
