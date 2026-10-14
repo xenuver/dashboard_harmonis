@@ -14,7 +14,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:lo
 Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function () {
     Route::get('/whoami', [AuthController::class, 'whoAmI']);
     Route::post('/logout', [AuthController::class, 'logOut']);
-    Route::post('/upload', [UploadController::class, 'store']);
+    Route::post('/upload', [UploadController::class, 'store'])->middleware('can:upload-reports')->middleware('ReportUploadInspector');
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/produk-penjualan', [ProdukPenjualanController::class, 'index']);
     Route::get('/supplier-penjualan', [SupplierPenjualanController::class, 'index']);

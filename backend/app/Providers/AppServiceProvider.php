@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\Response;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
                     'login-username:' . strtolower($request->input('username', ''))
                 ),
             ];
+        });
+
+        Gate::define('upload-reports', function(User $user) {
+            return $user->isItStaff() 
+                ? Response::allow()
+                : Response::denyWithStatus(403, "Anda tidak diperbolehkan untuk mengunggah laporan");
         });
     }
 }
