@@ -23,14 +23,14 @@ export function formatAngkaSingkat(value: number, decimalLength?: number): strin
     for(let i = 0; i < units.length; i++) {
       if(value < Math.pow(10, 3 * (i + 1)) || i === units.length - 1) {
         const shortenedNumber = value / Math.pow(10, 3 * i);
-        return `${shortenedNumber.toFixed(decimalLength)}${units[i]}`;
+        return `${formatNumber({truncate: decimalLength})(shortenedNumber)}${units[i]}`;
       }
     }
   } else if (value < 0) {
     for(let i = 0; i < units.length; i++) {
       if(value > -Math.pow(10, 3 * (i + 1)) || i === units.length - 1) {
         const shortenedNumber = value / Math.pow(10, 3 * i);
-        return `${shortenedNumber.toFixed(decimalLength)}${units[i]}`;
+        return `${formatNumber({truncate: decimalLength})(shortenedNumber)}${units[i]}`;
       }
     }
   }
