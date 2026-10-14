@@ -17,10 +17,10 @@ class LaporanImport implements WithMultipleSheets, Import
     protected ProdukPenjualanSheetImport $topLowestSheet;
     protected SupplierPenjualanSheetImport $supplierSheet;
 
-    public function __construct(bool $isGabungan = false)
+    public function __construct()
     {
         $this->viewSheet       = new ViewSheetImport();
-        $this->salesSheet      = new SalesHarianSheetImport($isGabungan);
+        $this->salesSheet      = new SalesHarianSheetImport();
         $this->topHighestSheet = new ProdukPenjualanSheetImport('tertinggi');
         $this->topLowestSheet  = new ProdukPenjualanSheetImport('terendah');
         $this->supplierSheet   = new SupplierPenjualanSheetImport();

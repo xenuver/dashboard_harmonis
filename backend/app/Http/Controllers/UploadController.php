@@ -65,7 +65,7 @@ class UploadController extends Controller
             $cabangAmpera = Cabang::where('kode', 'AMPERA')->firstOrFail();
             $cabangPal = Cabang::where('kode', 'PAL')->firstOrFail();
  
-            foreach ($parser->parseSalesHarian($isGabungan) as $hari => $nilai) {
+            foreach ($parser->parseSalesHarian() as $hari => $nilai) {
                 $tanggal = sprintf('%04d-%02d-%02d', $validated['periode_tahun'], $validated['periode_bulan'], $hari);
  
                 if ($isGabungan) {

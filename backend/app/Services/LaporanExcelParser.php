@@ -11,9 +11,9 @@ class LaporanExcelParser
 {
     protected LaporanImport $importer;
 
-    public function __construct(UploadedFile $file, bool $isGabungan = false)
+    public function __construct(UploadedFile $file)
     {
-        $this->importer = new LaporanImport($isGabungan);
+        $this->importer = new LaporanImport();
         Excel::import($this->importer, $file, null, ExcelType::XLSX);
     }
 
