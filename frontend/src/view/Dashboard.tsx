@@ -281,13 +281,19 @@ export function Dashboard() {
               <CardTitle>Grafik Penjualan</CardTitle>
             </CardHeader>
             <CardContent>
-              { isLoaded === true ? 
                 <div className="w-full h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart responsive data={trendGraphViewData}>
                       <CartesianGrid />
-                      <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
-                      <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+                      { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "ampera" )) &&
+                        <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
+                      }
+                      { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "pal" )) &&
+                        <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+                      }
+                      { isLoaded === false &&
+                        <Line isAnimationActive={false} name="Memuat..." stroke="black" />
+                      }
                       <XAxis dataKey="tanggal" tickFormatter={formatDate} />
                       <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
                       <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
@@ -296,19 +302,6 @@ export function Dashboard() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                :
-                <div className="w-full h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart responsive data={[]}>
-                      <CartesianGrid />
-                      <Line isAnimationActive={false} name="Memuat..." fill="black" stroke="black" />
-                      <XAxis dataKey="tanggal" />
-                      <YAxis width="auto" name="Total Penjualan" />
-                      <Legend />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              }
             </CardContent>
           </Card>
 
