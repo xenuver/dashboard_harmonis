@@ -36,6 +36,12 @@ export function Upload() {
   const yearOptions: number[] = [];
 
   for (let i = 0; i < 100; i++) {
+    if(yearNow - i > 2155) {
+      continue;
+    }
+    if(yearNow - i < 1901) {
+      break;
+    }
     yearOptions.push(yearNow - i);
   }
 

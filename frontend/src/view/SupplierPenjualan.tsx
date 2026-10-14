@@ -39,7 +39,14 @@ export function SupplierPenjualan() {
   const yearOptions: number[] = [];
 
   for (let i = 0; i < 100; i++) {
-    yearOptions.push(yearNow - i);
+    const calcYear = yearNow - i;
+    if(calcYear > 2155) {
+      continue;
+    }
+    if(calcYear < 1901) {
+      break;
+    }
+    yearOptions.push(calcYear);
   }
 
   const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
