@@ -1,7 +1,7 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use App\Models\Cabang;
 use App\Models\KpiSummary;
 use App\Models\LaporanUpload;
@@ -9,9 +9,10 @@ use App\Models\ProdukPenjualan;
 use App\Models\SalesHarian;
 use App\Models\SupplierPenjualan;
 use App\Services\LaporanExcelParser;
+use App\Services\LaporanExcelValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
- 
+
 class UploadController extends Controller
 {
     public function store(Request $request)
@@ -34,13 +35,26 @@ class UploadController extends Controller
                 'message' => 'Laporan untuk periode dan jenis ini sudah pernah diunggah.',
             ], 409);
         }
- 
+
+        $validator = new LaporanExcelValidator(
+            $validated['file'],
+            $validated['jenis_laporan'],
+            (int) $validated['periode_bulan'],
+            (int) $validated['periode_tahun']
+        );
+
+        $errors = $validator->validate();
+
+        if (!empty($errors)) {
+            return response()->json([
+                'message'               => 'Validasi spreadsheet gagal.',
+                'xlsxValidationErrors'  => $errors,
+            ], 422);
+        }
+
         $parser = new LaporanExcelParser($validated['file']);
         $isGabungan = $validated['jenis_laporan'] === 'gabungan';
- 
-        // DB::transaction -> kalau ada error di tengah proses, SEMUA
-        // yang sudah keburu tersimpan ikut dibatalkan (rollback).
-        // Jangan sampai upload gagal tapi menyisakan data setengah jadi.
+
         return DB::transaction(function () use ($request, $validated, $parser, $isGabungan) {
             $upload = LaporanUpload::create([
                 'uploaded_by'   => $request->user()->id,
@@ -49,20 +63,19 @@ class UploadController extends Controller
                 'periode_tahun' => $validated['periode_tahun'],
                 'status'        => 'berhasil',
             ]);
- 
+
             KpiSummary::create([
                 'upload_id' => $upload->id,
                 ...$parser->parseKpiSummary(),
             ]);
- 
+
             $cabangAmpera = Cabang::where('kode', 'AMPERA')->firstOrFail();
             $cabangPal = Cabang::where('kode', 'PAL')->firstOrFail();
- 
+
             foreach ($parser->parseSalesHarian() as $hari => $nilai) {
                 $tanggal = sprintf('%04d-%02d-%02d', $validated['periode_tahun'], $validated['periode_bulan'], $hari);
- 
+
                 if ($isGabungan) {
-                    // 2 baris per tanggal -- 1 per cabang (lihat dokumen PRD)
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangAmpera->id, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['ampera']]);
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangPal->id, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['pal']]);
                 } else {
@@ -70,7 +83,7 @@ class UploadController extends Controller
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangId, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['total']]);
                 }
             }
- 
+
             foreach ($parser->parseProdukPenjualan('tertinggi') as $produk) {
                 ProdukPenjualan::create(['upload_id' => $upload->id, ...$produk]);
             }
@@ -80,7 +93,7 @@ class UploadController extends Controller
             foreach ($parser->parseSupplierPenjualan() as $supplier) {
                 SupplierPenjualan::create(['upload_id' => $upload->id, ...$supplier]);
             }
- 
+
             return response()->json([
                 'message'   => 'Upload berhasil',
                 'upload_id' => $upload->id,

@@ -29,11 +29,11 @@ class LaporanImport implements WithMultipleSheets, Import
     public function sheets(): array
     {
         return [
-            0 => $this->viewSheet,
-            1 => $this->salesSheet,
-            2 => $this->topHighestSheet,
-            3 => $this->topLowestSheet,
-            4 => $this->supplierSheet,
+            'VIEW'            => $this->viewSheet,
+            'DATA'            => $this->salesSheet,
+            'TOP 300 HIGHEST' => $this->topHighestSheet,
+            'TOP 300 LOWEST'  => $this->topLowestSheet,
+            'TOP SUPPLIER'    => $this->supplierSheet,
         ];
     }
 
