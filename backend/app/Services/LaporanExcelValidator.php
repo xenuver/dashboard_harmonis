@@ -24,12 +24,16 @@ class LaporanExcelValidator
 
     public function validate(): array
     {
-        $errors = [];
+        $groupedErrors = [];
 
         try {
             $spreadsheet = IOFactory::load($this->file->getRealPath());
         } catch (\Throwable $e) {
-            return ['File Excel tidak dapat dibaca atau rusak.'];
+            return [
+                'FILE' => [
+                    ['location' => null, 'message' => 'File Excel tidak dapat dibaca atau rusak.']
+                ]
+            ];
         }
 
         $requiredSheets = [
@@ -42,37 +46,54 @@ class LaporanExcelValidator
 
         foreach ($requiredSheets as $sheetName) {
             if (!$spreadsheet->sheetNameExists($sheetName)) {
-                $errors[] = "'{$sheetName}': Sheet tidak ditemukan.";
+                $groupedErrors[$sheetName][] = [
+                    'location' => null,
+                    'message'  => 'Sheet tidak ditemukan.',
+                ];
             }
         }
 
-        // Validate each sheet if present
         if ($spreadsheet->sheetNameExists('VIEW')) {
             $viewSheet = $spreadsheet->getSheetByName('VIEW');
-            $errors = array_merge($errors, $this->validateViewSheet($viewSheet->toArray(null, true, true, false)));
+            $errors = $this->validateViewSheet($viewSheet->toArray(null, true, true, false));
+            if (!empty($errors)) {
+                $groupedErrors['VIEW'] = array_merge($groupedErrors['VIEW'] ?? [], $errors);
+            }
         }
 
         if ($spreadsheet->sheetNameExists('DATA')) {
             $dataSheet = $spreadsheet->getSheetByName('DATA');
-            $errors = array_merge($errors, $this->validateDataSheet($dataSheet->toArray(null, true, true, false)));
+            $errors = $this->validateDataSheet($dataSheet->toArray(null, true, true, false));
+            if (!empty($errors)) {
+                $groupedErrors['DATA'] = array_merge($groupedErrors['DATA'] ?? [], $errors);
+            }
         }
 
         if ($spreadsheet->sheetNameExists('TOP 300 HIGHEST')) {
             $topHighestSheet = $spreadsheet->getSheetByName('TOP 300 HIGHEST');
-            $errors = array_merge($errors, $this->validateProdukSheet($topHighestSheet->toArray(null, true, true, false), 'TOP 300 HIGHEST'));
+            $errors = $this->validateProdukSheet($topHighestSheet->toArray(null, true, true, false), 'TOP 300 HIGHEST');
+            if (!empty($errors)) {
+                $groupedErrors['TOP 300 HIGHEST'] = array_merge($groupedErrors['TOP 300 HIGHEST'] ?? [], $errors);
+            }
         }
 
         if ($spreadsheet->sheetNameExists('TOP 300 LOWEST')) {
             $topLowestSheet = $spreadsheet->getSheetByName('TOP 300 LOWEST');
-            $errors = array_merge($errors, $this->validateProdukSheet($topLowestSheet->toArray(null, true, true, false), 'TOP 300 LOWEST'));
+            $errors = $this->validateProdukSheet($topLowestSheet->toArray(null, true, true, false), 'TOP 300 LOWEST');
+            if (!empty($errors)) {
+                $groupedErrors['TOP 300 LOWEST'] = array_merge($groupedErrors['TOP 300 LOWEST'] ?? [], $errors);
+            }
         }
 
         if ($spreadsheet->sheetNameExists('TOP SUPPLIER')) {
             $supplierSheet = $spreadsheet->getSheetByName('TOP SUPPLIER');
-            $errors = array_merge($errors, $this->validateSupplierSheet($supplierSheet->toArray(null, true, true, false)));
+            $errors = $this->validateSupplierSheet($supplierSheet->toArray(null, true, true, false));
+            if (!empty($errors)) {
+                $groupedErrors['TOP SUPPLIER'] = array_merge($groupedErrors['TOP SUPPLIER'] ?? [], $errors);
+            }
         }
 
-        return $errors;
+        return $groupedErrors;
     }
 
     protected function validateViewSheet(array $rows): array
@@ -81,40 +102,40 @@ class LaporanExcelValidator
         $row = $rows[4] ?? null;
 
         if (!$row) {
-            $errors[] = "'VIEW', 5: Data ringkasan KPI tidak ditemukan.";
+            $errors[] = ['location' => '5', 'message' => 'Data ringkasan KPI tidak ditemukan.'];
             return $errors;
         }
 
         // Cell 5G (Index 6) - Total Sales
         $totalSales = $row[6] ?? null;
         if ($totalSales === null || $totalSales === '') {
-            $errors[] = "'VIEW', 5G: Total sales tidak boleh kosong.";
+            $errors[] = ['location' => 'G5', 'message' => 'Total sales tidak boleh kosong.'];
         } elseif (!$this->isNumericValue($totalSales)) {
-            $errors[] = "'VIEW', 5G: Total sales harus berupa angka.";
+            $errors[] = ['location' => 'G5', 'message' => 'Total sales harus berupa angka.'];
         }
 
         // Cell 5L (Index 11) - Total Growth
         $totalGrowth = $row[11] ?? null;
         if ($totalGrowth === null || $totalGrowth === '') {
-            $errors[] = "'VIEW', 5L: Total growth tidak boleh kosong.";
+            $errors[] = ['location' => 'L5', 'message' => 'Total growth tidak boleh kosong.'];
         } elseif (!$this->isNumericValue($totalGrowth)) {
-            $errors[] = "'VIEW', 5L: Total growth harus berupa angka.";
+            $errors[] = ['location' => 'L5', 'message' => 'Total growth harus berupa angka.'];
         }
 
         // Cell 5Q (Index 16) - Jumlah Transaksi
         $jumlahTransaksi = $row[16] ?? null;
         if ($jumlahTransaksi === null || $jumlahTransaksi === '') {
-            $errors[] = "'VIEW', 5Q: Jumlah transaksi tidak boleh kosong.";
+            $errors[] = ['location' => 'Q5', 'message' => 'Jumlah transaksi tidak boleh kosong.'];
         } elseif (!$this->isNumericValue($jumlahTransaksi)) {
-            $errors[] = "'VIEW', 5Q: Jumlah transaksi harus berupa angka.";
+            $errors[] = ['location' => 'Q5', 'message' => 'Jumlah transaksi harus berupa angka.'];
         }
 
         // Cell 5V (Index 21) - Growth Member
         $growthMember = $row[21] ?? null;
         if ($growthMember === null || $growthMember === '') {
-            $errors[] = "'VIEW', 5V: Growth member tidak boleh kosong.";
+            $errors[] = ['location' => 'V5', 'message' => 'Growth member tidak boleh kosong.'];
         } elseif (!preg_match('/^[+-]?[0-9]+$/', trim((string) $growthMember))) {
-            $errors[] = "'VIEW', 5V: Growth member harus berupa angka atau format (+NUMBER / -NUMBER).";
+            $errors[] = ['location' => 'V5', 'message' => 'Growth member harus berupa angka atau format (+NUMBER / -NUMBER).'];
         }
 
         return $errors;
@@ -136,13 +157,19 @@ class LaporanExcelValidator
         }
 
         if ($lastRowIndex === -1) {
-            $errors[] = "'DATA': Jumlah baris data harian (0) tidak sesuai dengan periode {$this->periodeBulan}/{$this->periodeTahun} ({$expectedDays} hari).";
+            $errors[] = [
+                'location' => null,
+                'message'  => "Jumlah baris data harian (0) tidak sesuai dengan periode {$this->periodeBulan}/{$this->periodeTahun} ({$expectedDays} hari).",
+            ];
             return $errors;
         }
 
         $totalDataRows = $lastRowIndex - 1;
         if ($totalDataRows !== $expectedDays) {
-            $errors[] = "'DATA': Jumlah baris data harian ({$totalDataRows}) tidak sesuai dengan periode {$this->periodeBulan}/{$this->periodeTahun} ({$expectedDays} hari).";
+            $errors[] = [
+                'location' => null,
+                'message'  => "Jumlah baris data harian ({$totalDataRows}) tidak sesuai dengan periode {$this->periodeBulan}/{$this->periodeTahun} ({$expectedDays} hari).",
+            ];
         }
 
         foreach ($dataRows as $rowIndex => $row) {
@@ -153,7 +180,7 @@ class LaporanExcelValidator
             $excelRow = $rowIndex + 1;
 
             if ($this->isRowEmpty($row)) {
-                $errors[] = "'DATA', {$excelRow}: Baris data tidak boleh kosong.";
+                $errors[] = ['location' => (string) $excelRow, 'message' => 'Baris data tidak boleh kosong.'];
                 continue;
             }
 
@@ -161,13 +188,13 @@ class LaporanExcelValidator
 
             // Cell D - Tanggal
             if (!$this->isNumericValue($dayVal) || (int) $dayVal < 1 || (int) $dayVal > $expectedDays) {
-                $errors[] = "'DATA', {$excelRow}D: Tanggal harus berupa angka antara 1 dan {$expectedDays}.";
+                $errors[] = ['location' => "D{$excelRow}", 'message' => "Tanggal harus berupa angka antara 1 dan {$expectedDays}."];
             }
 
             // Cell E - Total
             $totalVal = $row[4] ?? null;
             if (!$this->isNumericValue($totalVal)) {
-                $errors[] = "'DATA', {$excelRow}E: Total sales harus berupa angka.";
+                $errors[] = ['location' => "E{$excelRow}", 'message' => 'Total sales harus berupa angka.'];
             }
 
             $amperaVal = $row[10] ?? null;
@@ -175,17 +202,17 @@ class LaporanExcelValidator
 
             if ($this->jenisLaporan === 'gabungan') {
                 if (!$this->isNumericValue($amperaVal)) {
-                    $errors[] = "'DATA', {$excelRow}K: Kolom Ampera wajib diisi untuk laporan gabungan.";
+                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Ampera wajib diisi untuk laporan gabungan.'];
                 }
                 if (!$this->isNumericValue($palVal)) {
-                    $errors[] = "'DATA', {$excelRow}L: Kolom Pal wajib diisi untuk laporan gabungan.";
+                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Pal wajib diisi untuk laporan gabungan.'];
                 }
             } else {
                 if ($amperaVal !== null && $amperaVal !== '') {
-                    $errors[] = "'DATA', {$excelRow}K: Kolom Ampera harus kosong untuk laporan non-gabungan.";
+                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Ampera harus kosong untuk laporan non-gabungan.'];
                 }
                 if ($palVal !== null && $palVal !== '') {
-                    $errors[] = "'DATA', {$excelRow}L: Kolom Pal harus kosong untuk laporan non-gabungan.";
+                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Pal harus kosong untuk laporan non-gabungan.'];
                 }
             }
         }
@@ -218,39 +245,39 @@ class LaporanExcelValidator
             $excelRow = $rowIndex + 1;
 
             if ($this->isRowEmpty($row)) {
-                $errors[] = "'{$sheetName}', {$excelRow}: Baris data tidak boleh kosong.";
+                $errors[] = ['location' => (string) $excelRow, 'message' => 'Baris data tidak boleh kosong.'];
                 continue;
             }
 
             // B: Kode Barang
             if (empty($row[1])) {
-                $errors[] = "'{$sheetName}', {$excelRow}B: Kode barang tidak boleh kosong.";
+                $errors[] = ['location' => "B{$excelRow}", 'message' => 'Kode barang tidak boleh kosong.'];
             }
 
             // C: Nama Barang
             if (empty($row[2])) {
-                $errors[] = "'{$sheetName}', {$excelRow}C: Nama barang tidak boleh kosong.";
+                $errors[] = ['location' => "C{$excelRow}", 'message' => 'Nama barang tidak boleh kosong.'];
             }
 
             // E: Harga Jual
             if (!$this->isNumericValue($row[4] ?? null)) {
-                $errors[] = "'{$sheetName}', {$excelRow}E: Harga jual harus berupa angka.";
+                $errors[] = ['location' => "E{$excelRow}", 'message' => 'Harga jual harus berupa angka.'];
             }
 
             // F: Jumlah
             if (!$this->isNumericValue($row[5] ?? null)) {
-                $errors[] = "'{$sheetName}', {$excelRow}F: Jumlah penjualan harus berupa angka.";
+                $errors[] = ['location' => "F{$excelRow}", 'message' => 'Jumlah penjualan harus berupa angka.'];
             }
 
             // G: Qty
             if (!$this->isNumericValue($row[6] ?? null)) {
-                $errors[] = "'{$sheetName}', {$excelRow}G: Qty penjualan harus berupa angka.";
+                $errors[] = ['location' => "G{$excelRow}", 'message' => 'Qty penjualan harus berupa angka.'];
             }
 
             // H: Stok (optional, but if present must be numeric)
             $stokVal = $row[7] ?? null;
             if ($stokVal !== null && $stokVal !== '' && !$this->isNumericValue($stokVal)) {
-                $errors[] = "'{$sheetName}', {$excelRow}H: Stok harus berupa angka.";
+                $errors[] = ['location' => "H{$excelRow}", 'message' => 'Stok harus berupa angka.'];
             }
         }
 
@@ -282,28 +309,28 @@ class LaporanExcelValidator
             $excelRow = $rowIndex + 1;
 
             if ($this->isRowEmpty($row)) {
-                $errors[] = "'TOP SUPPLIER', {$excelRow}: Baris data tidak boleh kosong.";
+                $errors[] = ['location' => (string) $excelRow, 'message' => 'Baris data tidak boleh kosong.'];
                 continue;
             }
 
             // A: Kode Supplier
             if (empty($row[0])) {
-                $errors[] = "'TOP SUPPLIER', {$excelRow}A: Kode supplier tidak boleh kosong.";
+                $errors[] = ['location' => "A{$excelRow}", 'message' => 'Kode supplier tidak boleh kosong.'];
             }
 
             // B: Nama Supplier
             if (empty($row[1])) {
-                $errors[] = "'TOP SUPPLIER', {$excelRow}B: Nama supplier tidak boleh kosong.";
+                $errors[] = ['location' => "B{$excelRow}", 'message' => 'Nama supplier tidak boleh kosong.'];
             }
 
             // C: Gross Total
             if (!$this->isNumericValue($row[2] ?? null)) {
-                $errors[] = "'TOP SUPPLIER', {$excelRow}C: Gross total harus berupa angka.";
+                $errors[] = ['location' => "C{$excelRow}", 'message' => 'Gross total harus berupa angka.'];
             }
 
             // D: Net Sales Total
             if (!$this->isNumericValue($row[3] ?? null)) {
-                $errors[] = "'TOP SUPPLIER', {$excelRow}D: Net sales total harus berupa angka.";
+                $errors[] = ['location' => "D{$excelRow}", 'message' => 'Net sales total harus berupa angka.'];
             }
         }
 
