@@ -106,7 +106,7 @@ class LaporanExcelValidator
             return $errors;
         }
 
-        // Cell 5G (Index 6) - Total Sales
+        // Cell G5 (Index 6) - Total Sales
         $totalSales = $row[6] ?? null;
         if ($totalSales === null || $totalSales === '') {
             $errors[] = ['location' => 'G5', 'message' => 'Total sales tidak boleh kosong.'];
@@ -114,7 +114,7 @@ class LaporanExcelValidator
             $errors[] = ['location' => 'G5', 'message' => 'Total sales harus berupa angka.'];
         }
 
-        // Cell 5L (Index 11) - Total Growth
+        // Cell L5 (Index 11) - Total Growth
         $totalGrowth = $row[11] ?? null;
         if ($totalGrowth === null || $totalGrowth === '') {
             $errors[] = ['location' => 'L5', 'message' => 'Total growth tidak boleh kosong.'];
@@ -122,7 +122,7 @@ class LaporanExcelValidator
             $errors[] = ['location' => 'L5', 'message' => 'Total growth harus berupa angka.'];
         }
 
-        // Cell 5Q (Index 16) - Jumlah Transaksi
+        // Cell Q5 (Index 16) - Jumlah Transaksi
         $jumlahTransaksi = $row[16] ?? null;
         if ($jumlahTransaksi === null || $jumlahTransaksi === '') {
             $errors[] = ['location' => 'Q5', 'message' => 'Jumlah transaksi tidak boleh kosong.'];
@@ -130,7 +130,7 @@ class LaporanExcelValidator
             $errors[] = ['location' => 'Q5', 'message' => 'Jumlah transaksi harus berupa angka.'];
         }
 
-        // Cell 5V (Index 21) - Growth Member
+        // Cell V5 (Index 21) - Growth Member
         $growthMember = $row[21] ?? null;
         if ($growthMember === null || $growthMember === '') {
             $errors[] = ['location' => 'V5', 'message' => 'Growth member tidak boleh kosong.'];
@@ -205,14 +205,14 @@ class LaporanExcelValidator
                     $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Ampera wajib diisi untuk laporan gabungan.'];
                 }
                 if (!$this->isNumericValue($palVal)) {
-                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Pal wajib diisi untuk laporan gabungan.'];
+                    $errors[] = ['location' => "L{$excelRow}", 'message' => 'Kolom Pal wajib diisi untuk laporan gabungan.'];
                 }
             } else {
                 if ($amperaVal !== null && $amperaVal !== '') {
                     $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Ampera harus kosong untuk laporan non-gabungan.'];
                 }
                 if ($palVal !== null && $palVal !== '') {
-                    $errors[] = ['location' => "K{$excelRow}", 'message' => 'Kolom Pal harus kosong untuk laporan non-gabungan.'];
+                    $errors[] = ['location' => "L{$excelRow}", 'message' => 'Kolom Pal harus kosong untuk laporan non-gabungan.'];
                 }
             }
         }
@@ -235,6 +235,14 @@ class LaporanExcelValidator
 
         if ($lastRowIndex === -1) {
             return $errors;
+        }
+
+        $totalItems = $lastRowIndex - 1;
+        if ($totalItems > 300) {
+            $errors[] = [
+                'location' => null,
+                'message'  => "Jumlah produk ({$totalItems}) melebihi batas maksimal 300 produk.",
+            ];
         }
 
         foreach ($dataRows as $rowIndex => $row) {
