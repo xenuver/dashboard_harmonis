@@ -3,16 +3,25 @@ import { api } from "../services/api";
 import { isAxiosError } from "axios";
 
 import type { SubmitEvent as ReactSubmitEvent } from "react";
+import type ReportUploadValidationErrorResponse from '../../types/ReportUploadValidationErrorResponse';
+import type ReportValidationErrorItem from '../../types/Models/ReportValidationErrorItem';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Button } from "@/components/ui/button";
 import { Dropzone, type ExcelDropzoneRef } from "../components/upload/ExcelDropZone";
-import { CircleCheck, CircleX, FileUp } from "lucide-react";
+import { CircleCheck, CircleX, FileUp, ChevronDown } from "lucide-react";
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const UPLOAD_MESSAGE_NOTHING = 0;
 const UPLOAD_MESSAGE_SUCCESS = 1;
 const UPLOAD_MESSAGE_FAIL = 2;
+const UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR = 3;
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -29,6 +38,7 @@ export function Upload() {
 
   const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
   const [uploadMessageState, setUploadMessageState] = reactUseState<number>(0);
+  const [xlsxUploadValidationErrorsList, setXlsxUploadValidationErrorsList] = reactUseState<Record<string, ReportValidationErrorItem[]> | null>(null);
   const [attachedFile, setAttachedFile] = reactUseState<File | null>(null);
 
   const dropzoneRef = reactUseRef<ExcelDropzoneRef | null>(null);
@@ -148,6 +158,16 @@ export function Upload() {
         if(status === 409) {
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
           setUploadMessageText("Data untuk periode ini sudah ada");
+        } else if(status === 422) {
+          if(e.response?.data?.xlsxValidationErrors) {
+            const response = e.response.data as ReportUploadValidationErrorResponse;
+            setUploadMessageText("Terjadi kesalahan dalam validasi data");
+            setXlsxUploadValidationErrorsList(response.xlsxValidationErrors);
+            setUploadMessageState(UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR);
+          }
+          setUploadMessageState(UPLOAD_MESSAGE_FAIL);
+          setUploadMessageText("Terjadi kesalahan dalam membuat permintaan upload");
+          setUploadMessageState(UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR);
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
@@ -242,6 +262,70 @@ export function Upload() {
                 </CardContent>
               </Card>
             }
+            { uploadMessageState === UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR && (
+              <Card className="mb-5 border-red-300 bg-red-50">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <CircleX className="shrink-0 stroke-red-700" />
+
+                    <CardTitle className="text-red-700">
+                      {uploadMessageText}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-3">
+                  { xlsxUploadValidationErrorsList && Object.entries(xlsxUploadValidationErrorsList).map(
+                    ([sheetName, errors]) => (
+                      <Collapsible key={sheetName}>
+                        <Card>
+                          <CollapsibleTrigger className="group1 flex w-full items-center justify-between pl-5 pr-5 text-left hover:bg-muted/50">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">
+                                  {sheetName}
+                                </span>
+
+                                <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">
+                                  {errors.length}
+                                </span>
+                              </div>
+
+                              <ChevronDown className="h-4 w-4 transition-transform duration-200 group1-data-panel-open:rotate-180" />
+                          </CollapsibleTrigger>
+
+                          <CollapsibleContent>
+                            <CardContent className="border-t pt-4">
+                              <ul className="space-y-2">
+                                {errors.map((error, index) => (
+                                  <li
+                                    key={`${sheetName}-${error.location}-${index}`}
+                                    className="rounded-md bg-red-50 p-3"
+                                  >
+                                    <div className="flex gap-3">
+                                      <div>
+                                        {error.location && (
+                                          <div className="font-mono text-sm font-semibold text-red-700">
+                                            {error.location}
+                                          </div>
+                                        )}
+
+                                        <div className="text-sm text-red-900">
+                                          {error.message}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </CollapsibleContent>
+                        </Card>
+                      </Collapsible>
+                    )
+                  )}
+                </CardContent>
+              </Card>
+            )}
             <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} disabled={restrictFormChange} />
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 mt-4">
               <Button variant="destructive" onClick={resetAttachmentState}  disabled={restrictFormChange}>
