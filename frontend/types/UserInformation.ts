@@ -1,5 +1,6 @@
 export interface UserInformation {
     id: number,
     username: string,
-    role: "it_staff" | "owner"
+    role: "it_staff" | "owner",
+    enabled?: boolean,
 }

@@ -6,6 +6,7 @@ import Upload from './view/Upload'
 import ProdukPenjualan from './view/ProdukPenjualan';
 import SupplierPenjualan from './view/SupplierPenjualan';
 import UiTest from './view/UiTest';
+import KelolaPengguna from './view/KelolaPengguna';
 import { LoggedInLayout } from "./layouts/LoggedInLayout";
 import { LoggedOutLayout } from "./layouts/LoggedOutLayout";
 import AutoRedirectIfSignedIn from "./components/routes/auth/AutoRedirectIfSignedIn";
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/upload" element={<Upload />} />
           <Route path="/produk-penjualan" element={<ProdukPenjualan />} />
           <Route path="/supplier-penjualan" element={<SupplierPenjualan />} />
+          <Route path="/kelola-pengguna" element={<KelolaPengguna />} />
         </Route>
       </Route>
       <Route path="/uitest" element={<UiTest />} />
