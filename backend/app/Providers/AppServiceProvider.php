@@ -40,5 +40,11 @@ class AppServiceProvider extends ServiceProvider
                 ? Response::allow()
                 : Response::denyWithStatus(403, "Anda tidak diperbolehkan untuk mengunggah laporan");
         });
+
+        Gate::define('manage-users', function(User $user) {
+            return $user->isItStaff() 
+                ? Response::allow()
+                : Response::denyWithStatus(403, "Anda tidak diperbolehkan untuk mengatur pengguna");
+        });
     }
 }
