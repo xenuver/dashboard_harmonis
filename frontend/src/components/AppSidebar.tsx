@@ -39,7 +39,7 @@ export function AppSidebar() {
       <SidebarContent>
         { (sessionManager.getIdentity()?.role === "owner" || sessionManager.getIdentity()?.role === "it_staff") &&
           <SidebarGroup>
-            <SidebarGroupLabel>Navigasi Utama</SidebarGroupLabel>
+            <SidebarGroupLabel>Lihat Data</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {topNavigationItems.map((item) => {
