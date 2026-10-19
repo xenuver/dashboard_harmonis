@@ -151,7 +151,7 @@ export function ProdukPenjualan() {
     } else {
       searchHasMounted.current = true;
     }
-  }, [jenisLaporanSaatIni, productPerPage, sortirTingkatProduk, resetSearchTrigger]);
+  }, [jenisLaporanSaatIni, productPerPage, sortirTingkatProduk, resetSearchTrigger, pickedYear, pickedMonth]);
 
     return (<>
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Produk</h1>
@@ -160,7 +160,7 @@ export function ProdukPenjualan() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => { setJenisLaporanSaatIni(event.target.value); retrySearchNow(); }}>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => setJenisLaporanSaatIni(event.target.value)}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -177,7 +177,7 @@ export function ProdukPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); retrySearchNow(); }}>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => setPickedMonth(parseInt(event.target.value))}>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                 ))}
@@ -185,7 +185,7 @@ export function ProdukPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => { setPickedYear(parseInt(event.target.value)); retrySearchNow(); }}>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => setPickedYear(parseInt(event.target.value))}>
                 {
                   yearOptions.map((value, index) => (
                     <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>

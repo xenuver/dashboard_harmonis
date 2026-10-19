@@ -168,7 +168,7 @@ export function KelolaPengguna() {
             </Field>
             <Field>
               <FieldLabel htmlFor="jenislaporan">Role pengguna:</FieldLabel>
-              <NativeSelect required={false} name="role" onChange={(event) => { setRoleSaatIni(event.target.value); retrySearchNow(); }}>
+              <NativeSelect required={false} name="role" onChange={(event) => { setRoleSaatIni(event.target.value) }}>
                   <NativeSelectOption tabIndex={1} value="" key={1}>Apapun</NativeSelectOption>
                   {
                     userRoles.map((value, index) => (
