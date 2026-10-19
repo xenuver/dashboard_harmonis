@@ -22,7 +22,7 @@ class SupplierPenjualanController extends Controller
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
             'periode_bulan' => 'required|integer|between:1,12',
             'periode_tahun' => 'required|integer|between:-32768,32767',
-            'search'        => 'nullable|string',
+            'search'        => 'sometimes|string',
             'per_page'      => 'required|in:10,20,50|integer',
             'page'          => 'integer|min:1',
         ], [
