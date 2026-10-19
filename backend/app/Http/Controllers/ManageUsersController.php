@@ -21,6 +21,16 @@ class ManageUsersController extends Controller
             'role' => 'sometimes|in:it_staff,owner',
             'per_page' => 'required|integer|in:10,20,50',
             'page' => 'required|integer|min:1'
+        ], [
+            'usernamelike.string' => 'format kata kunci nama pengguna harus merupakan string',
+            'usernamelike.alpha_dash' => 'kata kunci nama pengguna hanya menerima huruf dan angka',
+            'role.in' => 'Role dari pengguna hanya menerima nilai it_staff dan owner',
+            'per_page.required' => 'data per halaman harus diisi',
+            'per_page.integer' => 'format data per halaman harus merupakan angka dalam integer',
+            'per_page.in' => 'jumlah data per halaman hanya menerima nilai 10, 20, dan 50',
+            'page.required' => 'halaman harus diisi',
+            'page.integer' => 'halaman harus merupakan angka dalam integer',
+            'page.min' => 'angka pada halaman harus minimal 1',
         ]);
 
         $query = User::query();
