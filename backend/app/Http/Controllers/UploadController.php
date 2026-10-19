@@ -23,6 +23,19 @@ class UploadController extends Controller
             'periode_tahun' => 'required|integer|min:1901|max:2155',
             'file'          => 'required|file|mimes:xlsx',
             'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ], [
+            'jenis_laporan.required' => 'Jenis laporan harus diisi',
+            'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
+            'periode_bulan.required' => 'Periode bulan harus diisi',
+            'periode_bulan.integer' => 'Periode bulan harus merupakan angka dalam format integer',
+            'periode_bulan.min' => 'Periode bulan harus berupa angka minimal 1',
+            'periode_bulan.max' => 'Periode bulan harus berupa angka maksimal 12',
+            'periode_tahun.required' => 'Periode bulan harus diisi',
+            'periode_tahun.integer' => 'Periode bulan harus merupakan angka dalam format integer',
+            'periode_tahun.min' => 'Periode tahun harus berupa angka minimal -32768',
+            'periode_tahun.max' => 'Periode tahun harus berupa angka maksimal 32767',
+            'file.required' => 'File harus dilampirkan',
+            'file.mimes' => 'File lampiran harus dalam format .xlsx',
         ]);
 
         $dataExists = LaporanUpload::where('jenis_laporan', $validated['jenis_laporan'])
