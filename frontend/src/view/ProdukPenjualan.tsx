@@ -293,35 +293,54 @@ export function ProdukPenjualan() {
       { (errorCode === ERROR_CODE_SEARCH_NO_ERROR || errorCode === ERROR_CODE_SEARCH_NO_DATA || errorCode === ERROR_CODE_SEARCH_CONNECTION_ERROR) &&
         <Card className="m-5">
           <CardContent>
-            <div>
-              <div className="flex items-center justify-center gap-2">
-                { currentPage - 1 > 0 && 
-                  <Button onClick={() => setCurrentPage(currentPage - 1)}><ArrowLeft />Sebelumnya</Button>
-                }
-                { currentPage - 2 >= 1 &&
-                <>
-                  <Button onClick={() => setCurrentPage(1)}>{1}</Button>
-                  <div>...</div>
-                </>
-                }
-                {currentPage - 1 > 0 && <Button onClick={() => setCurrentPage(currentPage - 1)}>{currentPage - 1}</Button> }
-                <Button disabled={true}>{currentPage}</Button>
-                {currentPage + 1 <= maxPage && <Button onClick={() => setCurrentPage(currentPage + 1)}>{currentPage + 1}</Button>}
-                { currentPage + 2 <= maxPage && 
-                  <>
-                    <div>...</div>
-                    <Button onClick={() => setCurrentPage(maxPage)}>{maxPage}</Button>
-                  </>
-                }
-                {currentPage + 1 <= maxPage && 
-                  <Button onClick={() => setCurrentPage(currentPage + 1)}>Selanjutnya<ArrowRight /></Button>
-                }
+            { (errorCode !== ERROR_CODE_SEARCH_NO_DATA || totalProducts > 0) &&
+              <div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 w-full max-w-full px-4 box-border">
+
+                  {currentPage - 1 > 0 && (
+                    <Button onClick={() => setCurrentPage(currentPage - 1)} className="w-full sm:w-auto max-w-xs flex items-center justify-center gap-2">
+                      <ArrowLeft />
+                      <span>Sebelumnya</span>
+                    </Button>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-full">
+                    {currentPage - 2 >= 1 && (
+                      <Button onClick={() => setCurrentPage(1)}>{1}</Button>
+                    )}
+                    {currentPage - 3 >= 1 && <div className="px-1">...</div>}
+                    {currentPage - 1 > 0 && (
+                      <Button onClick={() => setCurrentPage(currentPage - 1)}>
+                        {currentPage - 1}
+                      </Button>
+                    )}
+
+                    <Button disabled={true}>{currentPage}</Button>
+
+                    {currentPage + 1 <= maxPage && (
+                      <Button onClick={() => setCurrentPage(currentPage + 1)}>
+                        {currentPage + 1}
+                      </Button>
+                    )}
+                    {currentPage + 3 <= maxPage && <div className="px-1">...</div>}
+                    {currentPage + 2 <= maxPage && (
+                      <Button onClick={() => setCurrentPage(maxPage)}>{maxPage}</Button>
+                    )}
+                  </div>
+
+                  {currentPage + 1 <= maxPage && (
+                    <Button onClick={() => setCurrentPage(currentPage + 1)} className="w-full sm:w-auto max-w-xs flex items-center justify-center gap-2">
+                      <span>Selanjutnya</span>
+                      <ArrowRight />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            }
 
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div>
-                {totalProducts > 0 
+                { (errorCode !== ERROR_CODE_SEARCH_NO_DATA && totalProducts > 0)
                   ? `Menampilkan produk ${productPerPage * (currentPage - 1) + 1}-${(productPerPage * (currentPage - 1)) + daftarProduk.length} dari ${totalProducts}`
                   : '\u00A0'}
               </div>
