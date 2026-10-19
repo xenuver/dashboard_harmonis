@@ -5,7 +5,7 @@ import Dashboard from './view/Dashboard';
 import Upload from './view/Upload'
 import ProdukPenjualan from './view/ProdukPenjualan';
 import SupplierPenjualan from './view/SupplierPenjualan';
-import UiTest from './view/UiTest';
+// import UiTest from './view/UiTest';
 import KelolaPengguna from './view/KelolaPengguna';
 import { LoggedInLayout } from "./layouts/LoggedInLayout";
 import { LoggedOutLayout } from "./layouts/LoggedOutLayout";
