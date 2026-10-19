@@ -12,6 +12,11 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
+        ], [
+            'username.required' => 'Nama pengguna harus diisi',
+            'password.required' => 'Password harus diisi',
+            'username.string' => 'Nama pengguna harus merupakan string',
+            'password.string' => 'Password harus harus merupakan string',
         ]);
 
         // pastikan akun aktif di database (cek kolom enabled = true)
