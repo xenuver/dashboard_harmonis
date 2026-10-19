@@ -20,16 +20,17 @@ import "../styles/index.css";
 export function LoginScreen() {
   const [loginMessageText, setLoginMessageText] = useState('');
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(window.location.search);
+  const [searchParams, setSearchParams] = useSearchParams(window.location.search);
 
   useEffect(function(){
-    async function setLoginText() {
+    function handleUrlParams() {
       if(searchParams.get("reason") === "invalid_session") {
         setLoginMessageText("Sesi sudah kedaluwarsa atau tidak valid");
       }
+      setSearchParams({}, { replace: true });
     }
 
-    setLoginText();
+    handleUrlParams();
   },[]);
 
   async function handleLoginAttempt(event: SubmitEvent) {
