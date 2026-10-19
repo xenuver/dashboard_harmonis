@@ -26,8 +26,8 @@ class DashboardController extends Controller
             'periode_bulan.required' => 'Periode bulan harus diisi',
             'periode_bulan.integer' => 'Periode bulan harus merupakan angka dalam format integer',
             'periode_bulan.between' => 'Periode bulan harus berupa angka antara 1 sampai 12',
-            'periode_tahun.required' => 'Periode bulan harus diisi',
-            'periode_tahun.integer' => 'Periode bulan harus merupakan angka dalam format integer',
+            'periode_tahun.required' => 'Periode tahun harus diisi',
+            'periode_tahun.integer' => 'Periode tahun harus merupakan angka dalam format integer',
             'periode_tahun.between' => 'Periode tahun harus berupa angka antara -32768 sampai 32767',
         ]);
  
