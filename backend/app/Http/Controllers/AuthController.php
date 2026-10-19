@@ -19,7 +19,9 @@ class AuthController extends Controller
             'password.string' => 'Password harus merupakan string',
         ]);
 
-        // pastikan akun aktif di database (cek kolom enabled = true)
+        // bagian untuk menambahkan pemeriksaan apakah akun aktif dalam database.
+        // jika field 'enabled' dalam database dari user tidak true, maka
+        // autentikasi akan ditolak walaupun username dan password sesuai
         $credentials['enabled'] = true;
  
         if (! Auth::attempt($credentials, false)) {
