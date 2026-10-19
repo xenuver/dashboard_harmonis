@@ -26,6 +26,20 @@ class ProdukPenjualanController extends Controller
             'search'        => 'nullable|string',
             'per_page'      => 'required|in:10,20,50|integer',
             'page'          => 'integer|min:1',
+        ], [
+            'jenis_laporan.required' => 'Jenis laporan harus diisi',
+            'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
+            'periode_bulan.required' => 'Periode bulan harus diisi',
+            'periode_bulan.integer' => 'Periode bulan harus merupakan angka dalam format integer',
+            'periode_bulan.min' => 'Periode bulan harus berupa angka minimal 1',
+            'periode_bulan.max' => 'Periode bulan harus berupa angka maksimal 12',
+            'periode_tahun.required' => 'Periode bulan harus diisi',
+            'periode_tahun.integer' => 'Periode bulan harus merupakan angka dalam format integer',
+            'per_page.integer' => 'format data per halaman harus merupakan angka dalam integer',
+            'per_page.in' => 'jumlah data per halaman hanya menerima nilai 10, 20, dan 50',
+            'page.required' => 'halaman harus diisi',
+            'page.integer' => 'halaman harus merupakan angka dalam integer',
+            'page.min' => 'angka pada halaman harus minimal 1',
         ]);
  
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
