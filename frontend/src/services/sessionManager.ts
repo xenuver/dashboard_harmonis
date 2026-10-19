@@ -11,13 +11,15 @@ let sessionToken = localStorage.getItem(localStorageTokenName);
 let cachedIdentity = localStorage.getItem(localStorageUserIdentityName);
 
 // auto update tokens if updated by other tabs
-window.addEventListener("storage", function(e: StorageEvent) {
-  if(e.key === localStorageTokenName) {
-    sessionToken = localStorage.getItem(localStorageTokenName);
-  }
+window.addEventListener("storage", (e: StorageEvent) => {
+  switch (e.key) {
+    case localStorageTokenName:
+      sessionToken = e.newValue;
+      break;
 
-  if(e.key === localStorageUserIdentityName) {
-    cachedIdentity = localStorage.getItem(localStorageUserIdentityName);
+    case localStorageUserIdentityName:
+      cachedIdentity = e.newValue;
+      break;
   }
 });
 
