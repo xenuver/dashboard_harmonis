@@ -22,14 +22,14 @@ class AuthController extends Controller
         // pastikan akun aktif di database (cek kolom enabled = true)
         $credentials['enabled'] = true;
  
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials, false)) {
             return response()->json([
                 'message' => 'Username atau password salah',
             ], 401); // -> tampilkan pesan error di form Login (sesuai desain Figma)
         }
  
-        $user = Auth::user();
-        $token = $user->createToken('dashboard-token', ['*'], now()->addHour())->plainTextToken;
+        $user = $request->user();
+        $token = $user->createToken('auth_token', ['*'], now()->addHour())->plainTextToken;
  
         return response()->json([
             'user'  => $user->only('id', 'username', 'role'),
