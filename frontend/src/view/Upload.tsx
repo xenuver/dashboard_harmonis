@@ -197,7 +197,7 @@ export function Upload() {
   }
 
   return (<>
-    <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Upload Data</h1>
+    <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Upload Laporan</h1>
     <div>
       <form onSubmit={handleFormSubmit} ref={uploadFormRef}>
         <Card className="m-5">

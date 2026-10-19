@@ -16,7 +16,7 @@ export function LoggedInLayout() {
     "/dashboard": "Dashboard",
     "/upload": "Upload Laporan",
     "/produk-penjualan": "Peringkat Produk",
-    "/supplier-penjualan": "Supplier Teratas",
+    "/supplier-penjualan": "Peringkat Supplier",
     "/kelola-pengguna": "Kelola Pengguna",
   };
 

@@ -17,8 +17,8 @@ import sessionManager from "@/services/sessionManager";
 
 const topNavigationItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, viewableBy: ["owner", "it_staff"] },
-  { title: "Penjualan Produk", url: "/produk-penjualan", icon: ShoppingCart, viewableBy: ["owner", "it_staff"] },
-  { title: "Supplier Teratas", url: "/supplier-penjualan", icon: Truck, viewableBy: ["owner", "it_staff"] },
+  { title: "Peringkat Produk", url: "/produk-penjualan", icon: ShoppingCart, viewableBy: ["owner", "it_staff"] },
+  { title: "Peringkat Supplier", url: "/supplier-penjualan", icon: Truck, viewableBy: ["owner", "it_staff"] },
 ];
 
 const manageDataNavigationItems = [
