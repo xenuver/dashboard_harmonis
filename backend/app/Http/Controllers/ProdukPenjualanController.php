@@ -20,7 +20,7 @@ class ProdukPenjualanController extends Controller
 
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
-            'periode_bulan' => 'required|integer|min:1|max:12',
+            'periode_bulan' => 'required|integer|between:1,12',
             'periode_tahun' => 'required|integer',
             'kategori'      => 'required|in:tertinggi,terendah',
             'search'        => 'nullable|string',
@@ -31,8 +31,7 @@ class ProdukPenjualanController extends Controller
             'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
             'periode_bulan.required' => 'Periode bulan harus diisi',
             'periode_bulan.integer' => 'Periode bulan harus merupakan angka dalam format integer',
-            'periode_bulan.min' => 'Periode bulan harus berupa angka minimal 1',
-            'periode_bulan.max' => 'Periode bulan harus berupa angka maksimal 12',
+            'periode_bulan.between' => 'Periode bulan harus berupa angka antara 1 sampai 12',
             'periode_tahun.required' => 'Periode bulan harus diisi',
             'periode_tahun.integer' => 'Periode bulan harus merupakan angka dalam format integer',
             'kategori.required' => 'Kategori laporan harus diisi',

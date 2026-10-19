@@ -19,20 +19,18 @@ class UploadController extends Controller
     {
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
-            'periode_bulan' => 'required|integer|min:1|max:12',
-            'periode_tahun' => 'required|integer|min:-32768|max:32767',
+            'periode_bulan' => 'required|integer|between:1,12',
+            'periode_tahun' => 'required|integer|between:-32768,32767',
             'file'          => 'required|file|mimes:xlsx',
         ], [
             'jenis_laporan.required' => 'Jenis laporan harus diisi',
             'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
             'periode_bulan.required' => 'Periode bulan harus diisi',
             'periode_bulan.integer' => 'Periode bulan harus merupakan angka dalam format integer',
-            'periode_bulan.min' => 'Periode bulan harus berupa angka minimal 1',
-            'periode_bulan.max' => 'Periode bulan harus berupa angka maksimal 12',
+            'periode_bulan.between' => 'Periode bulan harus berupa angka antara 1 sampai 12',
             'periode_tahun.required' => 'Periode bulan harus diisi',
             'periode_tahun.integer' => 'Periode bulan harus merupakan angka dalam format integer',
-            'periode_tahun.min' => 'Periode tahun harus berupa angka minimal -32768',
-            'periode_tahun.max' => 'Periode tahun harus berupa angka maksimal 32767',
+            'periode_tahun.between' => 'Periode tahun harus berupa angka antara -32768 sampai 32767',
             'file.required' => 'File harus dilampirkan',
             'file.mimes' => 'File lampiran harus dalam format .xlsx',
         ]);
