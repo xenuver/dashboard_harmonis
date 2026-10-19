@@ -23,16 +23,13 @@ export function LoginScreen() {
   const [searchParams] = useSearchParams(window.location.search);
 
   useEffect(function(){
-    let cancelled = false;
-
-    if(!cancelled && searchParams.get("reason") === "invalid_session") {
-      console.log("invalid session");
-      setLoginMessageText("Sesi sudah kedaluwarsa atau tidak valid");
+    async function setLoginText() {
+      if(searchParams.get("reason") === "invalid_session") {
+        setLoginMessageText("Sesi sudah kedaluwarsa atau tidak valid");
+      }
     }
 
-    return () => {
-      cancelled = true;
-    };
+    setLoginText();
   },[]);
 
   async function handleLoginAttempt(event: SubmitEvent) {
