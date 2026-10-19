@@ -22,7 +22,6 @@ class UploadController extends Controller
             'periode_bulan' => 'required|integer|min:1|max:12',
             'periode_tahun' => 'required|integer|min:1901|max:2155',
             'file'          => 'required|file|mimes:xlsx',
-            'mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ], [
             'jenis_laporan.required' => 'Jenis laporan harus diisi',
             'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
