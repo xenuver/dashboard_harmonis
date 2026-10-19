@@ -37,7 +37,7 @@ const App = () => {
           <Route path="/kelola-pengguna" element={<KelolaPengguna />} />
         </Route>
       </Route>
-      <Route path="/uitest" element={<UiTest />} />
+      {/* <Route path="/uitest" element={<UiTest />} /> */}
     </Routes>
   );
 }
