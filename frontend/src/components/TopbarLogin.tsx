@@ -14,7 +14,11 @@ import {
 import sessionManager from "../services/sessionManager";
 import { LogOut } from "lucide-react";
 
-export function TopbarLogin() {
+type TopbarLoginProps = {
+  titleBar?: string;
+}
+
+export function TopbarLogin({ titleBar = "Dashboard" }: TopbarLoginProps) {
   const navigate = useNavigate();
 
   return (
@@ -22,7 +26,7 @@ export function TopbarLogin() {
       <div className="flex items-center gap-2">
         <SidebarTrigger />
         <div className="h-4 w-px bg-border" />
-        <h1 className="text-sm font-medium">Dashboard</h1>
+        <h1 className="text-sm font-medium">{titleBar}</h1>
       </div>
 
       <div className="flex items-center gap-3">
