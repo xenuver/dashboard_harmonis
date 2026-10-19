@@ -59,7 +59,8 @@ class ProdukPenjualan extends Model
     {
         return $query->where(function (Builder $q) use ($keyword) {
             $q->where('nama_brg', 'like', "%{$keyword}%")
-                ->orWhere('kode_brg', 'like', "%{$keyword}%");
+                ->orWhere('kode_brg', 'like', "%{$keyword}%")
+                ->orWhere('barcode', 'like', "%{$keyword}%");
         });
     }
 

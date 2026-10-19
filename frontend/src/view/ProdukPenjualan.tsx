@@ -197,7 +197,7 @@ export function ProdukPenjualan() {
           <FieldGroup className="gap-4 mt-4">
             <Field className="flex flex-col gap-2 w-full">
               <FieldLabel htmlFor="cariproduk">
-                Cari Kode Barang atau Nama barang:
+                Cari Barcode, Kode Barang atau Nama barang:
               </FieldLabel>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
                 <Input 
@@ -205,7 +205,7 @@ export function ProdukPenjualan() {
                   name="cariproduk" 
                   className="w-full sm:flex-1 min-w-0"
                   onChange={(e) => setKataKunciPencarian(e.target.value)} 
-                  placeholder="Masukkan kode barang atau nama barang di sini" 
+                  placeholder="Masukkan barcode, kode barang atau nama barang di sini" 
                   onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
                 />
                 <Button 
