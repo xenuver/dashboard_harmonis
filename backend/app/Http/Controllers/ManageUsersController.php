@@ -125,7 +125,7 @@ class ManageUsersController extends Controller
         }
 
         if (array_key_exists('role', $validated)) {
-            if ($request->user()->id === $validated['userid'] && $validated['role'] === 'owner') {
+            if ($request->user()->id == $validated['userid'] && $validated['role'] === 'owner') {
                 return response()->json(['message' => 'Tidak dapat menurunkan hak akses akun sendiri'], 422);
             }
             $user->role = $validated['role'];
