@@ -59,6 +59,16 @@ class ManageUsersController extends Controller
             'password' => 'required|string',
             'role' => 'required|in:it_staff,owner',
             'enabled' => 'required|boolean',
+        ], [
+            'username.string' => 'format nama pengguna harus merupakan string',
+            'username.alpha_dash' => 'nama pengguna hanya menerima karakter huruf, angka, - dan _',
+            'username.unique' => 'nama pengguna sudah digunakan',
+            'password.required' => 'password harus diisi',
+            'password.string' => 'format password harus merupakan string',
+            'role.required' => 'role harus diisi',
+            'role.string' => 'role hanya menerima nilai it_staff dan owner',
+            'enabled.required' => 'enabled harus diisi',
+            'enabled.boolean' => 'enabled hanya menerima true dan false atau 1 dan 0',
         ]);
 
         $newUser = User::create([
@@ -82,6 +92,14 @@ class ManageUsersController extends Controller
             'password' => 'sometimes|string',
             'role' => 'sometimes|in:it_staff,owner',
             'enabled' => 'sometimes|boolean',
+        ], [
+            'userid.required' => 'ID pengguna harus diisi',
+            'userid.exists' => 'ID pengguna harus merupakan pengguna yang valid',
+            'username.string' => 'format nama pengguna harus merupakan string',
+            'username.alpha_dash' => 'nama pengguna hanya menerima karakter huruf, angka, - dan _',
+            'password.string' => 'format password harus merupakan string',
+            'role.string' => 'role hanya menerima nilai it_staff dan owner',
+            'enabled.boolean' => 'enabled hanya menerima true dan false atau 1 dan 0',
         ]);
 
         $user = User::findOrFail($validated['userid']);
@@ -129,6 +147,9 @@ class ManageUsersController extends Controller
     {
         $validated = $request->validate([
             'userid' => 'required|exists:users,id',
+        ], [
+            'userid.required' => 'ID pengguna harus diisi',
+            'userid.exists' => 'ID pengguna harus merupakan pengguna yang valid',
         ]);
 
         $user = User::findOrFail($validated['userid']);
