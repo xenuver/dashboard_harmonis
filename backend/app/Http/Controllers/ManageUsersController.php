@@ -117,12 +117,8 @@ class ManageUsersController extends Controller
         }
 
         if (array_key_exists('enabled', $validated)) {
-            if ($request->user()->id === $validated['userid'] && ($validated['enabled'] === false)) {
-                return response()->json(['message' => 'Tidak dapat menonaktifkan akun sendiri'], 422);
-            }
-
-            if ($request->user()->id === $validated['userid'] && ($validated['enabled'] === true)) {
-                return response()->json(['message' => 'Tidak dapat mengaktifkan akun sendiri'], 422);
+            if ($request->user()->id == $validated['userid']) {
+                return response()->json(['message' => 'Tidak dapat mengaktifkan/menonaktifkan akun sendiri'], 422);
             }
 
             $user->enabled = $validated['enabled'];
