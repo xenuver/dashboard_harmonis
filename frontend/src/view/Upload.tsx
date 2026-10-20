@@ -275,8 +275,9 @@ export function Upload() {
                   </div>
                 </CardHeader>
 
-                <CardContent className="space-y-3">
-                  { xlsxUploadValidationErrorsList && Object.entries(xlsxUploadValidationErrorsList).map(
+                { xlsxUploadValidationErrorsList &&
+                  <CardContent className="space-y-3">
+                  { Object.entries(xlsxUploadValidationErrorsList).map(
                     ([sheetName, errors]) => (
                       <Collapsible key={sheetName}>
                         <Card>
@@ -325,6 +326,7 @@ export function Upload() {
                     )
                   )}
                 </CardContent>
+                }
               </Card>
             )}
             <Dropzone ref={dropzoneRef} onDropAccepted={(files) => setAttachedFile(files[0])} disabled={restrictFormChange} />
