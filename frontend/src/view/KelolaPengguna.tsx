@@ -20,6 +20,8 @@ import type { UserInformation } from "types/UserInformation";
 import { DeleteUserDialogFlow } from "@/components/manageusers/DeleteUserDialogFlow";
 import { EditUserDialogFlow } from "@/components/manageusers/EditUserDialogFlow";
 
+import sessionManager from "@/services/sessionManager";
+
 const userRoles = [
   {
     label: "Owner",
@@ -220,7 +222,9 @@ export function KelolaPengguna() {
                       <TableCell>
                         <div className="flex flex-row items-center gap-2">
                           <EditUserDialogFlow retryTrigger={retrySearchNow} currentUserInfo={user} />
+                          {sessionManager.getIdentity()?.id !== user.id && 
                           <DeleteUserDialogFlow retryTrigger={retrySearchNow} deleteUserId={user.id} deleteUsername={user.username} />
+                          }
                         </div>
                       </TableCell>
                     </TableRow>
