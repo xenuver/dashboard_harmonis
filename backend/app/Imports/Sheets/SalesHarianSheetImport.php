@@ -20,9 +20,9 @@ class SalesHarianSheetImport implements ToArray
             }
 
             $this->data[(int) $tanggal] = [
-                'total'  => (int) ($row[4] ?? 0),
+                'total' => (int) ($row[4] ?? 0),
                 'ampera' => (int) ($row[10] ?? 0),
-                'pal'    => (int) ($row[11] ?? 0),
+                'pal' => (int) ($row[11] ?? 0),
             ];
         }
     }

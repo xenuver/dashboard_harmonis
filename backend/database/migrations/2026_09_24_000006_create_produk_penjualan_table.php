@@ -12,11 +12,11 @@ return new class extends Migration
      * qty bisa negatif -> menandakan barang retur (lihat sheet TOP 300 LOWEST asli),
      * bukan sekadar "kurang laku". Tandai beda secara visual di frontend.
      */
+    private Closure $createTable;
 
-    private \Closure $createTable;
-
-    public function __construct() {
-        $this -> createTable = function(Blueprint $table) {
+    public function __construct()
+    {
+        $this->createTable = function (Blueprint $table) {
             $table->id();
             $table->foreignId('upload_id')
                 ->constrained('laporan_uploads')
@@ -39,8 +39,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('produk_penjualan', $this -> createTable);
-        Schema::create('produk_penjualan_temp', $this -> createTable);
+        Schema::create('produk_penjualan', $this->createTable);
+        Schema::create('produk_penjualan_temp', $this->createTable);
     }
 
     public function down(): void

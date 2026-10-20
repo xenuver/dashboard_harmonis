@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use App\Models\LaporanUpload;
 use Illuminate\Http\Request;
- 
+
 class ProdukPenjualanController extends Controller
 {
     public function index(Request $request)
@@ -13,19 +13,19 @@ class ProdukPenjualanController extends Controller
             'jenis_laporan' => 'gabungan',
             'periode_bulan' => date('n'),
             'periode_tahun' => date('Y'),
-            'kategori'      => 'tertinggi',
-            'per_page'      => 10,
-            'page'          => 1,
+            'kategori' => 'tertinggi',
+            'per_page' => 10,
+            'page' => 1,
         ]);
 
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
             'periode_bulan' => 'required|integer|between:1,12',
             'periode_tahun' => 'required|integer|between:-32768,32767',
-            'kategori'      => 'required|in:tertinggi,terendah',
-            'search'        => 'sometimes|string',
-            'per_page'      => 'required|in:10,20,50|integer',
-            'page'          => 'integer|min:1',
+            'kategori' => 'required|in:tertinggi,terendah',
+            'search' => 'sometimes|string',
+            'per_page' => 'required|in:10,20,50|integer',
+            'page' => 'integer|min:1',
         ], [
             'jenis_laporan.required' => 'Jenis laporan harus diisi',
             'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
@@ -44,7 +44,7 @@ class ProdukPenjualanController extends Controller
             'page.integer' => 'halaman harus merupakan angka dalam integer',
             'page.min' => 'angka pada halaman harus minimal 1',
         ]);
- 
+
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
             ->periode($validated['periode_bulan'], $validated['periode_tahun'])
             ->first(); // -> 404 kalau belum ada data (state Kosong)
@@ -52,21 +52,21 @@ class ProdukPenjualanController extends Controller
         if (! $upload) {
             return response()->json(['message' => 'Belum ada data'], 404); // -> state Kosong
         }
- 
+
         $query = $upload->produkPenjualan()->where('kategori', $validated['kategori']);
- 
+
         if (! empty($validated['search'])) {
             $query->cari($validated['search']); // scope dari model ProdukPenjualan
         }
 
-        if($validated['kategori'] === "tertinggi") {
+        if ($validated['kategori'] === 'tertinggi') {
             $query->OrderByDesc('qty');
         }
 
-        if($validated['kategori'] === "terendah") {
+        if ($validated['kategori'] === 'terendah') {
             $query->OrderBy('qty');
         }
- 
+
         return $query->paginate($validated['per_page']);
     }
 }

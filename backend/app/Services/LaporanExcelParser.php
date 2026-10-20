@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Imports\LaporanImport;
 use Illuminate\Http\UploadedFile;
-use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as ExcelType;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanExcelParser
 {
@@ -13,7 +13,7 @@ class LaporanExcelParser
 
     public function __construct(UploadedFile $file)
     {
-        $this->importer = new LaporanImport();
+        $this->importer = new LaporanImport;
         Excel::import($this->importer, $file, null, ExcelType::XLSX);
     }
 
@@ -45,11 +45,11 @@ class LaporanExcelParser
     public function parseAll(): array
     {
         return [
-            'kpi'          => $this->parseKpiSummary(),
+            'kpi' => $this->parseKpiSummary(),
             'sales_harian' => $this->parseSalesHarian(),
-            'top_highest'  => $this->parseProdukPenjualan('tertinggi'),
-            'top_lowest'   => $this->parseProdukPenjualan('terendah'),
-            'supplier'     => $this->parseSupplierPenjualan(),
+            'top_highest' => $this->parseProdukPenjualan('tertinggi'),
+            'top_lowest' => $this->parseProdukPenjualan('terendah'),
+            'supplier' => $this->parseSupplierPenjualan(),
         ];
     }
 }

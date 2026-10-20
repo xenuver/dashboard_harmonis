@@ -9,12 +9,11 @@ return new class extends Migration
     /**
      * ~375 baris per upload, dari sheet TOP SUPPLIER.
      */
-
-    private \Closure $createTable;
+    private Closure $createTable;
 
     public function __construct()
     {
-        $this -> createTable = function (Blueprint $table) {
+        $this->createTable = function (Blueprint $table) {
             $table->id();
             $table->foreignId('upload_id')
                 ->constrained('laporan_uploads')
@@ -32,8 +31,8 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('supplier_penjualan', $this -> createTable);
-        Schema::create('supplier_penjualan_temp', $this -> createTable);
+        Schema::create('supplier_penjualan', $this->createTable);
+        Schema::create('supplier_penjualan_temp', $this->createTable);
     }
 
     public function down(): void

@@ -14,10 +14,10 @@ class ViewSheetImport implements ToArray
         $row = $rows[4] ?? [];
 
         $this->data = [
-            'total_sales'      => (int) ($row[6] ?? 0),
-            'total_growth'     => (float) ($row[11] ?? 0) * 100,
+            'total_sales' => (int) ($row[6] ?? 0),
+            'total_growth' => (float) ($row[11] ?? 0) * 100,
             'jumlah_transaksi' => (int) ($row[16] ?? 0),
-            'growth_member'    => (int) str_replace('+', '', (string) ($row[21] ?? 0)),
+            'growth_member' => (int) str_replace('+', '', (string) ($row[21] ?? 0)),
         ];
     }
 

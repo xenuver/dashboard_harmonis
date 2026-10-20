@@ -21,7 +21,7 @@ class UploadController extends Controller
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
             'periode_bulan' => 'required|integer|between:1,12',
             'periode_tahun' => 'required|integer|between:-32768,32767',
-            'file'          => 'required|file|mimes:xlsx',
+            'file' => 'required|file|mimes:xlsx',
         ], [
             'jenis_laporan.required' => 'Jenis laporan harus diisi',
             'jenis_laporan.in' => 'Hanya menerima nilai ampera, pal, dan gabungan pada jenis laporan',
@@ -55,10 +55,10 @@ class UploadController extends Controller
 
         $errors = $validator->validate();
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return response()->json([
-                'message'               => 'Validasi spreadsheet gagal.',
-                'xlsxValidationErrors'  => $errors,
+                'message' => 'Validasi spreadsheet gagal.',
+                'xlsxValidationErrors' => $errors,
             ], 422);
         }
 
@@ -67,11 +67,11 @@ class UploadController extends Controller
 
         return DB::transaction(function () use ($request, $validated, $parser, $isGabungan) {
             $upload = LaporanUpload::create([
-                'uploaded_by'   => $request->user()->id,
+                'uploaded_by' => $request->user()->id,
                 'jenis_laporan' => $validated['jenis_laporan'],
                 'periode_bulan' => $validated['periode_bulan'],
                 'periode_tahun' => $validated['periode_tahun'],
-                'status'        => 'berhasil',
+                'status' => 'berhasil',
             ]);
 
             KpiSummary::create([
@@ -105,7 +105,7 @@ class UploadController extends Controller
             }
 
             return response()->json([
-                'message'   => 'Upload berhasil',
+                'message' => 'Upload berhasil',
                 'upload_id' => $upload->id,
             ]);
         });

@@ -1,11 +1,11 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Illuminate\Http\Request;
- 
+
 class DashboardController extends Controller
 {
     public function index(Request $request)
@@ -30,16 +30,16 @@ class DashboardController extends Controller
             'periode_tahun.integer' => 'Periode tahun harus merupakan angka dalam format integer',
             'periode_tahun.between' => 'Periode tahun harus berupa angka antara -32768 sampai 32767',
         ]);
- 
+
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
             ->periode($validated['periode_bulan'], $validated['periode_tahun'])
             ->with('kpiSummary')
             ->first();
- 
+
         if (! $upload) {
             return response()->json(['message' => 'Belum ada data'], 404); // -> state Kosong
         }
- 
+
         // Data buat grafik tren: dikelompokkan per tanggal, tiap tanggal
         // berisi 1 baris (Ampera/Pal saja) atau 2 baris (mode Gabungan)
         $trend = SalesHarian::where('upload_id', $upload->id)
@@ -49,9 +49,9 @@ class DashboardController extends Controller
             ->groupBy(fn ($row) => $row->tanggal->format('Y-m-d'))
             ->map(fn ($rows) => $rows->map(fn ($r) => [
                 'cabang' => $r->cabang->nama,
-                'total'  => $r->total_penjualan,
+                'total' => $r->total_penjualan,
             ]));
- 
+
         return response()->json([
             'kpi' => $upload->kpiSummary,
             'trend' => $trend,

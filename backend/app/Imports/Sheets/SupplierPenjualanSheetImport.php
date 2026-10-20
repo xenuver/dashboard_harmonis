@@ -16,9 +16,9 @@ class SupplierPenjualanSheetImport implements ToArray
             }
 
             $this->data[] = [
-                'kode_supp'       => $row[0],
-                'nama_supp'       => $row[1],
-                'gross_total'     => (int) ($row[2] ?? 0),
+                'kode_supp' => $row[0],
+                'nama_supp' => $row[1],
+                'gross_total' => (int) ($row[2] ?? 0),
                 'net_sales_total' => (int) ($row[3] ?? 0),
             ];
         }

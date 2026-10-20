@@ -1,10 +1,10 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
- 
+
 class AuthController extends Controller
 {
     public function login(Request $request)
@@ -20,21 +20,21 @@ class AuthController extends Controller
         ]);
 
         // bagian untuk menambahkan pemeriksaan apakah akun aktif (enabled = true)
-        // dalam database. jika field 'enabled' dalam database dari user tidak true, 
+        // dalam database. jika field 'enabled' dalam database dari user tidak true,
         // maka autentikasi akan ditolak walaupun username dan password sesuai.
         $credentials['enabled'] = true;
- 
+
         if (! Auth::attempt($credentials, false)) {
             return response()->json([
                 'message' => 'Username atau password salah',
             ], 401); // -> tampilkan pesan error di form Login (sesuai desain Figma)
         }
- 
+
         $user = $request->user();
         $token = $user->createToken('auth_token', ['*'], now()->addHour())->plainTextToken;
- 
+
         return response()->json([
-            'user'  => $user->only('id', 'username', 'role'),
+            'user' => $user->only('id', 'username', 'role'),
             'token' => $token,
         ]);
     }
@@ -43,14 +43,14 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
         return response()->json([
-            'id'       => $user->id,
+            'id' => $user->id,
             'username' => $user->username,
-            'role'     => $user->role,
+            'role' => $user->role,
         ]);
     }
 
@@ -58,7 +58,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated or invalid token'], 401);
         }
 
@@ -73,7 +73,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message'       => "anda telah keluar",
+            'message' => 'anda telah keluar',
         ]);
     }
 }

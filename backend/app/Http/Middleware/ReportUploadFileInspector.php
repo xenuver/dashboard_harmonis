@@ -15,7 +15,7 @@ class ReportUploadFileInspector
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(count($request->allFiles()) > 1) {
+        if (count($request->allFiles()) > 1) {
             abort(400, 'Anda hanya bisa menggunggah 1 file');
         }
 

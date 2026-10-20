@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -15,8 +16,9 @@ class EnsureUserIsEnabled
             $user->tokens()->update([
                 'expires_at' => now()->subSecond(),
             ]);
+
             return response()->json([
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ], Response::HTTP_UNAUTHORIZED);
         }
 

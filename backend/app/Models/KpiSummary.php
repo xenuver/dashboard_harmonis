@@ -45,6 +45,6 @@ class KpiSummary extends Model
      */
     public function getTotalGrowthPercentAttribute(): string
     {
-        return number_format($this->total_growth * 100, 2) . '%';
+        return number_format($this->total_growth * 100, 2).'%';
     }
 }

@@ -1,12 +1,12 @@
 <?php
- 
+
 namespace App\Http\Controllers;
- 
-use Illuminate\Support\Facades\Hash;
+
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
- 
+use Illuminate\Support\Facades\Hash;
+
 class ManageUsersController extends Controller
 {
     public function listUsers(Request $request)
@@ -20,7 +20,7 @@ class ManageUsersController extends Controller
             'usernamelike' => 'sometimes|string|alpha_dash:ascii',
             'role' => 'sometimes|in:it_staff,owner',
             'per_page' => 'required|integer|in:10,20,50',
-            'page' => 'required|integer|min:1'
+            'page' => 'required|integer|min:1',
         ], [
             'usernamelike.string' => 'format kata kunci nama pengguna harus merupakan string',
             'usernamelike.alpha_dash' => 'kata kunci nama pengguna hanya menerima huruf dan angka',
@@ -35,12 +35,12 @@ class ManageUsersController extends Controller
 
         $query = User::query();
 
-        if(! empty($validated['usernamelike'])) {
+        if (! empty($validated['usernamelike'])) {
             $term = addcslashes($validated['usernamelike'], '\\%_');
             $query->where('username', 'like', '%'.$term.'%');
         }
 
-        if(! empty($validated['role'])) {
+        if (! empty($validated['role'])) {
             $query->where('role', $validated['role']);
         }
 
@@ -65,12 +65,12 @@ class ManageUsersController extends Controller
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
             'enabled' => $validated['enabled'],
-            'role' => $validated['role']
+            'role' => $validated['role'],
         ]);
- 
+
         return response()->json([
             'message' => 'Pengguna berhasil dibuat',
-            'user' => $newUser->only(['id', 'username', 'role', 'enabled'],)
+            'user' => $newUser->only(['id', 'username', 'role', 'enabled']),
         ]);
     }
 
@@ -86,15 +86,15 @@ class ManageUsersController extends Controller
 
         $user = User::findOrFail($validated['userid']);
 
-        if(array_key_exists('username', $validated)) {
-            if(User::where('username', $validated['username'])->where('id', '!=', $user->id)->exists()) {
+        if (array_key_exists('username', $validated)) {
+            if (User::where('username', $validated['username'])->where('id', '!=', $user->id)->exists()) {
                 return response()->json(['message' => 'Nama pengguna sudah digunakan'], 409);
             }
 
             $user->username = $validated['username'];
         }
 
-        if(array_key_exists('password', $validated)) {
+        if (array_key_exists('password', $validated)) {
             $user->password = Hash::make($validated['password']);
         }
 
@@ -110,8 +110,8 @@ class ManageUsersController extends Controller
             $user->enabled = $validated['enabled'];
         }
 
-        if(array_key_exists('role', $validated)) {
-            if($request->user()->id === $validated['userid'] && $validated['role'] === 'owner') {
+        if (array_key_exists('role', $validated)) {
+            if ($request->user()->id === $validated['userid'] && $validated['role'] === 'owner') {
                 return response()->json(['message' => 'Tidak dapat menurunkan hak akses akun sendiri'], 422);
             }
             $user->role = $validated['role'];
