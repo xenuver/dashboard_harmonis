@@ -21,7 +21,7 @@ class SupplierPenjualanController extends Controller
         $validated = $request->validate([
             'jenis_laporan' => 'required|in:ampera,pal,gabungan',
             'periode_bulan' => 'required|integer|between:1,12',
-            'periode_tahun' => 'required|integer|between:-32768,32767',
+            'periode_tahun' => 'required|integer|between:0,65535',
             'search' => 'sometimes|string',
             'per_page' => 'required|in:10,20,50|integer',
             'page' => 'integer|min:1',
@@ -33,7 +33,7 @@ class SupplierPenjualanController extends Controller
             'periode_bulan.between' => 'Periode bulan harus berupa angka antara 1 sampai 12',
             'periode_tahun.required' => 'Periode tahun harus diisi',
             'periode_tahun.integer' => 'Periode tahun harus merupakan angka dalam format integer',
-            'periode_tahun.between' => 'Periode tahun harus berupa angka antara -32768 sampai 32767',
+            'periode_tahun.between' => 'Periode tahun harus berupa angka antara 0 sampai 65535',
             'search.string' => 'Format kategori laporan harus merupakan string',
             'per_page.integer' => 'format data per halaman harus merupakan angka dalam integer',
             'per_page.in' => 'jumlah data per halaman hanya menerima nilai 10, 20, dan 50',
