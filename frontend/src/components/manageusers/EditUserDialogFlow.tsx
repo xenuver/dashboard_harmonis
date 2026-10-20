@@ -140,7 +140,7 @@ export function EditUserDialogFlow({ retryTrigger, currentUserInfo, buttonClassN
             <DialogHeader>
               <DialogTitle>Ubah Informasi Pengguna</DialogTitle>
               <DialogDescription>
-                Anda akan pengguna dengan informasi di bawah.
+                Anda akan memperbarui data pengguna dengan informasi di bawah.
                 Tekan simpan untuk memperbarui data pengguna.
               </DialogDescription>
             </DialogHeader>
