@@ -100,6 +100,8 @@ export function AddNewUserDialogFlow({ retryTrigger, buttonClassName }: AddNewUs
             setFetchMessageText(message.errors.password[0]);
           } else if(message.errors?.role[0]) {
             setFetchMessageText(message.errors.role[0]);
+          } else if(message.errors?.enabled[0]) {
+            setFetchMessageText(message.errors.enabled[0]);
           } else {
             setFetchMessageText(message.message);
           }
