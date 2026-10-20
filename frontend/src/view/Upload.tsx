@@ -164,10 +164,10 @@ export function Upload() {
             setUploadMessageText("Terjadi kesalahan dalam validasi data");
             setXlsxUploadValidationErrorsList(response.xlsxValidationErrors);
             setUploadMessageState(UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR);
+          } else {
+            setUploadMessageText("Terjadi kesalahan dalam membaca data. Pastikan laporan merupakan file .xlsx yang valid");
+            setUploadMessageState(UPLOAD_MESSAGE_FAIL);
           }
-          setUploadMessageState(UPLOAD_MESSAGE_FAIL);
-          setUploadMessageText("Terjadi kesalahan dalam membuat permintaan upload");
-          setUploadMessageState(UPLOAD_MESSAGE_XLSX_VALIDATION_ERROR);
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
