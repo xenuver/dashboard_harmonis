@@ -73,6 +73,7 @@ export function Upload() {
     event.preventDefault();
     setUploadMessageText("");
     setUploadMessageState(UPLOAD_MESSAGE_NOTHING);
+    setXlsxUploadValidationErrorsList(null);
     setRestrictFormChange(true);
 
     const uploadInformation = new FormData(event.target);
