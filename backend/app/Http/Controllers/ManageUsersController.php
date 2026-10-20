@@ -150,7 +150,7 @@ class ManageUsersController extends Controller
 
         $user = User::findOrFail($validated['userid']);
 
-        if ($request->user()->id === $validated['userid']) {
+        if ($request->user()->id == $validated['userid']) {
             return response()->json(['message' => 'Tidak dapat menghapus akun sendiri'], 422);
         }
 
