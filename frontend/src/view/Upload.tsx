@@ -125,7 +125,7 @@ export function Upload() {
     }
 
     if(fileLaporan instanceof File) {
-      if(!fileLaporan.name.endsWith(".xlsx") && fileLaporan.name !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")  {
+      if(!fileLaporan.name.toLowerCase().endsWith(".xlsx") && fileLaporan.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")  {
         setUploadMessageState(UPLOAD_MESSAGE_FAIL);
         setUploadMessageText("file laporan harus dalam format xslx");
         setRestrictFormChange(false);
