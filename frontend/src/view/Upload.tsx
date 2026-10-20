@@ -269,7 +269,7 @@ export function Upload() {
                   <div className="flex items-center gap-2">
                     <CircleX className="shrink-0 stroke-red-700" />
 
-                    <div className="text-red-700">
+                    <div className="text-red-700 font-medium">
                       {uploadMessageText}
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export function Upload() {
                         <Card>
                           <CollapsibleTrigger className="group1 flex w-full items-center justify-between pl-5 pr-5 text-left hover:bg-muted/50">
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold">
+                                <span className="font-medium">
                                   {sheetName}
                                 </span>
 
@@ -325,7 +325,7 @@ export function Upload() {
                       </Collapsible>
                     )
                   )}
-                </CardContent>
+                  </CardContent>
                 }
               </Card>
             )}
