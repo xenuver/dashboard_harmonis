@@ -26,8 +26,9 @@ export function LoginScreen() {
     function handleUrlParams() {
       if(searchParams.get("reason") === "invalid_session") {
         setLoginMessageText("Sesi sudah kedaluwarsa atau tidak valid");
+        searchParams.delete("reason");
       }
-      setSearchParams({}, { replace: true });
+      setSearchParams(searchParams, { replace: true });
     }
 
     handleUrlParams();
