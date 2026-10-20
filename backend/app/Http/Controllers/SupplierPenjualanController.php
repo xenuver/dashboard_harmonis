@@ -56,7 +56,7 @@ class SupplierPenjualanController extends Controller
             $query->cari($validated['search']); // scope dari model ProdukPenjualan
         }
 
-        return $query->orderByDesc('net_sales_total')
+        return $query->orderByDesc('gross_total')
             ->paginate($validated['per_page']);
     }
 }
