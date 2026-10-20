@@ -269,9 +269,9 @@ export function Upload() {
                   <div className="flex items-center gap-2">
                     <CircleX className="shrink-0 stroke-red-700" />
 
-                    <CardTitle className="text-red-700">
+                    <div className="text-red-700">
                       {uploadMessageText}
-                    </CardTitle>
+                    </div>
                   </div>
                 </CardHeader>
 
