@@ -13,6 +13,7 @@ import { Trash } from "lucide-react";
 import { useState, type SubmitEvent as ReactSubmitEvent } from "react"
 import { api } from "../../services/api"
 import { isAxiosError } from "axios";
+import type LaravelValidationError from "../../../types/LaravelValidationError";
 
 type ConfirmDeleteDialogProps = {
   deleteUsername?: string;
@@ -48,7 +49,20 @@ export function DeleteUserDialogFlow({ retryTrigger, deleteUsername, deleteUserI
       }
     } catch(e) {
       if(isAxiosError(e)) {
-        if (e.code === "ERR_NETWORK") {
+        const status = e.status || e.response?.status;
+
+        if (status === 422) {
+          const message = e.response?.data as LaravelValidationError;
+          if(message.errors?.username[0]) {
+            setFetchMessageText(message.errors.username[0]);
+          } else if(message.errors?.password[0]) {
+            setFetchMessageText(message.errors.password[0]);
+          } else if(message.errors?.role[0]) {
+            setFetchMessageText(message.errors.role[0]);
+          } else {
+            setFetchMessageText(message.message);
+          }
+        } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
           setFetchMessageText("Terjadi kesalahan dalam mendapatkan respon dari server");
