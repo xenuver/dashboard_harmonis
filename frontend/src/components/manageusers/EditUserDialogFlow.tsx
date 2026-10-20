@@ -109,6 +109,8 @@ export function EditUserDialogFlow({ retryTrigger, currentUserInfo, buttonClassN
             setFetchMessageText(message.errors.password[0]);
           } else if(message.errors?.role[0]) {
             setFetchMessageText(message.errors.role[0]);
+          } else {
+            setFetchMessageText(message.message);
           }
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
