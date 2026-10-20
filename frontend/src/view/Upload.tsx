@@ -244,21 +244,21 @@ export function Upload() {
           </CardHeader>
           <CardContent className="gap-2">
             { uploadMessageState === UPLOAD_MESSAGE_SUCCESS &&
-              <Card className="bg-green-300 mb-5">
+              <Card className="mb-5 border-green-300 bg-green-50">
                 <CardContent>
                   <div className="flex items-center gap-2">
                     <CircleCheck className="shrink-0 stroke-green-700" />
-                    <span>{uploadMessageText}</span>
+                    <span className="text-green-700 font-medium">{uploadMessageText}</span>
                   </div>
                 </CardContent>
               </Card>
             }
             { uploadMessageState === UPLOAD_MESSAGE_FAIL &&
-              <Card className="bg-red-300 mb-5">
+              <Card className=" mb-5 border-red-300 bg-red-50">
                 <CardContent>
                   <div className="flex items-center gap-2">
                     <CircleX className="shrink-0 stroke-red-700" />
-                    <span>{uploadMessageText}</span>
+                    <span className="text-red-700 font-medium">{uploadMessageText}</span>
                   </div>
                 </CardContent>
               </Card>
