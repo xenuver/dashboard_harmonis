@@ -23,7 +23,7 @@ class ManageUsersController extends Controller
             'page' => 'required|integer|min:1',
         ], [
             'usernamelike.string' => 'format kata kunci nama pengguna harus merupakan string',
-            'usernamelike.alpha_dash' => 'kata kunci nama pengguna hanya menerima huruf dan angka',
+            'usernamelike.alpha_dash' => 'nama pengguna hanya menerima karakter huruf, angka, - dan _',
             'role.in' => 'Role dari pengguna hanya menerima nilai it_staff dan owner',
             'per_page.required' => 'data per halaman harus diisi',
             'per_page.integer' => 'format data per halaman harus merupakan angka dalam integer',

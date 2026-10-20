@@ -19,6 +19,7 @@ import { useState, type SubmitEvent as ReactSubmitEvent } from "react"
 import { api } from "../../services/api"
 import { isAxiosError } from "axios";
 import type { UserInformation } from "../../../types/UserInformation"
+import type LaravelValidationError from "../../../types/LaravelValidationError";
 
 import lodashIsEmpty from "lodash/isEmpty";
 
@@ -98,7 +99,18 @@ export function EditUserDialogFlow({ retryTrigger, currentUserInfo, buttonClassN
       }
     } catch(e) {
       if(isAxiosError(e)) {
-        if (e.code === "ERR_NETWORK") {
+        const status = e.status || e.response?.status;
+
+        if (status === 422) {
+          const message = e.response?.data as LaravelValidationError;
+          if(message.errors?.username[0]) {
+            setFetchMessageText(message.errors.username[0]);
+          } else if(message.errors?.password[0]) {
+            setFetchMessageText(message.errors.password[0]);
+          } else if(message.errors?.role[0]) {
+            setFetchMessageText(message.errors.role[0]);
+          }
+        } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
           setFetchMessageText("Terjadi kesalahan dalam mendapatkan respon dari server");
@@ -122,7 +134,7 @@ export function EditUserDialogFlow({ retryTrigger, currentUserInfo, buttonClassN
     <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
         <DialogTrigger render={<Button title={`Ubah Pengguna ${currentUserInfo.username? currentUserInfo.username : "ini"}`} className={buttonClassName}><SquarePen /></Button>} />
         <DialogContent className="sm:max-w-sm">
-          <form onSubmit={formSubmitCallback}>
+          <form onSubmit={formSubmitCallback} noValidate>
             <DialogHeader>
               <DialogTitle>Ubah Informasi Pengguna</DialogTitle>
               <DialogDescription>
