@@ -13,6 +13,7 @@ interface DropzoneProps extends DropzoneOptions {
   label?: string
   description?: string
   disabled: boolean
+  required: boolean
 }
 
 export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
@@ -24,6 +25,7 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
   accept = {
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"]
   },
+  required = false,
   ...props
 }, ref) => {
   const [file, setFile] = React.useState<File | null>(null)
@@ -61,7 +63,7 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
         className
       )}
     >
-      <input {...getInputProps()} />
+      <input required={required} {...getInputProps()} />
       {icon}
       <p className="text-sm font-medium text-foreground">{label}</p>
       {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
