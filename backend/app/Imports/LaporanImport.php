@@ -2,18 +2,21 @@
 
 namespace App\Imports;
 
+use App\Imports\Sheets\DataTransaksiSheetImport;
+use App\Imports\Sheets\InfoSheetImport;
+use App\Imports\Sheets\PenjualanHarianSheetImport;
 use App\Imports\Sheets\ProdukPenjualanSheetImport;
-use App\Imports\Sheets\SalesHarianSheetImport;
 use App\Imports\Sheets\SupplierPenjualanSheetImport;
-use App\Imports\Sheets\ViewSheetImport;
 use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class LaporanImport implements Import, WithMultipleSheets
 {
-    protected ViewSheetImport $viewSheet;
+    protected InfoSheetImport $infoSheet;
 
-    protected SalesHarianSheetImport $salesSheet;
+    protected PenjualanHarianSheetImport $salesSheet;
+
+    protected DataTransaksiSheetImport $transactionSheet;
 
     protected ProdukPenjualanSheetImport $topHighestSheet;
 
@@ -21,10 +24,11 @@ class LaporanImport implements Import, WithMultipleSheets
 
     protected SupplierPenjualanSheetImport $supplierSheet;
 
-    public function __construct()
+    public function __construct(bool $isGabungan)
     {
-        $this->viewSheet = new ViewSheetImport;
-        $this->salesSheet = new SalesHarianSheetImport;
+        $this->infoSheet = new InfoSheetImport;
+        $this->salesSheet = new PenjualanHarianSheetImport($isGabungan);
+        $this->transactionSheet = new DataTransaksiSheetImport;
         $this->topHighestSheet = new ProdukPenjualanSheetImport('tertinggi');
         $this->topLowestSheet = new ProdukPenjualanSheetImport('terendah');
         $this->supplierSheet = new SupplierPenjualanSheetImport;
@@ -33,17 +37,18 @@ class LaporanImport implements Import, WithMultipleSheets
     public function sheets(): array
     {
         return [
-            'VIEW' => $this->viewSheet,
-            'DATA' => $this->salesSheet,
-            'TOP 300 HIGHEST' => $this->topHighestSheet,
-            'TOP 300 LOWEST' => $this->topLowestSheet,
-            'TOP SUPPLIER' => $this->supplierSheet,
+            'VIEW' => $this->infoSheet,
+            'PENJUALAN_HARIAN' => $this->salesSheet,
+            'TRANSAKSI' => $this->transactionSheet,
+            'PRODUK_TERTINGGI' => $this->topHighestSheet,
+            'PRODUK_TERENDAH' => $this->topLowestSheet,
+            'SUPPLIER' => $this->supplierSheet,
         ];
     }
 
-    public function getViewData(): array
+    public function getInfoData(): array
     {
-        return $this->viewSheet->getData();
+        return $this->infoSheet->getData();
     }
 
     public function getSalesHarianData(): array
@@ -64,5 +69,16 @@ class LaporanImport implements Import, WithMultipleSheets
     public function getSupplierData(): array
     {
         return $this->supplierSheet->getData();
+    }
+
+    public function getImportErrors(): array
+    {
+        return array_merge(
+            $this->infoSheet->getErrors(),
+            $this->salesSheet->getErrors(),
+            $this->topHighestSheet->getErrors(),
+            $this->topLowestSheet->getErrors(),
+            $this->supplierSheet->getErrors(),
+        );
     }
 }

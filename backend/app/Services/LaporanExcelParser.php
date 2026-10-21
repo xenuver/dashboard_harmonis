@@ -11,15 +11,15 @@ class LaporanExcelParser
 {
     protected LaporanImport $importer;
 
-    public function __construct(UploadedFile $file)
+    public function __construct(UploadedFile $file, bool $isGabungan)
     {
-        $this->importer = new LaporanImport;
+        $this->importer = new LaporanImport($isGabungan);
         Excel::import($this->importer, $file, null, ExcelType::XLSX);
     }
 
     public function parseKpiSummary(): array
     {
-        return $this->importer->getViewData();
+        return $this->importer->getInfoData();
     }
 
     public function parseSalesHarian(): array
@@ -37,6 +37,11 @@ class LaporanExcelParser
     public function parseSupplierPenjualan(): array
     {
         return $this->importer->getSupplierData();
+    }
+
+    public function getImportErrors(): array
+    {
+        return $this->importer->getImportErrors();
     }
 
     /**

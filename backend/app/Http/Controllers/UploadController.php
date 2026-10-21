@@ -9,7 +9,6 @@ use App\Models\ProdukPenjualan;
 use App\Models\SalesHarian;
 use App\Models\SupplierPenjualan;
 use App\Services\LaporanExcelParser;
-use App\Services\LaporanExcelValidator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -46,14 +45,10 @@ class UploadController extends Controller
             ], 409);
         }
 
-        $validator = new LaporanExcelValidator(
-            $validated['file'],
-            $validated['jenis_laporan'],
-            (int) $validated['periode_bulan'],
-            (int) $validated['periode_tahun']
-        );
+        $isGabungan = $validated['jenis_laporan'] === 'gabungan';
+        $parser = new LaporanExcelParser($validated['file'], $isGabungan);
 
-        $errors = $validator->validate();
+        $errors = $parser->getImportErrors();
 
         if (! empty($errors)) {
             return response()->json([
@@ -61,9 +56,6 @@ class UploadController extends Controller
                 'xlsxValidationErrors' => $errors,
             ], 422);
         }
-
-        $parser = new LaporanExcelParser($validated['file']);
-        $isGabungan = $validated['jenis_laporan'] === 'gabungan';
 
         return DB::transaction(function () use ($request, $validated, $parser, $isGabungan) {
             $upload = LaporanUpload::create([
