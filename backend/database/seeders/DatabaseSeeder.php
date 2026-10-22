@@ -6,6 +6,7 @@ use App\Models\Cabang;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -22,7 +23,7 @@ class DatabaseSeeder extends Seeder
         if (! User::where('role', 'it_staff')->exists()) {
             User::factory()->create([
                 'username' => 'admin',
-                'password' => bcrypt('admin'),
+                'password' => Hash::make('admin'),
                 'enabled' => true,
                 'role' => 'it_staff',
             ]);
