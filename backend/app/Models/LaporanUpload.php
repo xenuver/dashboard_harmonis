@@ -19,7 +19,7 @@ class LaporanUpload extends Model
         'periode_bulan',
         'periode_tahun',
         'jumlah_hari',
-        'format',
+        'format_data',
         'catatan',
         'status', // berhasil | gagal
     ];
