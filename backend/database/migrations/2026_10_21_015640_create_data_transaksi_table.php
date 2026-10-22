@@ -19,6 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->decimal('transaksi_member', 65, 0)->unsigned();
             $table->decimal('transaksi_non_member', 65, 0)->unsigned();
+            $table->timestamps();
         });
     }
 

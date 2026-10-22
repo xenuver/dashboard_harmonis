@@ -18,6 +18,7 @@ return new class extends Migration
                 ->constrained('laporan_uploads')
                 ->onDelete('cascade');
             $table->decimal('member_baru', 65, 0);
+            $table->timestamps();
         });
     }
 
