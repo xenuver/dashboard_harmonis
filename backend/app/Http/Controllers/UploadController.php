@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cabang;
-use App\Models\KpiSummary;
 use App\Models\LaporanUpload;
 use App\Models\ProdukPenjualan;
 use App\Models\SalesHarian;
 use App\Models\SupplierPenjualan;
+use App\Services\InfoLaporanExcelParser;
 use App\Services\LaporanExcelParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,9 +34,21 @@ class UploadController extends Controller
             'file.mimes' => 'File lampiran harus dalam format .xlsx',
         ]);
 
-        $dataExists = LaporanUpload::where('jenis_laporan', $validated['jenis_laporan'])
-            ->where('periode_bulan', $validated['periode_bulan'])
-            ->where('periode_tahun', $validated['periode_tahun'])
+        $infoParser = new InfoLaporanExcelParser($validated['file']);
+
+        $infoParserData = $infoParser->parseInfo();
+        $infoParserErrors = $infoParser->getImportErrors();
+
+        if (! empty($infoParserErrors)) {
+            return response()->json([
+                'message' => 'Validasi spreadsheet gagal.',
+                'xlsxValidationErrors' => $infoParserErrors,
+            ], 422);
+        }
+
+        $dataExists = LaporanUpload::where('jenis_laporan', $infoParserData['jenis_laporan'])
+            ->where('periode_bulan', $infoParserData['bulan'])
+            ->where('periode_tahun', $infoParserData['tahun'])
             ->exists();
 
         if ($dataExists) {
@@ -45,9 +57,9 @@ class UploadController extends Controller
             ], 409);
         }
 
-        $isGabungan = $validated['jenis_laporan'] === 'gabungan';
-        $parser = new LaporanExcelParser($validated['file'], $isGabungan);
+        $isGabungan = $infoParser->getIsGabungan();
 
+        $parser = new LaporanExcelParser($validated['file'], $isGabungan, $infoParserData['jumlah_hari']);
         $errors = $parser->getImportErrors();
 
         if (! empty($errors)) {
@@ -57,18 +69,16 @@ class UploadController extends Controller
             ], 422);
         }
 
-        return DB::transaction(function () use ($request, $validated, $parser, $isGabungan) {
+        return DB::transaction(function () use ($request, $validated, $parser, $isGabungan, $infoParserData) {
             $upload = LaporanUpload::create([
                 'uploaded_by' => $request->user()->id,
-                'jenis_laporan' => $validated['jenis_laporan'],
-                'periode_bulan' => $validated['periode_bulan'],
-                'periode_tahun' => $validated['periode_tahun'],
+                'jenis_laporan' => $infoParserData['jenis_laporan'],
+                'periode_bulan' => $infoParserData['bulan'],
+                'periode_tahun' => $infoParserData['tahun'],
+                'jumlah_hari' => $infoParserData['jumlah_hari'],
+                'format_data' => $infoParserData['format'],
+                'catatan' => $infoParserData['catatan'] ?? null,
                 'status' => 'berhasil',
-            ]);
-
-            KpiSummary::create([
-                'upload_id' => $upload->id,
-                ...$parser->parseKpiSummary(),
             ]);
 
             $cabangAmpera = Cabang::where('kode', 'AMPERA')->firstOrFail();
