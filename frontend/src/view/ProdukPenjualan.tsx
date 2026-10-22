@@ -266,7 +266,7 @@ export function ProdukPenjualan() {
                       <TableCell>{formatRupiah(produk.harga_jual)}</TableCell>
                       <TableCell className={produk.jumlah < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(produk.jumlah)}</TableCell>
                       <TableCell className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</TableCell>
-                      <TableCell className={produk.stok <= 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.stok)}</TableCell>
+                      <TableCell className={produk.stok < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.stok)}</TableCell>
                     </TableRow>
                   ))
                 :
