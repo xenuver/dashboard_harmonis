@@ -19,11 +19,13 @@ class DatabaseSeeder extends Seeder
         Cabang::firstOrCreate(['kode' => 'AMPERA'], ['nama' => 'Ampera']);
         Cabang::firstOrCreate(['kode' => 'PAL'], ['nama' => 'Pal']);
 
-        User::factory()->create([
-            'username' => 'admin',
-            'password' => bcrypt('admin'),
-            'enabled' => true,
-            'role' => 'it_staff',
-        ]);
+        if (! User::where('role', 'it_staff')->exists()) {
+            User::factory()->create([
+                'username' => 'admin',
+                'password' => bcrypt('admin'),
+                'enabled' => true,
+                'role' => 'it_staff',
+            ]);
+        }
     }
 }
