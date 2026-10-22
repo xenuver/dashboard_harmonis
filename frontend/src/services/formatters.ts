@@ -35,7 +35,7 @@ export function formatAngkaSingkat(value: number, decimalLength?: number): strin
     }
   }
 
-  return formatAngkaSingkat(value);
+  return value.toString();
 }
 
 export function formatRupiahSingkat(value: number): string {
