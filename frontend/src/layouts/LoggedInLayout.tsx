@@ -8,7 +8,7 @@ import sessionManager from "../services/sessionManager";
 export function LoggedInLayout() {
   useEffect(function() {
     sessionManager.updateIdentity();
-  });
+  }, []);
 
   const location = useLocation();
 
