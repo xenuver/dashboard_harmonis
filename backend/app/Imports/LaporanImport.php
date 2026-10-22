@@ -37,7 +37,7 @@ class LaporanImport implements Import, WithMultipleSheets
     public function sheets(): array
     {
         return [
-            'VIEW' => $this->infoSheet,
+            'INFO' => $this->infoSheet,
             'PENJUALAN_HARIAN' => $this->salesSheet,
             'TRANSAKSI' => $this->transactionSheet,
             'PRODUK_TERTINGGI' => $this->topHighestSheet,
