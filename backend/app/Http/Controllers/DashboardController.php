@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -33,12 +34,17 @@ class DashboardController extends Controller
 
         $upload = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
             ->periode($validated['periode_bulan'], $validated['periode_tahun'])
-            ->with('kpiSummary')
             ->first();
 
         if (! $upload) {
             return response()->json(['message' => 'Belum ada data'], 404); // -> state Kosong
         }
+
+        $prevDate = Carbon::createFromDate($validated['periode_tahun'], $validated['periode_bulan'], 1)->subMonth();
+
+        $uploadPrev = LaporanUpload::jenisLaporan($validated['jenis_laporan'])
+            ->periode($prevDate->month, $prevDate->year)
+            ->first();
 
         // Data buat grafik tren: dikelompokkan per tanggal, tiap tanggal
         // berisi 1 baris (Ampera/Pal saja) atau 2 baris (mode Gabungan)
@@ -52,8 +58,22 @@ class DashboardController extends Controller
                 'total' => $r->total_penjualan,
             ]));
 
+        $totalPenjualan = SalesHarian::where('upload_id', $upload->id)->sum('total_penjualan');
+
+        $kpi = [
+            "total_sales" => filter_var($totalPenjualan ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE),
+        ];
+
+        if($uploadPrev) {
+            $totalPenjualanPrev = SalesHarian::where('upload_id', $uploadPrev->id)->sum('total_penjualan');
+
+            if($totalPenjualanPrev) {
+                $kpi['total_growth'] = strval((($totalPenjualan - $totalPenjualanPrev) / $totalPenjualanPrev) * 100);
+            }
+        }
+
         return response()->json([
-            'kpi' => $upload->kpiSummary,
+            'kpi' => $kpi,
             'trend' => $trend,
             'top_produk_terlaris' => $upload->produkPenjualan()
                 ->tertinggi()->limit(10)->get(),
