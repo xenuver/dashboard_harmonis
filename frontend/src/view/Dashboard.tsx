@@ -100,12 +100,12 @@ export function Dashboard() {
         }
       } catch(e) {
         console.error(e);
-        console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
+        console.warn(`respon total_growth dari backend tidak terduga: ${data?.total_growth}`);
         setKpiTotalGrowth("-");
         setKpiTotalGrowthToolTip(undefined);
       }
     } else {
-      console.warn(`respon total_growth dari backend tidak terduga: ${data.total_growth}`);
+      console.warn(`respon total_growth dari backend tidak terduga: ${data?.total_growth}`);
       setKpiTotalGrowth("-");
       setKpiTotalGrowthToolTip(undefined);
     }
@@ -141,7 +141,7 @@ export function Dashboard() {
         }
       }
     } else {
-      console.warn(`respon growth_member dari backend tidak terduga: ${formatAngka(data.growth_member)}`);
+      console.warn(`respon growth_member dari backend tidak terduga: ${formatAngka(data?.growth_member)}`);
       setKpiGrowthMember("-");
       setKpiGrowthMemberToolTip(undefined);
     }
