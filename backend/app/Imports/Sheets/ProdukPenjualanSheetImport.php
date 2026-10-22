@@ -86,8 +86,8 @@ class ProdukPenjualanSheetImport implements ToArray
             // Excel column mapping
             $fieldColumns = [
                 'barcode' => 'BARCODE',
-                'kode_barang' => 'KODE_BRG',
-                'nama_barang' => 'NAMA_BRG',
+                'kode_brg' => 'KODE_BRG',
+                'nama_brg' => 'NAMA_BRG',
                 'satuan' => 'SATUAN',
                 'harga_jual' => 'HRG_JUAL',
                 'jumlah' => 'JUMLAH',
