@@ -73,12 +73,28 @@ class LaporanImport implements Import, WithMultipleSheets
 
     public function getImportErrors(): array
     {
-        return array_merge(
-            $this->infoSheet->getErrors(),
-            $this->salesSheet->getErrors(),
-            $this->topHighestSheet->getErrors(),
-            $this->topLowestSheet->getErrors(),
-            $this->supplierSheet->getErrors(),
-        );
+        $data = [];
+
+        if(!empty($this->infoSheet->getErrors())) {
+            $data['INFO'] = $this->infoSheet->getErrors();
+        }
+
+        if(!empty($this->salesSheet->getErrors())) {
+            $data['PENJUALAN_HARIAN'] = $this->salesSheet->getErrors();
+        }
+
+        if(!empty($this->topHighestSheet->getErrors())) {
+            $data['PRODUK_TERINGGI'] = $this->topHighestSheet->getErrors();
+        }
+
+        if(!empty($this->topLowestSheet->getErrors())) {
+            $data['PRODUK_TERENDAH'] = $this->topLowestSheet->getErrors();
+        }
+
+        if(!empty($this->supplierSheet->getErrors())) {
+            $data['SUPPLIER'] = $this->supplierSheet->getErrors();
+        }
+
+        return $data;
     }
 }
