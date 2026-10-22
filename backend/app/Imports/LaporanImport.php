@@ -24,10 +24,12 @@ class LaporanImport implements Import, WithMultipleSheets
 
     protected SupplierPenjualanSheetImport $supplierSheet;
 
-    public function __construct(bool $isGabungan)
+    protected int $dayLength;
+
+    public function __construct(bool $isGabungan, ?int $dayLength = null)
     {
         $this->infoSheet = new InfoSheetImport;
-        $this->salesSheet = new PenjualanHarianSheetImport($isGabungan);
+        $this->salesSheet = new PenjualanHarianSheetImport($isGabungan, $dayLength);
         $this->transactionSheet = new DataTransaksiSheetImport;
         $this->topHighestSheet = new ProdukPenjualanSheetImport('tertinggi');
         $this->topLowestSheet = new ProdukPenjualanSheetImport('terendah');
