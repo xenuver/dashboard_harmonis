@@ -81,7 +81,7 @@ class InfoSheetImport implements ToArray
 
             if ($this->data[$field] === null || trim((string) $this->data[$field]) === '') {
                 $this->errors[] = [
-                    "location" => Coordinate::stringFromColumnIndex($nilaiColIndex + 1).$entryRowIndex[$field],
+                    "location" => Coordinate::stringFromColumnIndex($nilaiColIndex + 1).($entryRowIndex[$field] + 1),
                     "message" => "{$label} tidak boleh kosong.",
                 ];
                 continue;
@@ -112,11 +112,7 @@ class InfoSheetImport implements ToArray
                 continue;
             }
 
-            $bulanIsInt = filter_var($this->data['bulan'] ?? null, FILTER_VALIDATE_INT);
-            $tahunIsInt = filter_var($this->data['tahun'] ?? null, FILTER_VALIDATE_INT);
-            $jumlahHariIsInt = filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT);
-
-            if ($field === 'bulan' && $bulanIsInt === true) {
+            if ($field === 'bulan' && filter_var($this->data['bulan'] ?? null, FILTER_VALIDATE_INT) !== false) {
                 $bulan = $this->data['bulan'];
                 if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
                     $this->errors[] = [
@@ -126,7 +122,7 @@ class InfoSheetImport implements ToArray
                 }
             }
 
-            if ($field === 'tahun' && $tahunIsInt === true) {
+            if ($field === 'tahun' && filter_var($this->data['tahun'] ?? null, FILTER_VALIDATE_INT) !== false) {
                 $tahun = $this->data['tahun'];
                 if ($tahun !== null && ($tahun < 0 || $tahun > 65535)) {
                     $this->errors[] = [
@@ -136,7 +132,7 @@ class InfoSheetImport implements ToArray
                 }
             }
 
-            if ($field === 'jumlah_hari' && $jumlahHariIsInt === true) {
+            if ($field === 'jumlah_hari' && filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT) !== false) {
                 $jumlahHari = $this->data['jumlah_hari'];
                 if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > 31)) {
                     $this->errors[] = [
