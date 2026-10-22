@@ -18,6 +18,9 @@ class LaporanUpload extends Model
         'jenis_laporan', // ampera | pal | gabungan
         'periode_bulan',
         'periode_tahun',
+        'jumlah_hari',
+        'format',
+        'catatan',
         'status', // berhasil | gagal
     ];
 
@@ -26,6 +29,7 @@ class LaporanUpload extends Model
         return [
             'periode_bulan' => 'integer',
             'periode_tahun' => 'integer',
+            'jumlah_hari' => 'integer'
         ];
     }
 
