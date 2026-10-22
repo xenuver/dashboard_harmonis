@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DataTransaksi;
+use App\Models\MemberCount;
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Illuminate\Http\Request;
@@ -58,10 +60,14 @@ class DashboardController extends Controller
                 'total' => $r->total_penjualan,
             ]));
 
+        $dataTransaksi = DataTransaksi::where('upload_id', $upload->id)->first();
+
         $totalPenjualan = SalesHarian::where('upload_id', $upload->id)->sum('total_penjualan');
 
         $kpi = [
             "total_sales" => filter_var($totalPenjualan ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE),
+            "jumlah_transaksi" => $dataTransaksi->getTotalTransaction(),
+            "growth_member" => MemberCount::where('upload_id', $upload->id)->select('member_baru')->first()?->member_baru,
         ];
 
         if($uploadPrev) {
@@ -75,6 +81,10 @@ class DashboardController extends Controller
         return response()->json([
             'kpi' => $kpi,
             'trend' => $trend,
+            'transaksi' => [
+                "transaksi_member" => $dataTransaksi->getTotalMemberTransaction(),
+                "transaksi_non_member" => $dataTransaksi->getTotalNonMemberTransaction(),
+            ],
             'top_produk_terlaris' => $upload->produkPenjualan()
                 ->tertinggi()->limit(10)->get(),
             'top_produk_terendah' => $upload->produkPenjualan()
