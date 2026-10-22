@@ -3,6 +3,7 @@
 namespace App\Imports\Sheets;
 
 use Maatwebsite\Excel\Concerns\ToArray;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class InfoSheetImport implements ToArray
 {
@@ -21,7 +22,17 @@ class InfoSheetImport implements ToArray
             return;
         }
 
+        $keteranganColIndex = array_search('KETERANGAN', $rows[0]);
         $nilaiColIndex = array_search('NILAI', $rows[0]);
+
+        if ($keteranganColIndex === false) {
+            $this->errors[] = [
+                'location' => null,
+                'message'  => 'Kolom KETERANGAN tidak ditemukan.',
+            ];
+
+            return;
+        }
 
         if ($nilaiColIndex === false) {
             $this->errors[] = [
@@ -32,13 +43,12 @@ class InfoSheetImport implements ToArray
             return;
         }
 
-        $this->data = [
-            'jenis_laporan' => $rows[1][$nilaiColIndex] ?? null,
-            'bulan' => $rows[2][$nilaiColIndex] ?? null,
-            'tahun' => $rows[3][$nilaiColIndex] ?? null,
-            'jumlah_hari' => $rows[4][$nilaiColIndex] ?? null,
-            'format' => $rows[5][$nilaiColIndex] ?? null,
-            'catatan' => $rows[6][$nilaiColIndex] ?? null,
+        $allFields = [
+            'jenis_laporan' => 'JENIS_LAPORAN',
+            'bulan' => 'BULAN',
+            'tahun' => 'TAHUN',
+            'jumlah_hari' => 'JUMLAH_HARI',
+            'format' => 'FORMAT',
         ];
 
         $requiredFields = [
@@ -49,12 +59,32 @@ class InfoSheetImport implements ToArray
             'format' => 'FORMAT',
         ];
 
+        $entryRowIndex = [];
+
+        foreach($allFields as $field => $columnName) {
+            foreach($rows as $rowIndex => $value1) {
+                if($rows[$rowIndex][$keteranganColIndex] === $columnName) {
+                    $this->data[$field] = $rows[$rowIndex][$nilaiColIndex];
+                    $entryRowIndex[$field] = $rowIndex;
+                }
+            }
+        }
+
         foreach ($requiredFields as $field => $label) {
-            if (
-                $this->data[$field] === null ||
-                trim((string) $this->data[$field]) === ''
-            ) {
-                $this->errors[] = "{$label} tidak boleh kosong.";
+            if (!array_key_exists($field, $this->data)) {
+                $this->errors[] = [
+                    "location" => null,
+                    "message" => "{$label} tidak ditemukan!",
+                ];
+                continue;
+            }
+
+            if ($this->data[$field] === null || trim((string) $this->data[$field]) === '') {
+                $this->errors[] = [
+                    "location" => Coordinate::stringFromColumnIndex($nilaiColIndex + 1).$entryRowIndex[$field],
+                    "message" => "{$label} tidak boleh kosong.",
+                ];
+                continue;
             }
         }
 
@@ -65,40 +95,59 @@ class InfoSheetImport implements ToArray
         ];
 
         foreach ($integerFields as $field => $label) {
-            $value = $this->data[$field];
+            $value = $this->data[$field] ?? null;
 
             if ($value === null || trim((string) $value) === '') {
                 continue;
             }
 
+            $cellCoordinate = Coordinate::stringFromColumnIndex($nilaiColIndex + 1).($entryRowIndex[$field] + 1);
+
             if (filter_var($value, FILTER_VALIDATE_INT) === false) {
-                $this->errors[] = "{$label} harus berupa angka bulat.";
+                $this->errors[] = [
+                    "location" => $cellCoordinate,
+                    "message" => "{$label} harus berupa angka bulat.",
+                ];
 
                 continue;
             }
 
+            $bulanIsInt = filter_var($this->data['bulan'] ?? null, FILTER_VALIDATE_INT);
+            $tahunIsInt = filter_var($this->data['tahun'] ?? null, FILTER_VALIDATE_INT);
+            $jumlahHariIsInt = filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT);
+
+            if ($field === 'bulan' && $bulanIsInt === true) {
+                $bulan = $this->data['bulan'];
+                if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
+                    $this->errors[] = [
+                        "location" => $cellCoordinate,
+                        "message" => 'Bulan harus berupa angka antara 1 sampai 12. ('.$bulan.')',
+                    ];
+                }
+            }
+
+            if ($field === 'tahun' && $tahunIsInt === true) {
+                $tahun = $this->data['tahun'];
+                if ($tahun !== null && ($tahun < 0 || $tahun > 65535)) {
+                    $this->errors[] = [
+                        "location" => $cellCoordinate,
+                        "message" => 'Tahun harus berupa angka antara 0 sampai 65535. ('.$tahun.')',
+                    ];
+                }
+            }
+
+            if ($field === 'jumlah_hari' && $jumlahHariIsInt === true) {
+                $jumlahHari = $this->data['jumlah_hari'];
+                if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > 31)) {
+                    $this->errors[] = [
+                        "location" => $cellCoordinate,
+                        "message" => 'Jumlah hari harus berupa angka antara 1 sampai 31. ('.$jumlahHari.')',
+                    ];
+                }
+            }
+
             $this->data[$field] = (int) $value;
         }
-
-        $bulan = $this->data['bulan'];
-        $tahun = $this->data['tahun'];
-        $jumlahHari = $this->data['jumlah_hari'];
-
-        if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
-            $this->errors[] = 'Bulan harus berupa angka antara 1 sampai 12. ('.$bulan.')';
-        }
-
-        if ($tahun !== null && ($tahun < 0 || $tahun > 65535)) {
-            $this->errors[] = 'Tahun harus berupa angka antara 0 sampai 65535. ('.$tahun.')';
-        }
-
-        if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > 31)) {
-            $this->errors[] = 'Jumlah hari harus berupa angka antara 1 sampai 31. ('.$jumlahHari.')';
-        }
-
-        $this->data['bulan'] = (int) $this->data['bulan'];
-        $this->data['tahun'] = (int) $this->data['tahun'];
-        $this->data['jumlah_hari'] = (int) $this->data['jumlah_hari'];
     }
 
     public function getErrors(): array
