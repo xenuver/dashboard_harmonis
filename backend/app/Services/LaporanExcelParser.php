@@ -30,6 +30,11 @@ class LaporanExcelParser
         return $this->importer->getSalesHarianData();
     }
 
+    public function parseTransactionData(): array
+    {
+        return $this->importer->getTransactionData();
+    }
+
     public function parseProdukPenjualan(string $kategori): array
     {
         return $kategori === 'tertinggi'

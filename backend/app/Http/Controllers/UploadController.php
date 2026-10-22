@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cabang;
+use App\Models\DataTransaksi;
 use App\Models\LaporanUpload;
+use App\Models\MemberCount;
 use App\Models\ProdukPenjualan;
 use App\Models\SalesHarian;
 use App\Models\SupplierPenjualan;
@@ -126,6 +128,17 @@ class UploadController extends Controller
             foreach ($parser->parseSupplierPenjualan() as $supplier) {
                 SupplierPenjualan::create(['upload_id' => $upload->id, ...$supplier]);
             }
+
+            DataTransaksi::create([
+                'upload_id' => $upload->id,
+                'transaksi_member' => $parser->parseTransactionData()['transaksi_member'],
+                'transaksi_non_member' => $parser->parseTransactionData()['transaksi_non_member'],
+            ]);
+
+            MemberCount::create([
+                'upload_id' => $upload->id, 
+                'member_baru' => $parser->parseTransactionData()['member_baru'],
+            ]);
 
             return response()->json([
                 'message' => 'Upload berhasil',

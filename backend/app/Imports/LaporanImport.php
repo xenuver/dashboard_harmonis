@@ -58,6 +58,11 @@ class LaporanImport implements Import, WithMultipleSheets
         return $this->salesSheet->getData();
     }
 
+    public function getTransactionData(): array
+    {
+        return $this->transactionSheet->getData();
+    }
+
     public function getTopHighestData(): array
     {
         return $this->topHighestSheet->getData();
