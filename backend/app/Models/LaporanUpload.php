@@ -60,6 +60,16 @@ class LaporanUpload extends Model
         return $this->hasMany(SupplierPenjualan::class, 'upload_id');
     }
 
+    public function getMemberCount(): HasOne
+    {
+        return $this->hasOne(MemberCount::class, 'upload_id');
+    }
+
+    public function getDataTransaksi(): HasOne
+    {
+        return $this->hasOne(DataTransaksi::class, 'upload_id');
+    }
+
     // ── Scope (buat query filter dashboard) ───────────────
 
     /**

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportDataController;
 use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\ProdukPenjualanController;
 use App\Http\Controllers\SupplierPenjualanController;
@@ -15,6 +16,7 @@ Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function 
     Route::get('/whoami', [AuthController::class, 'whoAmI']);
     Route::post('/logout', [AuthController::class, 'logOut']);
     Route::post('/upload', [UploadController::class, 'store'])->middleware('can:upload-reports')->middleware('ReportUploadInspector');
+    Route::get('/export-xlsx', [ExportDataController::class, 'index']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/produk-penjualan', [ProdukPenjualanController::class, 'index']);
     Route::get('/supplier-penjualan', [SupplierPenjualanController::class, 'index']);

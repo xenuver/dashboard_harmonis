@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Exports\ExcelExports;
+
+use App\Models\LaporanUpload;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+
+class SupplierExcelExport implements FromQuery, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison, WithColumnFormatting
+{
+    protected LaporanUpload $laporan;
+
+    public function __construct(LaporanUpload $laporan)
+    {
+        $this->laporan = $laporan;
+    }
+
+    public function query(): Relation|EloquentBuilder
+    {
+        return $this->laporan->supplierPenjualan();
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'A' => NumberFormat::FORMAT_TEXT,
+            'B' => NumberFormat::FORMAT_TEXT,
+            'C' => '[$Rp-421] #,##0',
+            'D' => '[$Rp-421] #,##0',
+        ];
+    }
+
+    public function headings(): array
+    {
+        return [
+            'KODE_SUPP',
+            'NAMA_SUPP',
+            'GROSS_TOTAL',
+            'NET_SALES_TOTAL',
+        ];
+    }
+
+    public function map($supplier): array
+    {
+        return [
+            $supplier->kode_supp,
+            $supplier->nama_supp,
+            (float) $supplier->gross_total,
+            (float) $supplier->net_sales_total,
+        ];
+    }
+
+    public function title(): string
+    {
+        return "TOP SUPPLIER";
+    }
+}
