@@ -5,6 +5,7 @@ namespace App\Exports\ExcelExports;
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
@@ -12,7 +13,8 @@ use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 class TransactionDataExport extends DefaultValueBinder implements 
     FromArray, 
     WithTitle, 
-    WithStrictNullComparison
+    WithStrictNullComparison,
+    WithHeadings
 {
     protected LaporanUpload $laporan;
     protected SalesHarian $prevSalesHarian;
@@ -34,6 +36,15 @@ class TransactionDataExport extends DefaultValueBinder implements
                 $totalNonMember,
                 $newMember,
             ],
+        ];
+    }
+
+    public function headings(): array
+    {
+        return [
+            "TOTAL_MEMBER",
+            "TOTAL_NON_MEMBER",
+            "MEMBER_BARU"
         ];
     }
 
