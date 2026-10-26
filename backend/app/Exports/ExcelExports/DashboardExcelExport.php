@@ -159,4 +159,9 @@ class DashboardExcelExport implements FromArray, WithEvents
             }
         ];
     }
+
+    public function title(): string
+    {
+        return "VIEW";
+    }
 }
