@@ -31,6 +31,11 @@ class DashboardExcelExport implements FromArray, WithEvents
     protected int $kpiJumlahTransaksi;
     protected int $kpiGrowthMember;
 
+    protected float $avgTransactionPerDay;
+    protected float $avgTransactionCountPerDay;
+    protected float $basketSizePerDay;
+    protected float $avgGrowthPerDay;
+
     protected array $bulanString = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
     ];
@@ -69,7 +74,12 @@ class DashboardExcelExport implements FromArray, WithEvents
 
         $this->kpiJumlahTransaksi = $this->dataTransaksi->getTotalTransaction();
 
-        $this->kpiGrowthMember = $this->memberCount->select('member_baru')->first()?->member_baru;
+        $this->kpiGrowthMember = $this->laporan->getMemberCount->getNewMemberCount();
+
+        $this->avgTransactionPerDay = $this->salesHarian->sum('total_penjualan') / $this->laporan->jumlah_hari;
+        $this->avgTransactionCountPerDay = $this->dataTransaksi->getTotalTransaction() / $this->laporan->jumlah_hari;
+        $this->basketSizePerDay = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
+        $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
     }
 
     public function array(): array
@@ -117,7 +127,15 @@ class DashboardExcelExport implements FromArray, WithEvents
             [null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
+            [null],
+            [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP SUPPLIER', null, null, null, 'VIEW'],
+            [null],
+            [null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION/DAY', null, null, null, $this->avgTransactionPerDay],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION COUNT/DAY', null, null, null, $this->avgTransactionCountPerDay],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE/DAY', null, null, null, $this->basketSizePerDay],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG MEMBER GROWTH/DAY', null, null, null, $this->avgGrowthPerDay],
         ];
     }
 
@@ -156,6 +174,18 @@ class DashboardExcelExport implements FromArray, WithEvents
                 $sheet->mergeCells('X39:Y40');
                 $sheet->mergeCells('X42:Y43');
                 $sheet->mergeCells('X45:Y46');
+
+                // what?
+                $sheet->mergeCells('T48:W48');
+                $sheet->mergeCells('T49:W49');
+                $sheet->mergeCells('T50:W50');
+                $sheet->mergeCells('T51:W51');
+
+                // huh?
+                $sheet->mergeCells('X48:Y48');
+                $sheet->mergeCells('X49:Y49');
+                $sheet->mergeCells('X50:Y50');
+                $sheet->mergeCells('X51:Y51');
             }
         ];
     }
