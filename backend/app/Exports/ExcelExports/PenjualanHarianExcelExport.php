@@ -92,6 +92,6 @@ class PenjualanHarianExcelExport implements FromCollection, WithHeadings, WithTi
 
     public function title(): string
     {
-        return "PENJUALAN_HARIAN";
+        return "PENJUALAN HARIAN";
     }
 }
