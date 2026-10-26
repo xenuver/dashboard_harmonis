@@ -11,8 +11,17 @@ use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Concerns\WithCharts;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Chart\Chart;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
+use PhpOffice\PhpSpreadsheet\Chart\Layout;
+use PhpOffice\PhpSpreadsheet\Chart\Legend;
+use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
+use PhpOffice\PhpSpreadsheet\Chart\Title;
 
-class DashboardExcelExport implements FromArray, WithEvents
+class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTitle
 {
     protected LaporanUpload $laporan;
     protected ?LaporanUpload $laporanPrev;
@@ -23,9 +32,12 @@ class DashboardExcelExport implements FromArray, WithEvents
     protected ?Builder $salesHarianPrev;
 
     protected int $kpiTotalPenjualanPrev;
-    protected int|string $kpiTotalGrowthDiff;
+    protected string $kpiTotalGrowthDiff;
+
+    protected string $sheetName = "VIEW";
 
     protected string $bulanLaporan;
+    protected string $bulanLaporanPrev;
     protected int $kpiTotalPenjualan;
     protected float|string $kpiTotalGrowth;
     protected int $kpiJumlahTransaksi;
@@ -58,6 +70,7 @@ class DashboardExcelExport implements FromArray, WithEvents
         $this->memberCount = MemberCount::where('upload_id', $laporan->id)->first();
 
         $this->bulanLaporan = $this->bulanString[$this->laporan->periode_bulan - 1];
+        $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
 
         $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
         if($this->laporanPrev) {
@@ -94,7 +107,17 @@ class DashboardExcelExport implements FromArray, WithEvents
             [null, $this->bulanLaporan, null, null, null, null, $this->kpiTotalPenjualan, null, null, null,null, $this->kpiTotalGrowth, null, null, null, null, $this->kpiJumlahTransaksi, null, null, null, null, $this->kpiGrowthMember],
             [null],
             [null],
-            [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff],
+            [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
+            [null],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev, $this->salesHarianPrev->sum('total_penjualan')],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan')],
+            [null],
+            [null],
+            [null],
+            [null],
+            [null],
+            [null],
+            [null], // 20
             [null],
             [null],
             [null],
@@ -104,6 +127,7 @@ class DashboardExcelExport implements FromArray, WithEvents
             [null],
             [null],
             [null],
+            [null], // 30
             [null],
             [null],
             [null],
@@ -112,19 +136,8 @@ class DashboardExcelExport implements FromArray, WithEvents
             [null],
             [null],
             [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null],
+            [null, 'non-member', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'member', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction()], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -134,7 +147,7 @@ class DashboardExcelExport implements FromArray, WithEvents
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION/DAY', null, null, null, $this->avgTransactionPerDay],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION COUNT/DAY', null, null, null, $this->avgTransactionCountPerDay],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE/DAY', null, null, null, $this->basketSizePerDay],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE/DAY', null, null, null, $this->basketSizePerDay], // 50
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG MEMBER GROWTH/DAY', null, null, null, $this->avgGrowthPerDay],
         ];
     }
@@ -190,8 +203,87 @@ class DashboardExcelExport implements FromArray, WithEvents
         ];
     }
 
+    public function buildMonthlySalesChart(): Chart
+    {
+        $labels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$13', null, 1)
+        ];
+        $values = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', '[$Rp-421] #,##0', 5)
+        ];
+
+        $series = new DataSeries(
+            DataSeries::TYPE_BARCHART, 
+            DataSeries::GROUPING_STANDARD,
+            range(0,count($values) - 1),
+            [],
+            $labels,
+            $values
+        );
+        $series->setPlotDirection(DataSeries::DIRECTION_HORIZONTAL);
+
+        $layout = new Layout();
+        $layout->setShowVal(true);
+        $layout->setNumFmtCode('[$Rp-421] #,##0');
+
+        $plotArea = new PlotArea($layout, [$series]);
+        $legend = new Legend(Legend::POSITION_RIGHT, null, false);
+        $chart = new Chart('totalsalesmonthly', new Title('TOTAL SALES MONTHLY'),$legend,$plotArea);
+
+        $chart->setTopLeftPosition('P12');
+        $chart->setBottomRightPosition('Y35');
+        $chart->getChartAxisY()->setAxisOption('minimum', '0');
+        $chart->getChartAxisY()->setAxisNumberProperties('[$Rp-421] #,##0');
+
+        return $chart;
+    }
+
+    public function buildTransactionInfoChart(): Chart
+    {
+        $labels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$39:$B$40', null, 1)
+        ];
+        $values = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$C$39:$C$40', null, 5)
+        ];
+
+        $series = new DataSeries(
+            DataSeries::TYPE_PIECHART, 
+            DataSeries::GROUPING_STANDARD,
+            range(0,count($values) - 1),
+            [],
+            $labels,
+            $values
+        );
+        $series->setPlotDirection(DataSeries::DIRECTION_HORIZONTAL);
+
+        $layout = new Layout();
+        $layout->setShowCatName(true);
+        $layout->setShowPercent(true);
+        $layout->setShowVal(false);
+        $layout->setShowLeaderLines(true);
+        $layout->setDLblPos('outEnd');
+
+        $plotArea = new PlotArea($layout, [$series]);
+        $legend = new Legend(Legend::POSITION_RIGHT, null, false);
+        $chart = new Chart('transaksimembervsnonmember', new Title('TRANSAKSI MEMBER VS NON-MEMBER'),$legend,$plotArea);
+
+        $chart->setTopLeftPosition('B39');
+        $chart->setBottomRightPosition('I53');
+
+        return $chart;
+    }
+
+    public function charts(): array
+    {
+        return [
+            $this->buildMonthlySalesChart(),
+            $this->buildTransactionInfoChart()
+        ];
+    }
+
     public function title(): string
     {
-        return "VIEW";
+        return $this->sheetName;
     }
 }
