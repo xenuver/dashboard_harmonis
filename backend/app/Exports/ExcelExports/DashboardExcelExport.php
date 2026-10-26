@@ -175,13 +175,13 @@ class DashboardExcelExport implements FromArray, WithEvents
                 $sheet->mergeCells('X42:Y43');
                 $sheet->mergeCells('X45:Y46');
 
-                // what?
+                // label teks
                 $sheet->mergeCells('T48:W48');
                 $sheet->mergeCells('T49:W49');
                 $sheet->mergeCells('T50:W50');
                 $sheet->mergeCells('T51:W51');
 
-                // huh?
+                // nilai dari label
                 $sheet->mergeCells('X48:Y48');
                 $sheet->mergeCells('X49:Y49');
                 $sheet->mergeCells('X50:Y50');
