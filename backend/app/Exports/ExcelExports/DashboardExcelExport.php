@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithCharts;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
@@ -26,7 +27,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle
+class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle, WithStrictNullComparison
 {
     protected LaporanUpload $laporan;
 
