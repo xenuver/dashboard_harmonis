@@ -7,19 +7,34 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
+class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
 {
     protected LaporanUpload $laporan;
 
     public function __construct(LaporanUpload $laporan)
     {
         $this->laporan = $laporan;
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
+            }
+        ];
     }
 
     public function query(): Relation|EloquentBuilder

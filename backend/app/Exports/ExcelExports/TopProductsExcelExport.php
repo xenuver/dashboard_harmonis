@@ -8,16 +8,18 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
+class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
 {
     protected LaporanUpload $laporan;
 
@@ -37,6 +39,19 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
         }
 
         return parent::bindValue($cell, $value);
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
+            }
+        ];
     }
 
     public function query(): Relation|EloquentBuilder

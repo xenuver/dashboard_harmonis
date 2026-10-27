@@ -5,12 +5,14 @@ namespace App\Exports\ExcelExports;
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
-class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle
+class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle, WithEvents
 {
     protected LaporanUpload $laporan;
 
@@ -42,6 +44,19 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             'TOTAL_MEMBER',
             'TOTAL_NON_MEMBER',
             'MEMBER_BARU',
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
+            }
         ];
     }
 
