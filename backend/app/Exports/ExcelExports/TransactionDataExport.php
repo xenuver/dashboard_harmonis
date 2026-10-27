@@ -5,6 +5,7 @@ namespace App\Exports\ExcelExports;
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
@@ -13,7 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle, WithEvents
+class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle, WithEvents, WithColumnFormatting
 {
     protected LaporanUpload $laporan;
 
@@ -45,6 +46,15 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             'TOTAL_MEMBER',
             'TOTAL_NON_MEMBER',
             'MEMBER_BARU',
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'A' => '#,##0',
+            'B' => '#,##0',
+            'C' => '+#0;-#0;0',
         ];
     }
 
