@@ -21,7 +21,9 @@ use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle
@@ -329,6 +331,92 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'font' => [
                         'color' => ['rgb' => 'ffffff']
                     ]
+                ]);
+
+                // format bagian bawah
+                $rankUrlLabelStyle = [
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'e2efda'
+                        ]
+                    ],
+                    'font' => [
+                        'size' => 18,
+                    ],
+                ];
+
+                $rankUrlButtonStyle = [
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'ffe699'
+                        ]
+                    ],
+                    'font' => [
+                        'size' => 14,
+                        'color' => [
+                            'rgb' => '0563c1'
+                        ],
+                        'underline' => Font::UNDERLINE_SINGLE,
+                    ],
+                ];
+
+                $sheet->getStyle('T39')->applyFromArray($rankUrlLabelStyle);
+                $sheet->getStyle('T42')->applyFromArray($rankUrlLabelStyle);
+                $sheet->getStyle('T45')->applyFromArray($rankUrlLabelStyle);
+
+                $sheet->getCell('X39')->getHyperlink()->setUrl("sheet://'TOP 300 HIGHEST'!A1");
+                $sheet->getCell('X42')->getHyperlink()->setUrl("sheet://'TOP 300 LOWEST'!A1");
+                $sheet->getCell('X45')->getHyperlink()->setUrl("sheet://'TOP SUPPLIER'!A1");
+                $sheet->getStyle('X39')->applyFromArray($rankUrlButtonStyle);
+                $sheet->getStyle('X42')->applyFromArray($rankUrlButtonStyle);
+                $sheet->getStyle('X45')->applyFromArray($rankUrlButtonStyle);
+
+                $sheet->getStyle('X48')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
+                $sheet->getStyle('X49')->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('X50')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
+                $sheet->getStyle('X51')->getNumberFormat()->setFormatCode('+#0;-#0;0');
+
+                $sheet->getStyle('T39:Y40')->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => [
+                                'rgb' => '000000'
+                            ],
+                        ],
+                    ],
+                ]);
+
+                $sheet->getStyle('T42:Y43')->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => [
+                                'rgb' => '000000'
+                            ],
+                        ],
+                    ],
+                ]);
+
+                $sheet->getStyle('T45:Y46')->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => [
+                                'rgb' => '000000'
+                            ],
+                        ],
+                    ],
                 ]);
 
                 $sheet->setCellValue('Y53', 'Generated: '.date('d-m-Y H:i:s.ms T (P)'));
