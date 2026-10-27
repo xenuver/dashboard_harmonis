@@ -67,6 +67,8 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $sheet->setSelectedCell('A1');
             }
         ];
     }

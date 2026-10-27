@@ -67,6 +67,8 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $sheet->setSelectedCell('A1');
             }
         ];
     }

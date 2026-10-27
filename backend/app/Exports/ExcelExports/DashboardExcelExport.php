@@ -426,6 +426,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                         'horizontal' => Alignment::HORIZONTAL_RIGHT,
                     ],
                 ]);
+
+                $sheet->setSelectedCell('A1');
             },
         ];
     }

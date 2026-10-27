@@ -118,6 +118,8 @@ class PenjualanHarianExcelExport implements FromCollection, WithColumnFormatting
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $sheet->setSelectedCell('A1');
             }
         ];
     }

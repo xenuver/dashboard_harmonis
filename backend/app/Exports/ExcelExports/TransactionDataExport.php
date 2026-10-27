@@ -69,6 +69,8 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+                
+                $sheet->setSelectedCell('A1');
             }
         ];
     }

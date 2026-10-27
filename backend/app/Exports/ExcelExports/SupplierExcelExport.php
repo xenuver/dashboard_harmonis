@@ -50,6 +50,8 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $sheet->setSelectedCell('A1');
             }
         ];
     }
