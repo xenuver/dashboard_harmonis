@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class SupplierExcelExport implements FromQuery, WithHeadings, WithMapping, WithTitle, WithStrictNullComparison, WithColumnFormatting
+class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -59,6 +59,6 @@ class SupplierExcelExport implements FromQuery, WithHeadings, WithMapping, WithT
 
     public function title(): string
     {
-        return "TOP SUPPLIER";
+        return 'TOP SUPPLIER';
     }
 }

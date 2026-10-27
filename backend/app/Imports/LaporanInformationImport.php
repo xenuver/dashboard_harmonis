@@ -29,14 +29,14 @@ class LaporanInformationImport implements Import, WithMultipleSheets
 
     public function getIsGabungan(): bool
     {
-        return $this->infoSheet->getData()['jenis_laporan'] === "GABUNGAN";
+        return $this->infoSheet->getData()['jenis_laporan'] === 'GABUNGAN';
     }
 
     public function getImportErrors(): array
     {
         $data = [];
 
-        if(!empty($this->infoSheet->getErrors())) {
+        if (! empty($this->infoSheet->getErrors())) {
             $data['INFO'] = $this->infoSheet->getErrors();
         }
 

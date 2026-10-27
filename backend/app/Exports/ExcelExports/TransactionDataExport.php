@@ -10,13 +10,10 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
-class TransactionDataExport extends DefaultValueBinder implements 
-    FromArray, 
-    WithTitle, 
-    WithStrictNullComparison,
-    WithHeadings
+class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
+
     protected SalesHarian $prevSalesHarian;
 
     public function __construct(LaporanUpload $laporan)
@@ -42,14 +39,14 @@ class TransactionDataExport extends DefaultValueBinder implements
     public function headings(): array
     {
         return [
-            "TOTAL_MEMBER",
-            "TOTAL_NON_MEMBER",
-            "MEMBER_BARU"
+            'TOTAL_MEMBER',
+            'TOTAL_NON_MEMBER',
+            'MEMBER_BARU',
         ];
     }
 
     public function title(): string
     {
-        return "DATA";
+        return 'DATA';
     }
 }

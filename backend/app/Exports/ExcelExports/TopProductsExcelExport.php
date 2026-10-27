@@ -17,14 +17,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class TopProductsExcelExport extends DefaultValueBinder implements 
-    FromQuery, 
-    WithHeadings, 
-    WithMapping, 
-    WithTitle, 
-    WithColumnFormatting, 
-    WithCustomValueBinder,
-    WithStrictNullComparison
+class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -39,6 +32,7 @@ class TopProductsExcelExport extends DefaultValueBinder implements
         if (in_array($cell->getColumn(), ['A', 'G'], true)) {
             $cell->setValueExplicit((string) $value, DataType::TYPE_STRING);
             $cell->getIgnoredErrors()->setNumberStoredAsText(true);
+
             return true;
         }
 
@@ -94,6 +88,6 @@ class TopProductsExcelExport extends DefaultValueBinder implements
 
     public function title(): string
     {
-        return "TOP 300 HIGHEST";
+        return 'TOP 300 HIGHEST';
     }
 }

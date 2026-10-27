@@ -28,7 +28,7 @@ class InfoSheetImport implements ToArray
         if ($keteranganColIndex === false) {
             $this->errors[] = [
                 'location' => null,
-                'message'  => 'Kolom KETERANGAN tidak ditemukan.',
+                'message' => 'Kolom KETERANGAN tidak ditemukan.',
             ];
 
             return;
@@ -61,9 +61,9 @@ class InfoSheetImport implements ToArray
 
         $entryRowIndex = [];
 
-        foreach($allFields as $field => $columnName) {
-            foreach($rows as $rowIndex => $value1) {
-                if($rows[$rowIndex][$keteranganColIndex] === $columnName) {
+        foreach ($allFields as $field => $columnName) {
+            foreach ($rows as $rowIndex => $value1) {
+                if ($rows[$rowIndex][$keteranganColIndex] === $columnName) {
                     $this->data[$field] = $rows[$rowIndex][$nilaiColIndex];
                     $entryRowIndex[$field] = $rowIndex;
                 }
@@ -71,19 +71,21 @@ class InfoSheetImport implements ToArray
         }
 
         foreach ($requiredFields as $field => $label) {
-            if (!array_key_exists($field, $this->data)) {
+            if (! array_key_exists($field, $this->data)) {
                 $this->errors[] = [
-                    "location" => null,
-                    "message" => "{$label} tidak ditemukan!",
+                    'location' => null,
+                    'message' => "{$label} tidak ditemukan!",
                 ];
+
                 continue;
             }
 
             if ($this->data[$field] === null || trim((string) $this->data[$field]) === '') {
                 $this->errors[] = [
-                    "location" => Coordinate::stringFromColumnIndex($nilaiColIndex + 1).($entryRowIndex[$field] + 1),
-                    "message" => "{$label} tidak boleh kosong.",
+                    'location' => Coordinate::stringFromColumnIndex($nilaiColIndex + 1).($entryRowIndex[$field] + 1),
+                    'message' => "{$label} tidak boleh kosong.",
                 ];
+
                 continue;
             }
         }
@@ -105,8 +107,8 @@ class InfoSheetImport implements ToArray
 
             if (filter_var($value, FILTER_VALIDATE_INT) === false) {
                 $this->errors[] = [
-                    "location" => $cellCoordinate,
-                    "message" => "{$label} harus berupa angka bulat.",
+                    'location' => $cellCoordinate,
+                    'message' => "{$label} harus berupa angka bulat.",
                 ];
 
                 continue;
@@ -116,8 +118,8 @@ class InfoSheetImport implements ToArray
                 $bulan = $this->data['bulan'];
                 if ($bulan !== null && ($bulan < 1 || $bulan > 12)) {
                     $this->errors[] = [
-                        "location" => $cellCoordinate,
-                        "message" => 'Bulan harus berupa angka antara 1 sampai 12. ('.$bulan.')',
+                        'location' => $cellCoordinate,
+                        'message' => 'Bulan harus berupa angka antara 1 sampai 12. ('.$bulan.')',
                     ];
                 }
             }
@@ -126,8 +128,8 @@ class InfoSheetImport implements ToArray
                 $tahun = $this->data['tahun'];
                 if ($tahun !== null && ($tahun < 0 || $tahun > 65535)) {
                     $this->errors[] = [
-                        "location" => $cellCoordinate,
-                        "message" => 'Tahun harus berupa angka antara 0 sampai 65535. ('.$tahun.')',
+                        'location' => $cellCoordinate,
+                        'message' => 'Tahun harus berupa angka antara 0 sampai 65535. ('.$tahun.')',
                     ];
                 }
             }
@@ -136,8 +138,8 @@ class InfoSheetImport implements ToArray
                 $jumlahHari = $this->data['jumlah_hari'];
                 if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > 31)) {
                     $this->errors[] = [
-                        "location" => $cellCoordinate,
-                        "message" => 'Jumlah hari harus berupa angka antara 1 sampai 31. ('.$jumlahHari.')',
+                        'location' => $cellCoordinate,
+                        'message' => 'Jumlah hari harus berupa angka antara 1 sampai 31. ('.$jumlahHari.')',
                     ];
                 }
             }

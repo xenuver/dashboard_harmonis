@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Imports\LaporanInformationImport;
 use App\Imports\LaporanImport;
+use App\Imports\LaporanInformationImport;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Excel as ExcelType;
 use Maatwebsite\Excel\Facades\Excel;
@@ -11,7 +11,9 @@ use Maatwebsite\Excel\Facades\Excel;
 class LaporanExcelParser
 {
     protected LaporanInformationImport $infoImporter;
+
     protected LaporanImport $importer;
+
     protected int $dayLength;
 
     public function __construct(UploadedFile $file, bool $isGabungan, ?int $dayLength = null)

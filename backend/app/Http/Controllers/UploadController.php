@@ -41,24 +41,24 @@ class UploadController extends Controller
         $infoParserData = $infoParser->parseInfo();
         $infoParserErrors = $infoParser->getImportErrors();
 
-        if(strtolower($infoParserData['jenis_laporan']) != strtolower($validated['jenis_laporan'])) {
+        if (strtolower($infoParserData['jenis_laporan']) != strtolower($validated['jenis_laporan'])) {
             $infoParserErrors['INFO'][] = [
-                "location" => null,
-                "message" => "Jenis laporan yang diinput dengan file berbeda! File: ".$infoParserData['jenis_laporan'].". Input: ".$validated['jenis_laporan'],
+                'location' => null,
+                'message' => 'Jenis laporan yang diinput dengan file berbeda! File: '.$infoParserData['jenis_laporan'].'. Input: '.$validated['jenis_laporan'],
             ];
         }
 
-        if($infoParserData['bulan'] != $validated['periode_bulan']) {
+        if ($infoParserData['bulan'] != $validated['periode_bulan']) {
             $infoParserErrors['INFO'][] = [
-                "location" => null,
-                "message" => "Bulan yang diinput dengan file berbeda! File: ".$infoParserData['bulan'].". Input: ".$validated['periode_bulan'],
+                'location' => null,
+                'message' => 'Bulan yang diinput dengan file berbeda! File: '.$infoParserData['bulan'].'. Input: '.$validated['periode_bulan'],
             ];
         }
 
-        if($infoParserData['tahun'] != $validated['periode_tahun']) {
+        if ($infoParserData['tahun'] != $validated['periode_tahun']) {
             $infoParserErrors['INFO'][] = [
-                "location" => null,
-                "message" => "Tahun yang diinput dengan file berbeda! File: ".$infoParserData['tahun'].". Input: ".$validated['periode_tahun'],
+                'location' => null,
+                'message' => 'Tahun yang diinput dengan file berbeda! File: '.$infoParserData['tahun'].'. Input: '.$validated['periode_tahun'],
             ];
         }
 
@@ -136,7 +136,7 @@ class UploadController extends Controller
             ]);
 
             MemberCount::create([
-                'upload_id' => $upload->id, 
+                'upload_id' => $upload->id,
                 'member_baru' => $parser->parseTransactionData()['member_baru'],
             ]);
 

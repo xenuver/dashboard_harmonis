@@ -7,12 +7,12 @@ use App\Models\LaporanUpload;
 use App\Models\MemberCount;
 use App\Models\SalesHarian;
 use Illuminate\Database\Eloquent\Builder;
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
 use Illuminate\Support\Carbon;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithCharts;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
@@ -21,35 +21,48 @@ use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
 
-class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTitle
+class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle
 {
     protected LaporanUpload $laporan;
+
     protected ?LaporanUpload $laporanPrev;
+
     protected DataTransaksi $dataTransaksi;
+
     protected MemberCount $memberCount;
 
     protected Builder $salesHarian;
+
     protected ?Builder $salesHarianPrev;
 
     protected int $kpiTotalPenjualanPrev;
+
     protected string $kpiTotalGrowthDiff;
 
-    protected string $sheetName = "VIEW";
+    protected string $sheetName = 'VIEW';
 
     protected string $bulanLaporan;
+
     protected string $bulanLaporanPrev;
+
     protected int $kpiTotalPenjualan;
+
     protected float|string $kpiTotalGrowth;
+
     protected int $kpiJumlahTransaksi;
+
     protected int $kpiGrowthMember;
 
     protected float $avgTransactionPerDay;
+
     protected float $avgTransactionCountPerDay;
+
     protected float $basketSizePerDay;
+
     protected float $avgGrowthPerDay;
 
     protected array $bulanString = [
-        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
+        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ];
 
     public function __construct(LaporanUpload $laporan)
@@ -61,7 +74,7 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
             ->first();
 
         $this->salesHarian = SalesHarian::where('upload_id', $laporan->id);
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->salesHarianPrev = SalesHarian::where('upload_id', $this->laporanPrev->id);
         }
 
@@ -73,16 +86,16 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
         $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
 
         $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->kpiTotalPenjualanPrev = $this->salesHarianPrev->sum('total_penjualan');
         }
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->kpiTotalGrowth = (($this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev) / $this->kpiTotalPenjualanPrev) * 100;
             $this->kpiTotalGrowthDiff = $this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev;
         } else {
-            $this->kpiTotalGrowth = "---";
-            $this->kpiTotalGrowthDiff = "---";
+            $this->kpiTotalGrowth = '---';
+            $this->kpiTotalGrowthDiff = '---';
         }
 
         $this->kpiJumlahTransaksi = $this->dataTransaksi->getTotalTransaction();
@@ -104,7 +117,7 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
             [null],
             [null],
             [null, 'BULAN', null, null, null, null, 'TOTAL SALES', null, null, null, null, 'TOTAL GROWTH', null, null, null, null, 'JUMLAH TRANSAKSI', null, null, null, null, 'GROWTH MEMBER'],
-            [null, $this->bulanLaporan, null, null, null, null, $this->kpiTotalPenjualan, null, null, null,null, $this->kpiTotalGrowth, null, null, null, null, $this->kpiJumlahTransaksi, null, null, null, null, $this->kpiGrowthMember],
+            [null, $this->bulanLaporan, null, null, null, null, $this->kpiTotalPenjualan, null, null, null, null, $this->kpiTotalGrowth, null, null, null, null, $this->kpiJumlahTransaksi, null, null, null, null, $this->kpiGrowthMember],
             [null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
@@ -155,7 +168,7 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 // judul
@@ -199,36 +212,36 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
                 $sheet->mergeCells('X49:Y49');
                 $sheet->mergeCells('X50:Y50');
                 $sheet->mergeCells('X51:Y51');
-            }
+            },
         ];
     }
 
     public function buildMonthlySalesChart(): Chart
     {
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$13', null, 1)
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$13', null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', '[$Rp-421] #,##0', 5)
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', '[$Rp-421] #,##0', 5),
         ];
 
         $series = new DataSeries(
-            DataSeries::TYPE_BARCHART, 
+            DataSeries::TYPE_BARCHART,
             DataSeries::GROUPING_STANDARD,
-            range(0,count($values) - 1),
+            range(0, count($values) - 1),
             [],
             $labels,
             $values
         );
         $series->setPlotDirection(DataSeries::DIRECTION_HORIZONTAL);
 
-        $layout = new Layout();
+        $layout = new Layout;
         $layout->setShowVal(true);
         $layout->setNumFmtCode('[$Rp-421] #,##0');
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
-        $chart = new Chart('totalsalesmonthly', new Title('TOTAL SALES MONTHLY'),$legend,$plotArea);
+        $chart = new Chart('totalsalesmonthly', new Title('TOTAL SALES MONTHLY'), $legend, $plotArea);
 
         $chart->setTopLeftPosition('P12');
         $chart->setBottomRightPosition('Y35');
@@ -241,23 +254,23 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
     public function buildTransactionInfoChart(): Chart
     {
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$39:$B$40', null, 1)
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$39:$B$40', null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$C$39:$C$40', null, 5)
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$C$39:$C$40', null, 5),
         ];
 
         $series = new DataSeries(
-            DataSeries::TYPE_PIECHART, 
+            DataSeries::TYPE_PIECHART,
             DataSeries::GROUPING_STANDARD,
-            range(0,count($values) - 1),
+            range(0, count($values) - 1),
             [],
             $labels,
             $values
         );
         $series->setPlotDirection(DataSeries::DIRECTION_HORIZONTAL);
 
-        $layout = new Layout();
+        $layout = new Layout;
         $layout->setShowCatName(true);
         $layout->setShowPercent(true);
         $layout->setShowVal(false);
@@ -266,7 +279,7 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
-        $chart = new Chart('transaksimembervsnonmember', new Title('TRANSAKSI MEMBER VS NON-MEMBER'),$legend,$plotArea);
+        $chart = new Chart('transaksimembervsnonmember', new Title('TRANSAKSI MEMBER VS NON-MEMBER'), $legend, $plotArea);
 
         $chart->setTopLeftPosition('B39');
         $chart->setBottomRightPosition('I53');
@@ -278,7 +291,7 @@ class DashboardExcelExport implements FromArray, WithEvents, WithCharts, WithTit
     {
         return [
             $this->buildMonthlySalesChart(),
-            $this->buildTransactionInfoChart()
+            $this->buildTransactionInfoChart(),
         ];
     }
 

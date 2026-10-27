@@ -13,7 +13,7 @@ class InfoLaporanExcelParser
 
     public function __construct(UploadedFile $file)
     {
-        $this-> importer = new LaporanInformationImport;
+        $this->importer = new LaporanInformationImport;
         Excel::import($this->importer, $file, null, ExcelType::XLSX);
     }
 

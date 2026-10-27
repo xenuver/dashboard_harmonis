@@ -2,17 +2,17 @@
 
 namespace App\Exports;
 
+use App\Exports\ExcelExports\DashboardExcelExport;
+use App\Exports\ExcelExports\PenjualanHarianExcelExport;
 use App\Exports\ExcelExports\SupplierExcelExport;
 use App\Exports\ExcelExports\TopProductsExcelExport;
 use App\Exports\ExcelExports\TransactionDataExport;
 use App\Exports\ExcelExports\WorstProductExcelExport;
-use App\Exports\ExcelExports\DashboardExcelExport;
-use App\Exports\ExcelExports\PenjualanHarianExcelExport;
 use App\Models\LaporanUpload;
 use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class SalesDashboardExport implements WithMultipleSheets, Export
+class SalesDashboardExport implements Export, WithMultipleSheets
 {
     protected LaporanUpload $laporan;
 

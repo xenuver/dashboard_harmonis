@@ -29,7 +29,7 @@ class LaporanUpload extends Model
         return [
             'periode_bulan' => 'integer',
             'periode_tahun' => 'integer',
-            'jumlah_hari' => 'integer'
+            'jumlah_hari' => 'integer',
         ];
     }
 

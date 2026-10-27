@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataTransaksi;
-use App\Models\MemberCount;
 use App\Models\LaporanUpload;
+use App\Models\MemberCount;
 use App\Models\SalesHarian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -65,15 +65,15 @@ class DashboardController extends Controller
         $totalPenjualan = SalesHarian::where('upload_id', $upload->id)->sum('total_penjualan');
 
         $kpi = [
-            "total_sales" => filter_var($totalPenjualan ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE),
-            "jumlah_transaksi" => $dataTransaksi->getTotalTransaction(),
-            "growth_member" => MemberCount::where('upload_id', $upload->id)->select('member_baru')->first()?->member_baru,
+            'total_sales' => filter_var($totalPenjualan ?? null, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE),
+            'jumlah_transaksi' => $dataTransaksi->getTotalTransaction(),
+            'growth_member' => MemberCount::where('upload_id', $upload->id)->select('member_baru')->first()?->member_baru,
         ];
 
-        if($uploadPrev) {
+        if ($uploadPrev) {
             $totalPenjualanPrev = SalesHarian::where('upload_id', $uploadPrev->id)->sum('total_penjualan');
 
-            if($totalPenjualanPrev) {
+            if ($totalPenjualanPrev) {
                 $kpi['total_growth'] = strval((($totalPenjualan - $totalPenjualanPrev) / $totalPenjualanPrev) * 100);
             }
         }
@@ -82,8 +82,8 @@ class DashboardController extends Controller
             'kpi' => $kpi,
             'trend' => $trend,
             'transaksi' => [
-                "transaksi_member" => $dataTransaksi->getTotalMemberTransaction(),
-                "transaksi_non_member" => $dataTransaksi->getTotalNonMemberTransaction(),
+                'transaksi_member' => $dataTransaksi->getTotalMemberTransaction(),
+                'transaksi_non_member' => $dataTransaksi->getTotalNonMemberTransaction(),
             ],
             'top_produk_terlaris' => $upload->produkPenjualan()
                 ->tertinggi()->limit(10)->get(),
