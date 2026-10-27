@@ -64,6 +64,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     protected float $avgGrowthPerDay;
 
+    protected int $diffMonthLength = 1;
+
     protected string $idrCurrentyFormat = '[$Rp-421] #,##0';
 
     protected array $bulanString = [
@@ -78,6 +80,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             ->periode($prevDate->month, $prevDate->year)
             ->first();
 
+        if($this->laporanPrev) {
+            $this->diffMonthLength = $this->diffMonthLength + 1;
+        }
+
         $this->salesHarian = SalesHarian::where('upload_id', $laporan->id);
         if ($this->laporanPrev) {
             $this->salesHarianPrev = SalesHarian::where('upload_id', $this->laporanPrev->id);
@@ -88,7 +94,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $this->memberCount = MemberCount::where('upload_id', $laporan->id)->first();
 
         $this->bulanLaporan = $this->bulanString[$this->laporan->periode_bulan - 1];
-        $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
+        if($this->laporanPrev) {
+            $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
+        }
 
         $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
         if ($this->laporanPrev) {
@@ -135,8 +143,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
             [null],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev, $this->salesHarianPrev->sum('total_penjualan')],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan')],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev)? $this->salesHarianPrev->sum('total_penjualan') : null],
             [null],
             [null],
             [null],
@@ -162,8 +170,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null],
-            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev, $this->laporanPrev->getMemberCount->getNewMemberCount(), null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()], // 40
+            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev)? $this->laporanPrev->getMemberCount->getNewMemberCount() : null], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -293,7 +301,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => $this->getColorGoodOrBad($this->kpiTotalGrowth)
+                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiTotalGrowth)? $this->kpiTotalGrowth : -1)
                         ]
                     ],
                     'font' => [
@@ -315,7 +323,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => $this->getColorGoodOrBad($this->kpiGrowthMember)
+                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiGrowthMember)? $this->kpiGrowthMember : -1)
                         ]
                     ],
                     'font' => [
@@ -363,10 +371,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
     public function buildMonthlySalesChart(): Chart
     {
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$13', null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$'.($this->diffMonthLength + 11), null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', $this->idrCurrentyFormat, 5),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$'.($this->diffMonthLength + 11), $this->idrCurrentyFormat, 5),
         ];
 
         $series = new DataSeries(
@@ -434,10 +442,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
     public function buildMemberGrowthChart(): Chart
     {
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$39:$K$40', null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$39:$K$'.($this->diffMonthLength + 38), null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$39:$L$40', 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$39:$L$'.($this->diffMonthLength + 38), null, 1),
         ];
 
         $series = new DataSeries(
