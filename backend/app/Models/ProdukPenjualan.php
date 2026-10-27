@@ -55,16 +55,22 @@ class ProdukPenjualan extends Model
         return $query->where('kategori', 'terendah')->OrderBy('qty');
     }
 
-    public function scopeCari(Builder $query, string $keyword): Builder
-    {
-        $keyword = addcslashes($keyword, '%_\\');
+public function scopeCari(Builder $query, string $keyword): Builder
+{
+    $keywords = preg_split('/\s+/', trim($keyword));
 
-        return $query->where(function (Builder $q) use ($keyword) {
-            $q->where('nama_brg', 'like', "%{$keyword}%")
-                ->orWhere('kode_brg', 'like', "%{$keyword}%")
-                ->orWhere('barcode', 'like', "%{$keyword}%");
-        });
-    }
+    return $query->where(function (Builder $q) use ($keywords) {
+        foreach ($keywords as $keyword) {
+            $keyword = addcslashes($keyword, '%_\\');
+
+            $q->where(function (Builder $q) use ($keyword) {
+                $q->where('nama_brg', 'like', "%{$keyword}%")
+                    ->orWhere('kode_brg', 'like', "%{$keyword}%")
+                    ->orWhere('barcode', 'like', "%{$keyword}%");
+            });
+        }
+    });
+}
 
     // ── Helper ─────────────────────────────────────────────
 
