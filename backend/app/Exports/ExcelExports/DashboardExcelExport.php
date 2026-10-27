@@ -91,7 +91,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         }
 
         if ($this->laporanPrev) {
-            $this->kpiTotalGrowth = (($this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev) / $this->kpiTotalPenjualanPrev) * 100;
+            $this->kpiTotalGrowth = ($this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev) / $this->kpiTotalPenjualanPrev;
             $this->kpiTotalGrowthDiff = $this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev;
         } else {
             $this->kpiTotalGrowth = '---';
