@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
@@ -50,6 +51,22 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $cellRange = $sheet->calculateWorksheetDimension();
+                $sheet->setAutoFilter($cellRange);
+                $sheet->freezePane('A2');
+
+                $sheet->getStyle("A1:{$sheet->getHighestColumn()}1")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'dcf2e1'
+                        ]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                    ],
+                ]);
             }
         ];
     }

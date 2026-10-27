@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
@@ -33,6 +34,22 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
                 foreach($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $cellRange = $sheet->calculateWorksheetDimension();
+                $sheet->setAutoFilter($cellRange);
+                $sheet->freezePane('A2');
+
+                $sheet->getStyle("A1:{$sheet->getHighestColumn()}1")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => 'dcf2e1'
+                        ]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                    ],
+                ]);
             }
         ];
     }
