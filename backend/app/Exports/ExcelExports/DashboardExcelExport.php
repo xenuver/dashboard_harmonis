@@ -146,9 +146,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
             [null],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan')],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev)? $this->salesHarianPrev->sum('total_penjualan') : null],
-            [null],
+            [null, 'TOTAL PENJUALAN', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan'), "TOTAL\nPENJUALAN"],
+            [null, 'AMPERA', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev)? $this->salesHarianPrev->sum('total_penjualan') : null],
+            [null, 'PAL'],
             [null],
             [null],
             [null],
@@ -173,7 +173,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null],
-            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
             [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev)? $this->laporanPrev->getMemberCount->getNewMemberCount() : null], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
@@ -434,8 +434,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     public function buildDailySalesChart(): Chart
     {
+        $dataSeriesLabels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$12', null, 1),
+        ];
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']),
         ];
         $values = [
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5),
@@ -445,7 +448,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             DataSeries::TYPE_LINECHART,
             DataSeries::GROUPING_STANDARD,
             range(0, count($values) - 1),
-            [],
+            $dataSeriesLabels,
             $labels,
             $values
         );
@@ -468,6 +471,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     public function buildMonthlySalesChart(): Chart
     {
+        $dataSeriesLabels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$R$12', null, 1),
+        ];
         $labels = [
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$'.($this->diffMonthLength + 11), null, 1),
         ];
@@ -479,7 +485,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             DataSeries::TYPE_BARCHART,
             DataSeries::GROUPING_STANDARD,
             range(0, count($values) - 1),
-            [],
+            $dataSeriesLabels,
             $labels,
             $values
         );
@@ -526,6 +532,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $layout->setShowVal(false);
         $layout->setShowLeaderLines(true);
         $layout->setDLblPos('outEnd');
+        $layout->setShowLegendKey(true);
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
@@ -539,6 +546,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     public function buildMemberGrowthChart(): Chart
     {
+        $dataSeriesLabels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$M$39', null, 1),
+        ];
         $labels = [
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$39:$K$'.($this->diffMonthLength + 38), null, 1),
         ];
@@ -550,7 +560,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             DataSeries::TYPE_BARCHART,
             DataSeries::GROUPING_STANDARD,
             range(0, count($values) - 1),
-            [],
+            $dataSeriesLabels,
             $labels,
             $values
         );
