@@ -149,8 +149,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null],
-            [null, 'non-member', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'member', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction()], // 40
+            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction()], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
