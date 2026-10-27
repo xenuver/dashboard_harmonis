@@ -31,10 +31,6 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                foreach($sheet->getColumnIterator() as $column) {
-                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
-                }
-
                 $cellRange = $sheet->calculateWorksheetDimension();
                 $sheet->setAutoFilter($cellRange);
                 $sheet->freezePane('A2');
@@ -50,6 +46,10 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
                         'bold' => true,
                     ],
                 ]);
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
             }
         ];
     }

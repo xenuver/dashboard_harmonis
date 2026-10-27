@@ -54,10 +54,6 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                foreach($sheet->getColumnIterator() as $column) {
-                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
-                }
-
                 $sheet->getStyle("A1:{$sheet->getHighestColumn()}1")->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
@@ -69,6 +65,10 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                         'bold' => true,
                     ],
                 ]);
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
             }
         ];
     }

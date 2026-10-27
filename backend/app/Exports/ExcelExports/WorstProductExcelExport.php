@@ -48,10 +48,6 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                foreach($sheet->getColumnIterator() as $column) {
-                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
-                }
-
                 $cellRange = $sheet->calculateWorksheetDimension();
                 $sheet->setAutoFilter($cellRange);
                 $sheet->freezePane('A2');
@@ -67,6 +63,10 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
                         'bold' => true,
                     ],
                 ]);
+
+                foreach($sheet->getColumnIterator() as $column) {
+                    $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+                }
             }
         ];
     }
