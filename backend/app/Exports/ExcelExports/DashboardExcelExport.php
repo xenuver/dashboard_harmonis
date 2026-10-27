@@ -216,6 +216,40 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         ];
     }
 
+    public function buildDailySalesChart(): Chart
+    {
+        $labels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1),
+        ];
+        $values = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), '[$Rp-421] #,##0', 5),
+        ];
+
+        $series = new DataSeries(
+            DataSeries::TYPE_LINECHART,
+            DataSeries::GROUPING_STANDARD,
+            range(0, count($values) - 1),
+            [],
+            $labels,
+            $values
+        );
+
+        $layout = new Layout;
+        $layout->setShowVal(false);
+        $layout->setNumFmtCode('[$Rp-421] #,##0');
+
+        $plotArea = new PlotArea($layout, [$series]);
+        $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
+        $chart = new Chart('totalsalesmonthly', new Title('SALES MONTH'), $legend, $plotArea);
+
+        $chart->setTopLeftPosition('B12');
+        $chart->setBottomRightPosition('N35');
+        $chart->getChartAxisY()->setAxisOption('minimum', '0');
+        $chart->getChartAxisY()->setAxisNumberProperties('[$Rp-421] #,##0');
+
+        return $chart;
+    }
+
     public function buildMonthlySalesChart(): Chart
     {
         $labels = [
@@ -328,6 +362,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             $this->buildMonthlySalesChart(),
             $this->buildTransactionInfoChart(),
             $this->buildMemberGrowthChart(),
+            $this->buildDailySalesChart(),
         ];
     }
 
