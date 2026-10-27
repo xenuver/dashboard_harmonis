@@ -20,6 +20,9 @@ use PhpOffice\PhpSpreadsheet\Chart\Layout;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
 use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle
 {
@@ -106,6 +109,14 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $this->avgTransactionCountPerDay = $this->dataTransaksi->getTotalTransaction() / $this->laporan->jumlah_hari;
         $this->basketSizePerDay = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
         $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
+    }
+
+    private function getColorGoodOrBad(float|int $number): string {
+        if($number > 0) {
+            return '76933c';
+        } else{
+            return 'e26b0a';
+        }
     }
 
     public function array(): array
@@ -212,6 +223,103 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                 $sheet->mergeCells('X49:Y49');
                 $sheet->mergeCells('X50:Y50');
                 $sheet->mergeCells('X51:Y51');
+
+                // format angka kpi
+                $sheet->getStyle('G7')->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('L7')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE_00);
+                $sheet->getStyle('Q7')->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('V7')->getNumberFormat()->setFormatCode('+#0;-#0;0');
+                $sheet->getStyle('L10')->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+
+                // bikin teks judul dan nilai kpi tengah serta shrink to fit buat kpi
+                $sheet->getStyle('B2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('B7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('G7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('L7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('Q7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('V7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+
+                // ubah ukuran teks dari judul dan kpi lebih besar serta ketebalan
+                $sheet->getStyle('B2')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('B6')->getFont()->setBold(true);
+                $sheet->getStyle('G6')->getFont()->setBold(true);
+                $sheet->getStyle('L6')->getFont()->setBold(true);
+                $sheet->getStyle('Q6')->getFont()->setBold(true);
+                $sheet->getStyle('V6')->getFont()->setBold(true);
+                $sheet->getStyle('B7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('G7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('L7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('Q7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('V7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('L10')->getFont()->setBold(true);
+
+                // ubah warna fill dan font dari judul dan card kpi
+                $sheet->getStyle('B2')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => '92d050'
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
+                $sheet->getStyle('B6:B10')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => '305496'
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
+                $sheet->getStyle('G6:G10')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => '305496'
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
+                $sheet->getStyle('L6:L10')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => $this->getColorGoodOrBad($this->kpiTotalGrowth)
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
+                $sheet->getStyle('Q6:Q10')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => '305496'
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
+                $sheet->getStyle('V6:V10')->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'rgb' => $this->getColorGoodOrBad($this->kpiGrowthMember)
+                        ]
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => 'ffffff']
+                    ]
+                ]);
             },
         ];
     }
