@@ -330,6 +330,13 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                         'color' => ['rgb' => 'ffffff']
                     ]
                 ]);
+
+                $sheet->setCellValue('Y53', 'Generated: '.date('d-m-Y H:i:s.ms T (P)'));
+                $sheet->getStyle('Y53')->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_RIGHT,
+                    ],
+                ]);
             },
         ];
     }
