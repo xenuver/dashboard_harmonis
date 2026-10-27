@@ -64,6 +64,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     protected float $avgGrowthPerDay;
 
+    protected string $idrCurrentyFormat = '[$Rp-421] #,##0';
+
     protected array $bulanString = [
         'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI', 'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ];
@@ -225,11 +227,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                 $sheet->mergeCells('X51:Y51');
 
                 // format angka kpi
-                $sheet->getStyle('G7')->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('G7')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
                 $sheet->getStyle('L7')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE_00);
                 $sheet->getStyle('Q7')->getNumberFormat()->setFormatCode('#,##0');
                 $sheet->getStyle('V7')->getNumberFormat()->setFormatCode('+#0;-#0;0');
-                $sheet->getStyle('L10')->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('L10')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
 
                 // bikin teks judul dan nilai kpi tengah serta shrink to fit buat kpi
                 $sheet->getStyle('B2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
@@ -330,7 +332,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), '[$Rp-421] #,##0', 5),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5),
         ];
 
         $series = new DataSeries(
@@ -344,7 +346,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
         $layout = new Layout;
         $layout->setShowVal(false);
-        $layout->setNumFmtCode('[$Rp-421] #,##0');
+        $layout->setNumFmtCode($this->idrCurrentyFormat);
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
@@ -353,7 +355,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $chart->setTopLeftPosition('B12');
         $chart->setBottomRightPosition('N35');
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
-        $chart->getChartAxisY()->setAxisNumberProperties('[$Rp-421] #,##0');
+        $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
         return $chart;
     }
@@ -364,7 +366,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$P$12:$P$13', null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', '[$Rp-421] #,##0', 5),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$Q$12:$Q$13', $this->idrCurrentyFormat, 5),
         ];
 
         $series = new DataSeries(
@@ -379,7 +381,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
         $layout = new Layout;
         $layout->setShowVal(true);
-        $layout->setNumFmtCode('[$Rp-421] #,##0');
+        $layout->setNumFmtCode($this->idrCurrentyFormat);
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
@@ -388,7 +390,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $chart->setTopLeftPosition('P12');
         $chart->setBottomRightPosition('Y35');
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
-        $chart->getChartAxisY()->setAxisNumberProperties('[$Rp-421] #,##0');
+        $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
         return $chart;
     }
