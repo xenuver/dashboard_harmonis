@@ -149,8 +149,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null],
-            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction()], // 40
+            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev, $this->laporanPrev->getMemberCount->getNewMemberCount(), null, null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -287,11 +287,47 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         return $chart;
     }
 
+    public function buildMemberGrowthChart(): Chart
+    {
+        $labels = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$39:$K$40', null, 1),
+        ];
+        $values = [
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$39:$L$40', 1),
+        ];
+
+        $series = new DataSeries(
+            DataSeries::TYPE_BARCHART,
+            DataSeries::GROUPING_STANDARD,
+            range(0, count($values) - 1),
+            [],
+            $labels,
+            $values
+        );
+        $series->setPlotDirection(DataSeries::DIRECTION_COLUMN);
+
+        $layout = new Layout;
+        $layout->setShowVal(true);
+        $layout->setNumFmtCode('+#0;-#0;0');
+
+        $plotArea = new PlotArea($layout, [$series]);
+        $legend = new Legend(Legend::POSITION_RIGHT, null, false);
+        $chart = new Chart('membergrowth', new Title('MEMBER GROWTH'), $legend, $plotArea);
+
+        $chart->setTopLeftPosition('K39');
+        $chart->setBottomRightPosition('R53');
+        $chart->getChartAxisY()->setAxisOption('minimum', '0');
+        $chart->getChartAxisY()->setAxisNumberProperties('+#0;-#0;0', true);
+
+        return $chart;
+    }
+
     public function charts(): array
     {
         return [
             $this->buildMonthlySalesChart(),
             $this->buildTransactionInfoChart(),
+            $this->buildMemberGrowthChart(),
         ];
     }
 
