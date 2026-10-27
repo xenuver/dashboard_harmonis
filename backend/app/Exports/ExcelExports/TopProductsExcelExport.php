@@ -82,11 +82,11 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
             'A' => NumberFormat::FORMAT_TEXT,
             'B' => NumberFormat::FORMAT_TEXT,
             'C' => NumberFormat::FORMAT_TEXT,
-            'D' => NumberFormat::FORMAT_NUMBER,
+            'D' => "#,##0",
             'E' => '[$Rp-421] #,##0',
             'F' => '[$Rp-421] #,##0',
             'G' => NumberFormat::FORMAT_TEXT,
-            'H' => NumberFormat::FORMAT_NUMBER,
+            'H' => "#,##0",
         ];
     }
 
