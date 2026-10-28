@@ -42,6 +42,7 @@ export function EksporData() {
   async function runExportData(event: ReactSubmitEvent) {
     event.preventDefault();
     setExportMessageState(EXPORT_MESSAGE_NOTHING);
+    setRestrictFormChange(true);
     const form = new FormData(event.target);
 
     const jenisLaporan = form.get("jenis_laporan");
@@ -124,6 +125,7 @@ export function EksporData() {
         if (err.status === 404) {
           setExportMessageText("Data belum tersedia");
           setExportMessageState(EXPORT_MESSAGE_FAIL);
+          setRestrictFormChange(false);
           return;
         } else if (err.status === 422) {
           const message = JSON.parse(await err.response?.data.text()) as LaravelValidationError ?? null;
@@ -140,12 +142,15 @@ export function EksporData() {
             setExportMessageState(EXPORT_MESSAGE_FAIL);
           }
           setExportMessageState(EXPORT_MESSAGE_FAIL);
+          setRestrictFormChange(false);
           return;
         }
         console.error(err);
         setExportMessageText("Terjadi kesalahan yang tidak diketahui");
         setExportMessageState(EXPORT_MESSAGE_FAIL);
       }
+
+      setRestrictFormChange(false);
     }
   }
 
