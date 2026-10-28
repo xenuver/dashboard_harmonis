@@ -461,8 +461,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
         $chart = new Chart('totalsalesmonthly', new Title('SALES MONTH'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('B12');
-        $chart->setBottomRightPosition('N35');
+        $chart->setTopLeftPosition('B12', 0, 0);
+        $chart->setBottomRightPosition('O36', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
@@ -499,8 +499,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
         $chart = new Chart('totalsalesmonthly', new Title('TOTAL SALES MONTHLY'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('P12');
-        $chart->setBottomRightPosition('Y35');
+        $chart->setTopLeftPosition('P12', 0, 0);
+        $chart->setBottomRightPosition('Z36', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
@@ -538,8 +538,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
         $chart = new Chart('transaksimembervsnonmember', new Title('TRANSAKSI MEMBER VS NON-MEMBER'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('B39');
-        $chart->setBottomRightPosition('I53');
+        $chart->setTopLeftPosition('B39', 0, 0);
+        $chart->setBottomRightPosition('J54', 0, 0);
 
         return $chart;
     }
@@ -574,8 +574,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
         $chart = new Chart('membergrowth', new Title('MEMBER GROWTH'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('K39');
-        $chart->setBottomRightPosition('R53');
+        $chart->setTopLeftPosition('K39', 0, 0);
+        $chart->setBottomRightPosition('S54', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties('+#0;-#0;0', true);
 
