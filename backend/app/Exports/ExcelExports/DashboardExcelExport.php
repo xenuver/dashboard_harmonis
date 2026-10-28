@@ -444,6 +444,18 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5),
         ];
 
+        if($this->laporan->jenis_laporan === 'gabungan') {
+            // ampera
+            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$13', null, 1);
+            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1);
+            $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$C$2:$C$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
+
+            // pal
+            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$14', null, 1);
+            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1);
+            $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$D$2:$D$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
+        }
+
         $series = new DataSeries(
             DataSeries::TYPE_LINECHART,
             DataSeries::GROUPING_STANDARD,
