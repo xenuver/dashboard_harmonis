@@ -112,8 +112,10 @@ export function EksporData() {
       link.download = `REPORT_${months[parseInt(periodeBulan) - 1]}_${periodeTahun}.xlsx`;
       link.hidden = true;
       link.style.display = "none";
-
       document.body.appendChild(link);
+
+      setExportMessageText("Memulai download...");
+      setExportMessageState(EXPORT_MESSAGE_SUCCESS);
       link.click();
       link.remove();
     } catch (err) {
