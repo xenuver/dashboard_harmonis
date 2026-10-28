@@ -18,6 +18,7 @@ export function LoggedInLayout() {
     "/produk-penjualan": "Peringkat Produk",
     "/supplier-penjualan": "Peringkat Supplier",
     "/kelola-pengguna": "Kelola Pengguna",
+    "/ekspor": "Ekspor Laporan",
   };
 
   return (
