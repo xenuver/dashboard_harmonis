@@ -151,9 +151,9 @@ export function EksporData() {
         setExportMessageText("Terjadi kesalahan yang tidak diketahui");
         setExportMessageState(EXPORT_MESSAGE_FAIL);
       }
-
-      setRestrictFormChange(false);
     }
+
+    setRestrictFormChange(false);
   }
 
     return (<>
