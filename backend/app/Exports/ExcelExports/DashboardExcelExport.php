@@ -8,6 +8,7 @@ use App\Models\MemberCount;
 use App\Models\SalesHarian;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithCharts;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -70,6 +71,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected float $avgGrowthPerDay;
 
+    protected int $minSalesThisMonth;
+
+    protected int $maxSalesThisMonth;
+
     protected int $diffMonthLength = 1;
 
     protected string $idrCurrentyFormat = '[$Rp-421] #,##0';
@@ -127,6 +132,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $this->avgTransactionCountPerDay = $this->dataTransaksi->getTotalTransaction() / $this->laporan->jumlah_hari;
         $this->basketSizeThisMonth = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
         $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
+
+        $dailyTotalQuery = (clone $this->salesHarian)->newQuery()->select('tanggal', DB::raw('SUM(total_penjualan) as daily_total'))->groupBy('tanggal');
+
+        $this->minSalesThisMonth = DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->min('daily_total');
+        $this->maxSalesThisMonth = DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->max('daily_total');
     }
 
     private function getColorGoodOrBad(float|int $number): string
@@ -174,24 +184,21 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null],
             [null],
-            [null],
-            [null],
-            [null],
-            [null],
-            [null],
             [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null], // 40
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
             [null],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP SUPPLIER', null, null, null, 'VIEW'],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP SUPPLIER', null, null, null, 'VIEW'], // 40
             [null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION/DAY', null, null, null, $this->avgTransactionPerDay],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION COUNT/DAY', null, null, null, $this->avgTransactionCountPerDay],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE BULAN INI', null, null, null, $this->basketSizeThisMonth], // 50
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE BULAN INI', null, null, null, $this->basketSizeThisMonth],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG MEMBER GROWTH/DAY', null, null, null, $this->avgGrowthPerDay],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'MIN SALES THIS MONTH', null, null, null, $this->minSalesThisMonth],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'MAX SALES THIS MONTH', null, null, null, $this->maxSalesThisMonth],
         ];
     }
 
@@ -223,26 +230,30 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                 $sheet->mergeCells('L10:O10');
 
                 // label peringkat produk dan supplier
-                $sheet->mergeCells('T39:W40');
-                $sheet->mergeCells('T42:W43');
-                $sheet->mergeCells('T45:W46');
+                $sheet->mergeCells('T34:W35');
+                $sheet->mergeCells('T37:W38');
+                $sheet->mergeCells('T40:W41');
 
                 // tombol peringkat produk dan supplier
-                $sheet->mergeCells('X39:Y40');
-                $sheet->mergeCells('X42:Y43');
-                $sheet->mergeCells('X45:Y46');
+                $sheet->mergeCells('X34:Y35');
+                $sheet->mergeCells('X37:Y38');
+                $sheet->mergeCells('X40:Y41');
 
                 // label teks
+                $sheet->mergeCells('T43:W43');
+                $sheet->mergeCells('T44:W44');
+                $sheet->mergeCells('T45:W45');
+                $sheet->mergeCells('T46:W46');
+                $sheet->mergeCells('T47:W47');
                 $sheet->mergeCells('T48:W48');
-                $sheet->mergeCells('T49:W49');
-                $sheet->mergeCells('T50:W50');
-                $sheet->mergeCells('T51:W51');
 
                 // nilai dari label
+                $sheet->mergeCells('X43:Y43');
+                $sheet->mergeCells('X44:Y44');
+                $sheet->mergeCells('X45:Y45');
+                $sheet->mergeCells('X46:Y46');
+                $sheet->mergeCells('X47:Y47');
                 $sheet->mergeCells('X48:Y48');
-                $sheet->mergeCells('X49:Y49');
-                $sheet->mergeCells('X50:Y50');
-                $sheet->mergeCells('X51:Y51');
 
                 // format angka kpi
                 $sheet->getStyle('G7')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
@@ -380,23 +391,25 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                     ],
                 ];
 
-                $sheet->getStyle('T39')->applyFromArray($rankUrlLabelStyle);
-                $sheet->getStyle('T42')->applyFromArray($rankUrlLabelStyle);
-                $sheet->getStyle('T45')->applyFromArray($rankUrlLabelStyle);
+                $sheet->getStyle('T34')->applyFromArray($rankUrlLabelStyle);
+                $sheet->getStyle('T37')->applyFromArray($rankUrlLabelStyle);
+                $sheet->getStyle('T40')->applyFromArray($rankUrlLabelStyle);
 
-                $sheet->getCell('X39')->getHyperlink()->setUrl("sheet://'TOP 300 HIGHEST'!A1");
-                $sheet->getCell('X42')->getHyperlink()->setUrl("sheet://'TOP 300 LOWEST'!A1");
-                $sheet->getCell('X45')->getHyperlink()->setUrl("sheet://'TOP SUPPLIER'!A1");
-                $sheet->getStyle('X39')->applyFromArray($rankUrlButtonStyle);
-                $sheet->getStyle('X42')->applyFromArray($rankUrlButtonStyle);
-                $sheet->getStyle('X45')->applyFromArray($rankUrlButtonStyle);
+                $sheet->getCell('X34')->getHyperlink()->setUrl("sheet://'TOP 300 HIGHEST'!A1");
+                $sheet->getCell('X37')->getHyperlink()->setUrl("sheet://'TOP 300 LOWEST'!A1");
+                $sheet->getCell('X40')->getHyperlink()->setUrl("sheet://'TOP SUPPLIER'!A1");
+                $sheet->getStyle('X34')->applyFromArray($rankUrlButtonStyle);
+                $sheet->getStyle('X37')->applyFromArray($rankUrlButtonStyle);
+                $sheet->getStyle('X40')->applyFromArray($rankUrlButtonStyle);
 
+                $sheet->getStyle('X43')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
+                $sheet->getStyle('X44')->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('X45')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
+                $sheet->getStyle('X46')->getNumberFormat()->setFormatCode('+#0;-#0;0');
+                $sheet->getStyle('X47')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
                 $sheet->getStyle('X48')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
-                $sheet->getStyle('X49')->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('X50')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
-                $sheet->getStyle('X51')->getNumberFormat()->setFormatCode('+#0;-#0;0');
 
-                $sheet->getStyle('T39:Y40')->applyFromArray([
+                $sheet->getStyle('T34:Y35')->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
@@ -407,7 +420,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                     ],
                 ]);
 
-                $sheet->getStyle('T42:Y43')->applyFromArray([
+                $sheet->getStyle('T37:Y38')->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
@@ -418,7 +431,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                     ],
                 ]);
 
-                $sheet->getStyle('T45:Y46')->applyFromArray([
+                $sheet->getStyle('T40:Y41')->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
@@ -483,7 +496,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $chart = new Chart('totalsalesdaily', new Title('SALES DAILY'), $legend, $plotArea);
 
         $chart->setTopLeftPosition('B12', 0, 0);
-        $chart->setBottomRightPosition('O36', 0, 0);
+        $chart->setBottomRightPosition('O33', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
@@ -526,7 +539,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $chart = new Chart('totalsalesmonthly', new Title('TOTAL SALES MONTHLY'), $legend, $plotArea);
 
         $chart->setTopLeftPosition('P12', 0, 0);
-        $chart->setBottomRightPosition('Z36', 0, 0);
+        $chart->setBottomRightPosition('Z33', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
@@ -541,10 +554,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
     public function buildTransactionInfoChart(): Chart
     {
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$39:$B$40', null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$34:$B$35', null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$C$39:$C$40', null, 5),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$C$34:$C$35', null, 5),
         ];
 
         $series = new DataSeries(
@@ -569,8 +582,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
         $chart = new Chart('transaksimembervsnonmember', new Title('TRANSAKSI MEMBER VS NON-MEMBER'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('B39', 0, 0);
-        $chart->setBottomRightPosition('J54', 0, 0);
+        $chart->setTopLeftPosition('B34', 0, 0);
+        $chart->setBottomRightPosition('J55', 0, 0);
 
         return $chart;
     }
@@ -578,13 +591,13 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
     public function buildMemberGrowthChart(): Chart
     {
         $dataSeriesLabels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$M$39', null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$M$34', null, 1),
         ];
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$39:$K$'.($this->diffMonthLength + 38), null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$34:$K$'.($this->diffMonthLength + 33), null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$39:$L$'.($this->diffMonthLength + 38), null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$34:$L$'.($this->diffMonthLength + 33), null, 1),
         ];
 
         $series = new DataSeries(
@@ -605,8 +618,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
         $chart = new Chart('membergrowth', new Title('MEMBER GROWTH'), $legend, $plotArea);
 
-        $chart->setTopLeftPosition('K39', 0, 0);
-        $chart->setBottomRightPosition('S54', 0, 0);
+        $chart->setTopLeftPosition('K34', 0, 0);
+        $chart->setBottomRightPosition('S55', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties('+#0;-#0;0', true);
 
