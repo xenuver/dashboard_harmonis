@@ -51,6 +51,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
     protected string $bulanLaporanPrev;
 
+    protected int $tahunLaporan;
+
     protected int $kpiTotalPenjualan;
 
     protected float|string $kpiTotalGrowth;
@@ -101,6 +103,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
         }
 
+        $this->tahunLaporan = $this->laporan->periode_tahun;
+
         $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
         if ($this->laporanPrev) {
             $this->kpiTotalPenjualanPrev = $this->salesHarianPrev->sum('total_penjualan');
@@ -140,11 +144,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null],
-            [null, 'BULAN', null, null, null, null, 'TOTAL SALES', null, null, null, null, 'TOTAL GROWTH', null, null, null, null, 'JUMLAH TRANSAKSI', null, null, null, null, 'GROWTH MEMBER'],
+            [null, 'PERIODE', null, null, null, null, 'TOTAL SALES', null, null, null, null, 'TOTAL GROWTH', null, null, null, null, 'JUMLAH TRANSAKSI', null, null, null, null, 'GROWTH MEMBER'],
             [null, $this->bulanLaporan, null, null, null, null, $this->kpiTotalPenjualan, null, null, null, null, $this->kpiTotalGrowth, null, null, null, null, $this->kpiJumlahTransaksi, null, null, null, null, $this->kpiGrowthMember],
             [null],
             [null],
-            [null, null, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
+            [null, $this->tahunLaporan, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
             [null],
             [null, 'TOTAL PENJUALAN', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan'), "TOTAL\nPENJUALAN"],
             [null, 'AMPERA', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev)? $this->salesHarianPrev->sum('total_penjualan') : null],
@@ -206,7 +210,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                 $sheet->mergeCells('V6:Y6');
 
                 // nilai kpi
-                $sheet->mergeCells('B7:E10');
+                $sheet->mergeCells('B7:E9');
+                $sheet->mergeCells('B10:E10');
                 $sheet->mergeCells('G7:J10');
                 $sheet->mergeCells('L7:O9');
                 $sheet->mergeCells('Q7:T10');
@@ -251,6 +256,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                 $sheet->getStyle('L7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
                 $sheet->getStyle('Q7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
                 $sheet->getStyle('V7')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
+                $sheet->getStyle('B10')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER)->setShrinkToFit(true);
 
                 // ubah ukuran teks dari judul dan kpi lebih besar serta ketebalan
                 $sheet->getStyle('B2')->getFont()->setSize(22)->setBold(true);
@@ -264,6 +270,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                 $sheet->getStyle('L7')->getFont()->setSize(22)->setBold(true);
                 $sheet->getStyle('Q7')->getFont()->setSize(22)->setBold(true);
                 $sheet->getStyle('V7')->getFont()->setSize(22)->setBold(true);
+                $sheet->getStyle('B10')->getFont()->setBold(true);
                 $sheet->getStyle('L10')->getFont()->setBold(true);
 
                 // ubah warna fill dan font dari judul dan card kpi
