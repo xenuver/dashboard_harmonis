@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class TransactionDataExport extends DefaultValueBinder implements FromArray, WithHeadings, WithStrictNullComparison, WithTitle, WithEvents, WithColumnFormatting
+class TransactionDataExport extends DefaultValueBinder implements FromArray, WithColumnFormatting, WithEvents, WithHeadings, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -61,27 +61,27 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 $sheet->getStyle("A1:{$sheet->getHighestColumn()}1")->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'dcf2e1'
-                        ]
+                            'rgb' => 'dcf2e1',
+                        ],
                     ],
                     'font' => [
                         'bold' => true,
                     ],
                 ]);
 
-                foreach($sheet->getColumnIterator() as $column) {
+                foreach ($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
-                
+
                 $sheet->setSelectedCell('A1');
-            }
+            },
         ];
     }
 

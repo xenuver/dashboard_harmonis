@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
+class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithEvents, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -28,7 +28,7 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 $cellRange = $sheet->calculateWorksheetDimension();
@@ -39,20 +39,20 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithHeadin
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'dcf2e1'
-                        ]
+                            'rgb' => 'dcf2e1',
+                        ],
                     ],
                     'font' => [
                         'bold' => true,
                     ],
                 ]);
 
-                foreach($sheet->getColumnIterator() as $column) {
+                foreach ($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
 
                 $sheet->setSelectedCell('A1');
-            }
+            },
         ];
     }
 

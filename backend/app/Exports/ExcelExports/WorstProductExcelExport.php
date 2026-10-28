@@ -20,7 +20,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle, WithEvents
+class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, WithColumnFormatting, WithCustomValueBinder, WithEvents, WithHeadings, WithMapping, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -45,7 +45,7 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 $cellRange = $sheet->calculateWorksheetDimension();
@@ -56,20 +56,20 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'dcf2e1'
-                        ]
+                            'rgb' => 'dcf2e1',
+                        ],
                     ],
                     'font' => [
                         'bold' => true,
                     ],
                 ]);
 
-                foreach($sheet->getColumnIterator() as $column) {
+                foreach ($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
 
                 $sheet->setSelectedCell('A1');
-            }
+            },
         ];
     }
 
@@ -84,11 +84,11 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
             'A' => NumberFormat::FORMAT_TEXT,
             'B' => NumberFormat::FORMAT_TEXT,
             'C' => NumberFormat::FORMAT_TEXT,
-            'D' => "#,##0",
+            'D' => '#,##0',
             'E' => '[$Rp-421] #,##0',
             'F' => '[$Rp-421] #,##0',
             'G' => NumberFormat::FORMAT_TEXT,
-            'H' => "#,##0",
+            'H' => '#,##0',
         ];
     }
 

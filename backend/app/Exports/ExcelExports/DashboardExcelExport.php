@@ -28,7 +28,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTitle, WithStrictNullComparison
+class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
 
@@ -86,7 +86,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             ->periode($prevDate->month, $prevDate->year)
             ->first();
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->diffMonthLength = $this->diffMonthLength + 1;
         }
 
@@ -100,7 +100,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $this->memberCount = MemberCount::where('upload_id', $laporan->id)->first();
 
         $this->bulanLaporan = $this->bulanString[$this->laporan->periode_bulan - 1];
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->bulanLaporanPrev = $this->bulanString[$this->laporanPrev->periode_bulan - 1];
         }
 
@@ -129,10 +129,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
     }
 
-    private function getColorGoodOrBad(float|int $number): string {
-        if($number > 0) {
+    private function getColorGoodOrBad(float|int $number): string
+    {
+        if ($number > 0) {
             return '76933c';
-        } else{
+        } else {
             return 'e26b0a';
         }
     }
@@ -152,7 +153,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null, $this->tahunLaporan, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
             [null],
             [null, 'TOTAL PENJUALAN', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan'), "TOTAL\nPENJUALAN"],
-            [null, 'AMPERA', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev)? $this->salesHarianPrev->sum('total_penjualan') : null],
+            [null, 'AMPERA', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev) ? $this->salesHarianPrev->sum('total_penjualan') : null],
             [null, 'PAL'],
             [null],
             [null],
@@ -179,7 +180,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             [null],
             [null],
             [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev)? $this->laporanPrev->getMemberCount->getNewMemberCount() : null], // 40
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null], // 40
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -279,67 +280,67 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => '92d050'
-                        ]
+                            'rgb' => '92d050',
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
                 $sheet->getStyle('B6:B10')->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => '305496'
-                        ]
+                            'rgb' => '305496',
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
                 $sheet->getStyle('G6:G10')->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => '305496'
-                        ]
+                            'rgb' => '305496',
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
                 $sheet->getStyle('L6:L10')->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiTotalGrowth)? $this->kpiTotalGrowth : -1)
-                        ]
+                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiTotalGrowth) ? $this->kpiTotalGrowth : -1),
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
                 $sheet->getStyle('Q6:Q10')->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => '305496'
-                        ]
+                            'rgb' => '305496',
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
                 $sheet->getStyle('V6:V10')->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiGrowthMember)? $this->kpiGrowthMember : -1)
-                        ]
+                            'rgb' => $this->getColorGoodOrBad(is_numeric($this->kpiGrowthMember) ? $this->kpiGrowthMember : -1),
+                        ],
                     ],
                     'font' => [
-                        'color' => ['rgb' => 'ffffff']
-                    ]
+                        'color' => ['rgb' => 'ffffff'],
+                    ],
                 ]);
 
                 // format bagian bawah
@@ -351,8 +352,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'e2efda'
-                        ]
+                            'rgb' => 'e2efda',
+                        ],
                     ],
                     'font' => [
                         'size' => 18,
@@ -367,13 +368,13 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
-                            'rgb' => 'ffe699'
-                        ]
+                            'rgb' => 'ffe699',
+                        ],
                     ],
                     'font' => [
                         'size' => 14,
                         'color' => [
-                            'rgb' => '0563c1'
+                            'rgb' => '0563c1',
                         ],
                         'underline' => Font::UNDERLINE_SINGLE,
                     ],
@@ -400,7 +401,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
                             'color' => [
-                                'rgb' => '000000'
+                                'rgb' => '000000',
                             ],
                         ],
                     ],
@@ -411,7 +412,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
                             'color' => [
-                                'rgb' => '000000'
+                                'rgb' => '000000',
                             ],
                         ],
                     ],
@@ -422,7 +423,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,
                             'color' => [
-                                'rgb' => '000000'
+                                'rgb' => '000000',
                             ],
                         ],
                     ],
@@ -452,7 +453,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5),
         ];
 
-        if($this->laporan->jenis_laporan === 'gabungan') {
+        if ($this->laporan->jenis_laporan === 'gabungan') {
             // ampera
             $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$13', null, 1);
             $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1);
