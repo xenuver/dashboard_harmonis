@@ -442,8 +442,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                     ],
                 ]);
 
-                $sheet->setCellValue('Y53', 'Generated: '.date('d-m-Y H:i:s.ms T (P)'));
-                $sheet->getStyle('Y53')->applyFromArray([
+                $sheet->setCellValue('Y54', 'Generated: '.date('d-m-Y H:i:s.ms T (P)'));
+                $sheet->getStyle('Y54')->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_RIGHT,
                     ],
