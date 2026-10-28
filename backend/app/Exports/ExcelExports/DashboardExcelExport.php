@@ -471,7 +471,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
-        $chart = new Chart('totalsalesmonthly', new Title('SALES MONTH'), $legend, $plotArea);
+        $chart = new Chart('totalsalesdaily', new Title('SALES DAILY'), $legend, $plotArea);
 
         $chart->setTopLeftPosition('B12', 0, 0);
         $chart->setBottomRightPosition('O36', 0, 0);
