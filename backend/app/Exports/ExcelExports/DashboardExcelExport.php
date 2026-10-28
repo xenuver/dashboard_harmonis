@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
+use PhpOffice\PhpSpreadsheet\Chart\GridLines;
 use PhpOffice\PhpSpreadsheet\Chart\Layout;
 use PhpOffice\PhpSpreadsheet\Chart\Legend;
 use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
@@ -485,6 +486,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
+        $yGridLines = new GridLines;
+        $yGridLines->activateObject();
+        $yGridLines->setLineColorProperties('d9d9d9');
+        $chart->getChartAxisY()->setMajorGridlines($yGridLines);
+
         return $chart;
     }
 
@@ -522,6 +528,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $chart->setBottomRightPosition('Z36', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
+
+        $yGridLines = new GridLines;
+        $yGridLines->activateObject();
+        $yGridLines->setLineColorProperties('d9d9d9');
+        $chart->getChartAxisY()->setMajorGridlines($yGridLines);
 
         return $chart;
     }
@@ -597,6 +608,11 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithTit
         $chart->setBottomRightPosition('S54', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties('+#0;-#0;0', true);
+
+        $yGridLines = new GridLines;
+        $yGridLines->activateObject();
+        $yGridLines->setLineColorProperties('d9d9d9');
+        $chart->getChartAxisY()->setMajorGridlines($yGridLines);
 
         return $chart;
     }
