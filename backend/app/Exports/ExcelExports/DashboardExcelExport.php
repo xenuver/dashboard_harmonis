@@ -66,7 +66,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected float $avgTransactionCountPerDay;
 
-    protected float $basketSizePerDay;
+    protected float $basketSizeThisMonth;
 
     protected float $avgGrowthPerDay;
 
@@ -125,7 +125,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
         $this->avgTransactionPerDay = $this->salesHarian->sum('total_penjualan') / $this->laporan->jumlah_hari;
         $this->avgTransactionCountPerDay = $this->dataTransaksi->getTotalTransaction() / $this->laporan->jumlah_hari;
-        $this->basketSizePerDay = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
+        $this->basketSizeThisMonth = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
         $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
     }
 
@@ -190,7 +190,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION/DAY', null, null, null, $this->avgTransactionPerDay],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG TRANSACTION COUNT/DAY', null, null, null, $this->avgTransactionCountPerDay],
-            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE/DAY', null, null, null, $this->basketSizePerDay], // 50
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG CUST BASKET SIZE BULAN INI', null, null, null, $this->basketSizeThisMonth], // 50
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG MEMBER GROWTH/DAY', null, null, null, $this->avgGrowthPerDay],
         ];
     }
