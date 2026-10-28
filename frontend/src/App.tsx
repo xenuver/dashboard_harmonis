@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import LoginScreen from './view/Login';
 import Dashboard from './view/Dashboard';
 import Upload from './view/Upload'
+import EksporData from './view/EksporData'
 import ProdukPenjualan from './view/ProdukPenjualan';
 import SupplierPenjualan from './view/SupplierPenjualan';
 // import UiTest from './view/UiTest';
@@ -32,6 +33,7 @@ const App = () => {
         <Route element={<LoggedInLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/ekspor" element={<EksporData />} />
           <Route path="/produk-penjualan" element={<ProdukPenjualan />} />
           <Route path="/supplier-penjualan" element={<SupplierPenjualan />} />
           <Route path="/kelola-pengguna" element={<KelolaPengguna />} />

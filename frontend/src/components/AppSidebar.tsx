@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FileUp, ShoppingCart, Truck, Users } from "lucide-react";
+import { LayoutDashboard, FileUp, ShoppingCart, Truck, Users, FileDown } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Branding from "./NavBranding";
 import sessionManager from "@/services/sessionManager";
@@ -23,6 +23,7 @@ const topNavigationItems = [
 
 const manageDataNavigationItems = [
   { title: "Upload Laporan", url: "/upload", icon: FileUp, viewableBy: ["it_staff"] },
+  { title: "Ekspor Laporan", url: "/ekspor", icon: FileDown, viewableBy: ["owner", "it_staff"] },
 ];
 
 const manageDashboardNavigationItems = [
@@ -76,7 +77,7 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         }
-        { sessionManager.getIdentity()?.role === "it_staff" &&
+        { (sessionManager.getIdentity()?.role === "owner" || sessionManager.getIdentity()?.role === "it_staff") &&
           <SidebarGroup>
             <SidebarGroupLabel>Kelola Data</SidebarGroupLabel>
             <SidebarGroupContent>
