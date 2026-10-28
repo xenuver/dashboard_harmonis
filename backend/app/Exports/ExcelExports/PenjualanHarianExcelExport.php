@@ -68,12 +68,17 @@ class PenjualanHarianExcelExport implements FromCollection, WithColumnFormatting
 
     public function columnFormats(): array
     {
-        return [
+        $columnFormats=  [
             'A' => NumberFormat::FORMAT_NUMBER,
             'B' => '[$Rp-421] #,##0',
-            'C' => '[$Rp-421] #,##0',
-            'D' => '[$Rp-421] #,##0',
         ];
+
+        if($this->laporan->jenis_laporan === 'gabungan') {
+            $columnFormats['C'] = '[$Rp-421] #,##0';
+            $columnFormats['D'] = '[$Rp-421] #,##0';
+        }
+
+        return $columnFormats;
     }
 
     public function headings(): array
