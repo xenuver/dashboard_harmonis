@@ -34,6 +34,6 @@ class ExportDataController extends Controller
             return response()->json(['message' => 'Data tidak ditemukan'], 404); // -> state Kosong
         }
 
-        return Excel::download(new SalesDashboardExport($upload), 'sales-dashboard '.$validated['periode_bulan'].'-'.$validated['periode_tahun'].'.xlsx');
+        return Excel::download(new SalesDashboardExport($upload), 'sales-dashboard-'.$validated['jenis_laporan'].'-'.$validated['periode_bulan'].'-'.$validated['periode_tahun'].'.xlsx');
     }
 }
