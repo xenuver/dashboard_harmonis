@@ -2,6 +2,7 @@ import { useState as reactUseState, type SubmitEvent as ReactSubmitEvent } from 
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { CircleCheck, CircleX, Download } from "lucide-react";
+import { parse as contentDispositionParse } from 'content-disposition';
 
 import { Button, } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -104,12 +105,19 @@ export function EksporData() {
         params: body
       });
 
+      let disposition;
+      if(response.headers['content-disposition']) {
+        disposition = contentDispositionParse(response.headers['content-disposition']);
+      }
+
+      const downloadFileName = disposition?.parameters.filename || `sales-report-${jenisLaporan}-${parseInt(periodeBulan)}-${periodeTahun}.xlsx`;
+
       const downloadBlob = new Blob([response.data]);
       const blobDownloadUrl = window.URL.createObjectURL(downloadBlob);
 
       const link = document.createElement("a");
       link.href = blobDownloadUrl;
-      link.download = `REPORT_${months[parseInt(periodeBulan) - 1]}_${periodeTahun}.xlsx`;
+      link.download = downloadFileName;
       link.hidden = true;
       link.style.display = "none";
       document.body.appendChild(link);
@@ -151,6 +159,7 @@ export function EksporData() {
         setExportMessageText("Terjadi kesalahan yang tidak diketahui");
         setExportMessageState(EXPORT_MESSAGE_FAIL);
       }
+      console.error(err);
     }
 
     setRestrictFormChange(false);
