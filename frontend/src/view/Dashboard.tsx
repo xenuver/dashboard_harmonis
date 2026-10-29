@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
@@ -40,13 +40,11 @@ export function Dashboard() {
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [errorCode, setErrorCode] = useState<number>(ERROR_CODE_DASHBOARD_NO_ERROR);
   const [retryNowTrigger, shouldRetryNow] = useState<boolean>(false);
-
-  const [pickedJenisLaporan, setPickedJenisLaporan] = useState<string> ("gabungan");
-  const [pickedMonth, setPickedMonth] = useState<number>(monthNow);
-  const [pickedYear, setPickedYear] = useState<number>(yearNow);
 
   // views
   const [kpiTotalSales, setKpiTotalSales] = useState<string>("-");
@@ -75,6 +73,40 @@ export function Dashboard() {
     }
     yearOptions.push(calcYear);
   }
+
+  const [pickedJenisLaporan, setPickedJenisLaporan] = useState<string>(function() {
+    const jenis = searchParams.get("jenis_laporan");
+    searchParams.delete("jenis_laporan");
+    return (jenis === "ampera" || jenis === "pal" || jenis === "gabungan") ? jenis : "gabungan";
+  });
+
+  const [pickedMonth, setPickedMonth] = useState<number>(function() {
+    const month = searchParams.get("periode_bulan");
+    if (month !== null) {
+      const parsed = parseInt(month, 10);
+      if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 12) {
+        searchParams.delete("periode_bulan");
+        return parsed
+      }
+    }
+    return monthNow;
+  });
+
+  const [pickedYear, setPickedYear] = useState<number>(function() {
+    const year = searchParams.get("periode_tahun");
+    if (year !== null) {
+      const parsed = parseInt(year, 10);
+      if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 65535) {
+        searchParams.delete("periode_tahun");
+        return parsed
+      }
+    }
+    return yearNow;
+  });
+
+  useEffect(function() {
+    setSearchParams(searchParams, { replace: true });
+  }, []);
 
   function consumeKpi(data: Kpi): void {
     if(typeof data?.total_sales === "number") {
@@ -240,7 +272,7 @@ export function Dashboard() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); handleRetryApi(); }}>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} value={pickedMonth} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); handleRetryApi(); }}>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                 ))}
@@ -248,7 +280,7 @@ export function Dashboard() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => { setPickedYear(parseInt(event.target.value)); handleRetryApi(); }}>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} value={pickedYear} onChange={(event) => { setPickedYear(parseInt(event.target.value)); handleRetryApi(); }}>
                 {
                   yearOptions.map((value, index) => (
                     <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
