@@ -8,9 +8,10 @@ use App\Imports\Sheets\PenjualanHarianSheetImport;
 use App\Imports\Sheets\ProdukPenjualanSheetImport;
 use App\Imports\Sheets\SupplierPenjualanSheetImport;
 use Maatwebsite\Excel\Concerns\Import;
+use Maatwebsite\Excel\Concerns\SkipsUnknownSheets;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class LaporanImport implements Import, WithMultipleSheets
+class LaporanImport implements Import, WithMultipleSheets, SkipsUnknownSheets
 {
     protected InfoSheetImport $infoSheet;
 
@@ -25,6 +26,8 @@ class LaporanImport implements Import, WithMultipleSheets
     protected SupplierPenjualanSheetImport $supplierSheet;
 
     protected int $dayLength;
+
+    protected array $errors = [];
 
     public function __construct(bool $isGabungan, ?int $dayLength = null)
     {
@@ -78,9 +81,21 @@ class LaporanImport implements Import, WithMultipleSheets
         return $this->supplierSheet->getData();
     }
 
+    public function onUnknownSheet(string|int $sheetName): void
+    {
+        $this->errors[] = [
+            'location' => null,
+            'message' => 'Sheet '.($sheetName).' tidak ditemukan!',
+        ];
+    }
+
     public function getImportErrors(): array
     {
         $data = [];
+
+        if (! empty($this->errors)) {
+            $data['SHEETS'] = $this->errors;
+        }
 
         if (! empty($this->infoSheet->getErrors())) {
             $data['INFO'] = $this->infoSheet->getErrors();
