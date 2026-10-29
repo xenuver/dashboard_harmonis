@@ -185,8 +185,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null],
             [null],
-            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount(), "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null],
+            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, null, null, "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -200,6 +200,12 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'AVG MEMBER GROWTH/DAY', null, null, null, $this->avgGrowthPerDay],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'MIN SALES THIS MONTH', null, null, null, $this->minSalesThisMonth],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'MAX SALES THIS MONTH', null, null, null, $this->maxSalesThisMonth],
+            [null],
+            [null], // 50
+            [null],
+            [null],
+            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null],
+            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()]
         ];
     }
 
@@ -601,10 +607,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$M$34', null, 1),
         ];
         $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$34:$K$'.($this->diffMonthLength + 33), null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$K$54:$K$'.(55 - $this->diffMonthLength), null, 1),
         ];
         $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$34:$L$'.($this->diffMonthLength + 33), null, 1),
+            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\''.($this->sheetName).'\'!$L$54:$L$'.(55 - $this->diffMonthLength), null, 1),
         ];
 
         $series = new DataSeries(
