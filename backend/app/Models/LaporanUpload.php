@@ -14,7 +14,6 @@ class LaporanUpload extends Model
     use HasFactory;
 
     protected $fillable = [
-        'uploaded_by',
         'jenis_laporan', // ampera | pal | gabungan
         'periode_bulan',
         'periode_tahun',
@@ -34,11 +33,6 @@ class LaporanUpload extends Model
     }
 
     // ── Relasi ─────────────────────────────────────────────
-
-    public function uploadedBy(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'uploaded_by');
-    }
 
     public function kpiSummary(): HasOne
     {

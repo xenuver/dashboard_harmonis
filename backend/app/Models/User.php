@@ -38,16 +38,6 @@ class User extends Authenticatable
         ];
     }
 
-    // ── Relasi ─────────────────────────────────────────────
-
-    /**
-     * Semua laporan yang pernah diupload user ini.
-     */
-    public function laporanUploads(): HasMany
-    {
-        return $this->hasMany(LaporanUpload::class, 'uploaded_by');
-    }
-
     // ── Helper ─────────────────────────────────────────────
 
     public function isItStaff(): bool
