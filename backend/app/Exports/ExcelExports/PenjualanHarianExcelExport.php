@@ -4,64 +4,96 @@ namespace App\Exports\ExcelExports;
 
 use App\Models\LaporanUpload;
 use App\Models\SalesHarian;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class PenjualanHarianExcelExport implements FromCollection, WithColumnFormatting, WithEvents, WithHeadings, WithStrictNullComparison, WithTitle
+class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithColumnFormatting
 {
     protected LaporanUpload $laporan;
+    protected ?LaporanUpload $laporanPrev;
+
+    protected array $monthList = [
+        'JANUARI','FEBRUARI','MARET','APRIL','MAY','JUNI',
+        'JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER',
+    ];
 
     public function __construct(LaporanUpload $laporan)
     {
         $this->laporan = $laporan;
+
+        $prevDate = Carbon::createFromDate($laporan->periode_tahun, $laporan->periode_bulan, 1)->subMonth();
+        $this->laporanPrev = LaporanUpload::jenisLaporan($laporan->jenis_laporan)
+            ->periode($prevDate->month, $prevDate->year)
+            ->first();
     }
 
-    public function collection(): Collection
+    public function array(): array
     {
-        $data = DB::table(app(SalesHarian::class)->getTable().' as t')->join('cabang as c', 'c.id', '=', 't.cabang_id')
+        $reportMonthDayCount = Carbon::createFromDate($this->laporan->periode_tahun, $this->laporan->periode_bulan, 1)->daysInMonth() ?? 0;
+        $reportMonthDayCountPrev = null;
+
+        if($this->laporanPrev) {
+            $reportMonthDayCountPrev = Carbon::createFromDate($this->laporanPrev->periode_tahun, $this->laporanPrev->periode_bulan, 1)->daysInMonth();
+        }
+
+        $pickedReportDayCount = max($reportMonthDayCount, $reportMonthDayCountPrev);
+
+        $sales = DB::table(app(SalesHarian::class)->getTable().' as t')
+            ->join('cabang as c', 'c.id', '=', 't.cabang_id')
             ->where('t.upload_id', $this->laporan->id)
-            ->selectRaw('
-            t.tanggal,
-            t.cabang_id,
-            c.nama as cabang_nama,
-            SUM(t.total_penjualan) as total
-        ')
-            ->groupBy(
-                't.tanggal',
-                't.cabang_id',
-                'c.nama'
-            )
+            ->selectRaw('t.tanggal, SUM(t.total_penjualan) as total')
+            ->groupBy('t.tanggal')
             ->orderBy('t.tanggal')
             ->get();
 
-        $rows = $data
-            ->groupBy('tanggal')
-            ->map(function ($items, $tanggal) {
+        $salesPrev = [];
 
-                $row = [
-                    'day' => Carbon::parse($tanggal)->day,
-                    'total' => $items->sum('total'),
+        if($this->laporanPrev) {
+            $salesPrev = DB::table(app(SalesHarian::class)->getTable().' as t')
+                ->join('cabang as c', 'c.id', '=', 't.cabang_id')
+                ->where('t.upload_id', $this->laporanPrev->id)
+                ->selectRaw('t.tanggal, SUM(t.total_penjualan) as total')
+                ->groupBy('t.tanggal')
+                ->orderBy('t.tanggal')
+                ->get();
+        }
+
+        $rows = [];
+
+        for ($day = 0; $day < $pickedReportDayCount; $day++) {
+            if ($this->laporanPrev) {
+                $rows[] = [
+                    $day + 1,
+                    $salesPrev[$day]->total ?? null,
+                    $sales[$day]->total ?? null,
                 ];
+            } else {
+                $rows[] = [
+                    $day + 1,
+                    $sales[$day]->total ?? null,
+                ];
+            }
+        }
 
-                if ($this->laporan->jenis_laporan === 'gabungan') {
-                    foreach ($items as $item) {
-                        $row[$item->cabang_nama] = $item->total;
-                    }
-                }
+        return $rows;
+    }
 
-                return $row;
-            })
-            ->values();
+    public function headings(): array
+    {
+        $rows = ['HARI'];
+
+        if($this->laporanPrev) {
+            $rows[] = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
+        }
+        $rows[] = $this->monthList[$this->laporan->periode_bulan -1].' '.$this->laporan->periode_tahun;
 
         return $rows;
     }
@@ -73,29 +105,11 @@ class PenjualanHarianExcelExport implements FromCollection, WithColumnFormatting
             'B' => '[$Rp-421] #,##0',
         ];
 
-        if($this->laporan->jenis_laporan === 'gabungan') {
+        if($this->laporanPrev) {
             $columnFormats['C'] = '[$Rp-421] #,##0';
-            $columnFormats['D'] = '[$Rp-421] #,##0';
         }
 
         return $columnFormats;
-    }
-
-    public function headings(): array
-    {
-        if ($this->laporan->jenis_laporan === 'gabungan') {
-            return [
-                'TANGGAL',
-                'TOTAL_PENJUALAN',
-                'AMPERA',
-                'PAL',
-            ];
-        } else {
-            return [
-                'TANGGAL',
-                'TOTAL_PENJUALAN',
-            ];
-        }
     }
 
     public function registerEvents(): array
