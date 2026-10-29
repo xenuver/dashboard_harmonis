@@ -41,6 +41,13 @@ class UploadController extends Controller
         $infoParserData = $infoParser->parseInfo();
         $infoParserErrors = $infoParser->getImportErrors();
 
+        if (! empty($infoParserErrors)) {
+            return response()->json([
+                'message' => 'Validasi spreadsheet gagal.',
+                'xlsxValidationErrors' => $infoParserErrors,
+            ], 422);
+        }
+
         if (strtolower($infoParserData['jenis_laporan']) != strtolower($validated['jenis_laporan'])) {
             $infoParserErrors['INFO'][] = [
                 'location' => null,
@@ -60,13 +67,6 @@ class UploadController extends Controller
                 'location' => null,
                 'message' => 'Tahun yang diinput dengan file berbeda! File: '.$infoParserData['tahun'].'. Input: '.$validated['periode_tahun'],
             ];
-        }
-
-        if (! empty($infoParserErrors)) {
-            return response()->json([
-                'message' => 'Validasi spreadsheet gagal.',
-                'xlsxValidationErrors' => $infoParserErrors,
-            ], 422);
         }
 
         $dataExists = LaporanUpload::where('jenis_laporan', $infoParserData['jenis_laporan'])
