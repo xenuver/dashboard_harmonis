@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Chart\Axis;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
 use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
@@ -500,6 +501,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
 
+        $chart->getChartAxisX()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
+        $chart->getChartAxisY()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
+
         $yGridLines = new GridLines;
         $yGridLines->activateObject();
         $yGridLines->setLineColorProperties('d9d9d9');
@@ -542,6 +546,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $chart->setBottomRightPosition('Z33', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties($this->idrCurrentyFormat);
+
+        $chart->getChartAxisX()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
+        $chart->getChartAxisY()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
 
         $yGridLines = new GridLines;
         $yGridLines->activateObject();
@@ -622,6 +629,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $chart->setBottomRightPosition('S55', 0, 0);
         $chart->getChartAxisY()->setAxisOption('minimum', '0');
         $chart->getChartAxisY()->setAxisNumberProperties('+#0;-#0;0', true);
+
+        $chart->getChartAxisX()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
+        $chart->getChartAxisY()->setAxisOption('major_tick_mark', Axis::TICK_MARK_CROSS);
 
         $yGridLines = new GridLines;
         $yGridLines->activateObject();
