@@ -6,6 +6,8 @@ use App\Models\DataTransaksi;
 use App\Models\LaporanUpload;
 use App\Models\MemberCount;
 use App\Models\SalesHarian;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -449,7 +451,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                     ],
                 ]);
 
-                $sheet->setCellValue('Y54', 'Generated: '.date('d-m-Y H:i:s.ms T (P)'));
+                $genDate = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
+                $sheet->setCellValue('Y54', 'Generated: '.$genDate->format('d-m-Y H:i:s.ms T (P)'));
                 $sheet->getStyle('Y54')->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_RIGHT,
