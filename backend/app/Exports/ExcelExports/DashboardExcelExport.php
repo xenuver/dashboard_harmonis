@@ -452,7 +452,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                 ]);
 
                 $genDate = new DateTime('now', new DateTimeZone(date_default_timezone_get()));
-                $sheet->setCellValue('Y54', 'Generated: '.$genDate->format('d-m-Y H:i:s.ms T (P)'));
+                $sheet->setCellValue('Y54', 'Generated: '.$genDate->format('d-m-Y H:i:s T (P)'));
                 $sheet->getStyle('Y54')->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_RIGHT,
