@@ -84,19 +84,16 @@ class ProdukPenjualanSheetImport implements ToArray
             $hasError = false;
 
             // Excel column mapping
-            $fieldColumns = [
-                'barcode' => 'BARCODE',
+            $requiredFields = [
                 'kode_brg' => 'KODE_BRG',
                 'nama_brg' => 'NAMA_BRG',
-                'satuan' => 'SATUAN',
                 'harga_jual' => 'HRG_JUAL',
                 'jumlah' => 'JUMLAH',
                 'qty' => 'QTY',
-                'stok' => 'STOK',
             ];
 
             // Check empty fields
-            foreach ($fieldColumns as $field => $label) {
+            foreach ($requiredFields as $field => $label) {
                 $value = $rowItem[$field];
 
                 if ($value === null || (is_string($value) && trim($value) === '')) {
@@ -144,7 +141,9 @@ class ProdukPenjualanSheetImport implements ToArray
                 $rowItem['qty'] = (int) $rowItem['qty'];
                 $rowItem['harga_jual'] = (int) $rowItem['harga_jual'];
                 $rowItem['jumlah'] = (int) $rowItem['jumlah'];
-                $rowItem['stok'] = (int) $rowItem['stok'];
+                if($rowItem['stok'] !== null) {
+                    $rowItem['stok'] = (int) $rowItem['stok'];
+                }
 
                 $this->data[] = $rowItem;
             }

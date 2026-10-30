@@ -259,14 +259,14 @@ export function ProdukPenjualan() {
                   daftarProduk.map((produk, index) => (
                     <TableRow key={index}>
                       <TableCell>{(productPerPage * (currentPage - 1) + 1) + index}</TableCell>
-                      <TableCell>{produk.barcode}</TableCell>
+                      <TableCell>{produk.barcode? produk.barcode: "-"}</TableCell>
                       <TableCell>{produk.kode_brg}</TableCell>
                       <TableCell>{produk.nama_brg}</TableCell>
-                      <TableCell>{produk.satuan}</TableCell>
+                      <TableCell>{produk.satuan? produk.satuan: "-"}</TableCell>
                       <TableCell>{formatRupiah(produk.harga_jual)}</TableCell>
                       <TableCell className={produk.jumlah < 0 ? "font-semibold text-purple-600" : ""}>{formatRupiah(produk.jumlah)}</TableCell>
                       <TableCell className={produk.qty < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.qty)}</TableCell>
-                      <TableCell className={produk.stok < 0 ? "font-semibold text-purple-600" : ""}>{formatAngka(produk.stok)}</TableCell>
+                      <TableCell className={produk.stok < 0 ? "font-semibold text-purple-600" : ""}>{produk.stok? formatAngka(produk.stok): "-"}</TableCell>
                     </TableRow>
                   ))
                 :
