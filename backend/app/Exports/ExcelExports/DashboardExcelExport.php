@@ -58,6 +58,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected int $tahunLaporan;
 
+    protected int $tahunLaporanPrev;
+
     protected int $kpiTotalPenjualan;
 
     protected float|string $kpiTotalGrowth;
@@ -113,6 +115,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         }
 
         $this->tahunLaporan = $this->laporan->periode_tahun;
+        if ($this->laporanPrev) {
+            $this->tahunLaporanPrev = $this->laporanPrev->periode_tahun;
+        }
 
         $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
         if ($this->laporanPrev) {
@@ -165,9 +170,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null, $this->tahunLaporan, null, null, null, null, null, null, null, null, null, $this->kpiTotalGrowthDiff], // 10
             [null],
-            [null, 'TOTAL PENJUALAN', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan'), "TOTAL\nPENJUALAN"],
-            [null, 'AMPERA', null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev) ? $this->salesHarianPrev->sum('total_penjualan') : null],
-            [null, 'PAL'],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->salesHarian->sum('total_penjualan'), "TOTAL\nPENJUALAN"],
+            [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->salesHarianPrev) ? $this->salesHarianPrev->sum('total_penjualan') : null],
+            [null, null],
             [null],
             [null],
             [null],
@@ -184,8 +189,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null],
             [null], // 30
-            [null],
-            [null],
+            [null, $this->laporanPrev? ($this->bulanLaporanPrev).' '.($this->tahunLaporanPrev): null],
+            [null, ($this->bulanLaporan).' '.($this->tahunLaporan)],
             [null],
             [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, null, null, "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
             [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null],
@@ -466,26 +471,22 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     public function buildDailySalesChart(): Chart
     {
-        $dataSeriesLabels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$12', null, 1),
-        ];
-        $labels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']),
-        ];
-        $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5),
-        ];
+        $dataSeriesLabels = [];
+        $labels = [];
+        $values = [];
 
-        if ($this->laporan->jenis_laporan === 'gabungan') {
-            // ampera
-            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$13', null, 1);
-            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1);
+        if($this->laporanPrev) {
+            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$31', null, 1);
+            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporanPrev->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']);
+            $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporanPrev->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
+
+            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$32', null, 1);
+            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']);
             $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$C$2:$C$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
-
-            // pal
-            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\''.($this->sheetName).'\'!$B$14', null, 1);
-            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1);
-            $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$D$2:$D$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
+        } else {
+            $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$32', null, 1);
+            $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporan->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']);
+            $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporan->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
         }
 
         $series = new DataSeries(
