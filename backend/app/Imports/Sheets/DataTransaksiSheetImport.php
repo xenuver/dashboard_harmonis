@@ -80,6 +80,15 @@ class DataTransaksiSheetImport implements ToArray
         foreach ($numericFields as $field => $columnIndex) {
             $value = $rowItem[$field];
 
+            if ($value === null || trim((string) $value) === '') {
+                $this->errors[] = [
+                    'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).'2',
+                    'message' => "{$field} tidak boleh kosong.",
+                ];
+
+                continue;
+            }
+
             if ($value !== null && trim((string) $value) !== '') {
                 if (! is_numeric($value) || (float) $value != (int) $value) {
                     $this->errors[] = [

@@ -101,6 +101,10 @@ class LaporanImport implements Import, WithMultipleSheets, SkipsUnknownSheets
             $data['INFO'] = $this->infoSheet->getErrors();
         }
 
+        if (! empty($this->transactionSheet->getErrors())) {
+            $data['DATA'] = $this->transactionSheet->getErrors();
+        }
+
         if (! empty($this->salesSheet->getErrors())) {
             $data['PENJUALAN_HARIAN'] = $this->salesSheet->getErrors();
         }
