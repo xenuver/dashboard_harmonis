@@ -390,7 +390,7 @@ export function Dashboard() {
               </Table>
             </CardContent>
             <CardFooter>
-              <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
+              <Link to={`/produk-penjualan?jenis_laporan=${pickedJenisLaporan}&periode_bulan=${pickedMonth}&periode_tahun=${pickedYear}&kategori=tertinggi`} className="inline-flex items-center gap-2">
                 <span className="text-blue-500 font-medium">Lihat Peringkat Produk</span>
                 <ArrowRight className="w-5 h-5 stroke-blue-500" />
               </Link>
@@ -443,7 +443,7 @@ export function Dashboard() {
               </Table>
             </CardContent>
             <CardFooter>
-              <Link to="/produk-penjualan" className="inline-flex items-center gap-2">
+              <Link to={`/produk-penjualan?jenis_laporan=${pickedJenisLaporan}&periode_bulan=${pickedMonth}&periode_tahun=${pickedYear}&kategori=terendah`} className="inline-flex items-center gap-2">
                 <span className="text-blue-500 font-medium">Lihat Peringkat Produk</span>
                 <ArrowRight className="w-5 h-5 stroke-blue-500" />
               </Link>
@@ -497,7 +497,7 @@ export function Dashboard() {
               </Table>
             </CardContent>
             <CardFooter>
-              <Link to="/supplier-penjualan" className="inline-flex items-center gap-2">
+              <Link to={`/supplier-penjualan?jenis_laporan=${pickedJenisLaporan}&periode_bulan=${pickedMonth}&periode_tahun=${pickedYear}`} className="inline-flex items-center gap-2">
                 <span className="text-blue-500 font-medium">Lihat Peringkat Supplier</span>
                 <ArrowRight className="w-5 h-5 stroke-blue-500" />
               </Link>
