@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportDataController;
+use App\Http\Controllers\ManageReportController;
 use App\Http\Controllers\ManageUsersController;
 use App\Http\Controllers\ProdukPenjualanController;
 use App\Http\Controllers\SupplierPenjualanController;
@@ -20,6 +21,11 @@ Route::middleware(['auth:sanctum', EnsureUserIsEnabled::class])->group(function 
     Route::get('/dashboard', [DashboardController::class, 'index']);
     Route::get('/produk-penjualan', [ProdukPenjualanController::class, 'index']);
     Route::get('/supplier-penjualan', [SupplierPenjualanController::class, 'index']);
+
+    Route::middleware(['can:manage-reports'])->group(function () {
+        Route::get('/list-reports', [ManageReportController::class, 'listReports']);
+        Route::post('/delete-report', [ManageReportController::class, 'deleteReport']);
+    });
 
     Route::middleware(['can:manage-users'])->group(function () {
         Route::get('/list-users', [ManageUsersController::class, 'listUsers']);
