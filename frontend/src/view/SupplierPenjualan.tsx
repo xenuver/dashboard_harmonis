@@ -1,4 +1,5 @@
 import { useState as reactUseState, useEffect, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
@@ -32,6 +33,7 @@ const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
 
 export function SupplierPenjualan() {
   const searchHasMounted = useRef(false);
+  const [searchParams] = useSearchParams();
 
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
@@ -49,10 +51,34 @@ export function SupplierPenjualan() {
     yearOptions.push(calcYear);
   }
 
-  const [jenisLaporanSaatIni, setJenisLaporanSaatIni] = reactUseState("gabungan");
-  const [pickedMonth, setPickedMonth] = reactUseState<number>(monthNow);
-  const [pickedYear, setPickedYear] = reactUseState<number>(yearNow);
-  const [kataKunciPencarian, setKataKunciPencarian] = reactUseState < string | undefined > (undefined);
+  const [pickedJenisLaporan, setPickedJenisLaporan] = reactUseState<string>(function() {
+    const jenis = searchParams.get("jenis_laporan");
+    return (jenis === "ampera" || jenis === "pal" || jenis === "gabungan") ? jenis : "gabungan";
+  });
+  const [pickedMonth, setPickedMonth] = reactUseState<number>(function() {
+    const month = searchParams.get("periode_bulan");
+    if (month !== null) {
+      const parsed = parseInt(month, 10);
+      if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 12) {
+        return parsed
+      }
+    }
+    return monthNow;
+  }); 
+  const [pickedYear, setPickedYear] = reactUseState<number>(function() {
+    const year = searchParams.get("periode_tahun");
+    if (year !== null) {
+      const parsed = parseInt(year, 10);
+      if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 65535) {
+        return parsed
+      }
+    }
+    return yearNow;
+  });
+  const [kataKunciPencarian, setKataKunciPencarian] = reactUseState <string | undefined>(function() {
+    const kategori = searchParams.get("search");
+    return kategori || undefined;
+  });
   const [supplierPerPage, setSupplierPerPage] = reactUseState(10);
   const [daftarSupplier, setDaftarSupplier] = reactUseState < Supplier[] > ([]);
 
@@ -85,7 +111,7 @@ export function SupplierPenjualan() {
       // construct query params
       const body = {
         page: currentPage,
-        jenis_laporan: jenisLaporanSaatIni,
+        jenis_laporan: pickedJenisLaporan,
         periode_tahun: pickedYear,
         periode_bulan: pickedMonth,
         per_page: supplierPerPage,
@@ -147,7 +173,7 @@ export function SupplierPenjualan() {
     } else {
       searchHasMounted.current = true;
     }
-  }, [jenisLaporanSaatIni, supplierPerPage, resetSearchTrigger, pickedMonth, pickedYear]);
+  }, [pickedJenisLaporan, supplierPerPage, resetSearchTrigger, pickedMonth, pickedYear]);
 
     return (<>
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Peringkat Supplier</h1>
@@ -156,7 +182,7 @@ export function SupplierPenjualan() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue={jenisLaporanSaatIni} onChange={(event) => setJenisLaporanSaatIni(event.target.value)}>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue={pickedJenisLaporan} value={pickedJenisLaporan} onChange={(event) => setPickedJenisLaporan(event.target.value)}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -166,7 +192,7 @@ export function SupplierPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} onChange={(event) => setPickedMonth(parseInt(event.target.value))}>
+              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} value={pickedMonth} onChange={(event) => setPickedMonth(parseInt(event.target.value))}>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                 ))}
@@ -174,7 +200,7 @@ export function SupplierPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} onChange={(event) => setPickedYear(parseInt(event.target.value))}>
+              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} value={pickedYear} onChange={(event) => setPickedYear(parseInt(event.target.value))}>
                 {
                   yearOptions.map((value, index) => (
                     <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -196,6 +222,7 @@ export function SupplierPenjualan() {
                   onChange={(e) => setKataKunciPencarian(e.target.value)} 
                   placeholder="Masukkan kode supplier atau nama supplier di sini" 
                   onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
+                  value={kataKunciPencarian}
                 />
                 <Button 
                   onClick={resetSearchNow} 
