@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
@@ -33,7 +34,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
     protected int $rightestGridY1 = 0;
 
     protected array $requestMergeCell = [];
-    protected array $requestFillColor = [];
+    protected array $requestCellFillColor = [];
     protected array $requestBoldText = [];
     protected array $requestNumberFormat = [];
     protected array $requestTextAlignmentH = [];
@@ -70,6 +71,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         // render heading
         $tableHeading = [];
+        $headerCells = '';
         $tableHeading[] = [$periodeLaporan];
 
         $this->requestEnableColAutoWidth[] = $coordStartX;
@@ -83,11 +85,15 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
             // baris 1 kolom 1 - baris 1 kolom 4
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 4)).($coordStartY + 1);
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 4)).($coordStartY + 2);
         } else {
             $tableHeading[] = ['HARI', 'TOTAL'];
 
             // baris 1 kolom 1 - baris 1 kolom 2
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 1);
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 2);
         }
 
         $tableData = $dataSales
@@ -112,6 +118,16 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $finalTable = array_merge($tableHeading, $tableData);
         $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
         $tableSizeY = count($finalTable);
+
+        $this->requestBoldText[] = $headerCells;
+        $this->requestCellFillColor[] = [
+            'cells' => $headerCells,
+            'color' => 'ffdcf2e1',
+        ];
+        $this->requestTextAlignmentH[] = [
+            'cells' => $headerCells,
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ];
 
         $this->requestNumberFormat[] = [
             'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
@@ -159,6 +175,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         // render heading
         $tableHeading = [];
+        $headerCells = '';
         $tableHeading[] = ['TOTAL PENJUALAN'];
 
         $bulanLaporan = $this->monthList[$this->laporan->periode_bulan - 1].' '.$this->laporan->periode_tahun;
@@ -172,11 +189,15 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             $bulanLaporanPrev = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
             $tableHeading[] = ['', $bulanLaporanPrev, $bulanLaporan];
 
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 3)).($coordStartY + 2);
+
             $this->requestEnableColAutoWidth[] = $coordStartX + 2;
         } else {
             // baris 1 kolom 1 - baris 1 kolom 2
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 1);
             $tableHeading[] = ['', $bulanLaporan];
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 2);
         }
 
         // render data
@@ -195,6 +216,16 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $finalTable = array_merge($tableHeading, $tableData);
         $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
         $tableSizeY = count($finalTable);
+
+        $this->requestBoldText[] = $headerCells;
+        $this->requestCellFillColor[] = [
+            'cells' => $headerCells,
+            'color' => 'ffdcf2e1',
+        ];
+        $this->requestTextAlignmentH[] = [
+            'cells' => $headerCells,
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ];
 
         $this->requestNumberFormat[] = [
             'cells' => Coordinate::stringFromColumnIndex($coordStartX +2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
@@ -222,6 +253,12 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $tableSizeX = max(array_map('count', $finalTable));
         $tableSizeY = count($finalTable);
 
+        $this->requestCellFillColor[] = [
+            'cells' => (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1),
+            'color' => 'ffdcf2e1',
+        ];
+        $this->requestBoldText[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1);
+
         $this->requestNumberFormat[] = [
             'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 1),
             'formatCode' => NumberFormat::FORMAT_PERCENTAGE,
@@ -246,6 +283,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         // render heading
         $tableHeading = [];
+        $headerCells = '';
 
         $bulanLaporan = $this->monthList[$this->laporan->periode_bulan - 1].' '.$this->laporan->periode_tahun;
 
@@ -267,13 +305,27 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             // baris 1 kolom 1 - baris 1 kolom 3
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 3)).($coordStartY + 1);
             $tableData[] = [$memberGrowthPrev, $memberGrowth, $memberGrowthDiff];
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 3)).($coordStartY + 2);
         } else {
             $tableData[] = ['GROWTH MEMBER', $memberGrowth];
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1);
         }
 
         $finalTable = array_merge($tableHeading, $tableData);
         $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
         $tableSizeY = count($finalTable);
+
+        $this->requestBoldText[] = $headerCells;
+        $this->requestCellFillColor[] = [
+            'cells' => $headerCells,
+            'color' => 'ffdcf2e1',
+        ];
+        $this->requestTextAlignmentH[] = [
+            'cells' => $headerCells,
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ];
 
         if($this->laporanPrev) {
             $this->requestNumberFormat[] = [
@@ -352,8 +404,20 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                     $sheet->getStyle($selectedCells['cells'])->getNumberFormat()->setFormatCode($selectedCells['formatCode']);
                 }
 
+                foreach ($this->requestBoldText as $selectedCells) {
+                    $sheet->getStyle($selectedCells)->getFont()->setBold(true);
+                }
+
+                foreach($this->requestCellFillColor as $selectedCells) {
+                    $sheet->getStyle($selectedCells['cells'])->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($selectedCells['color']);
+                }
+
                 foreach($this->requestMergeCell as $selectedCells) {
                     $sheet->mergeCells($selectedCells);
+                }
+
+                foreach($this->requestTextAlignmentH as $selectedCells) {
+                    $sheet->getStyle($selectedCells['cells'])->getAlignment()->setHorizontal($selectedCells['align']);
                 }
 
                 foreach($this->requestEnableColAutoWidth as $columnIndex) {
