@@ -48,7 +48,7 @@ class ManageReportController extends Controller
             $query->where('periode_tahun', $validated['periode_tahun']);
         }
 
-        return $query->orderByDesc('periode_bulan')->orderByDesc('periode_tahun')->paginate($validated['per_page'], ['id', 'jenis_laporan', 'periode_bulan', 'periode_tahun']);
+        return $query->orderByDesc('periode_bulan')->orderByDesc('periode_tahun')->paginate($validated['per_page'], ['id', 'jenis_laporan', 'periode_bulan', 'periode_tahun', 'jumlah_hari', 'format_data', 'catatan']);
     }
 
     public function deleteReport(Request $request)
