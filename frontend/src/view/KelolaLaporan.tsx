@@ -17,6 +17,7 @@ import type { LaporanSearchResponse } from "../../types/LaporanSearchResponse";
 import type { Laporan } from "../../types/Models/Laporan";
 
 import { DeleteReportDialogFlow } from "@/components/managereports/DeleteReportDialogFlow";
+import { CatatanPopupDialogFlow } from "@/components/managereports/CatatanPopupDialogFlow";
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -227,7 +228,15 @@ export function KelolaLaporan() {
                       <TableCell>{laporan.periode_tahun}</TableCell>
                       <TableCell>{laporan.jumlah_hari}</TableCell>
                       <TableCell>{laporan.format_data}</TableCell>
-                      <TableCell>{laporan.catatan || "-"}</TableCell>
+                      <CatatanPopupDialogFlow catatanText={laporan.catatan} triggerRender={
+                        <TableCell title={laporan.catatan && laporan.catatan}>
+                        {typeof laporan.catatan === "string" && laporan.catatan.length > 0
+                          ? laporan.catatan.length > 25
+                            ? `${laporan.catatan.slice(0, 25)}...`
+                            : laporan.catatan
+                          : "-"}
+                        </TableCell>
+                        } />
                       <TableCell>
                         <div className="flex flex-row items-center gap-2">
                           <DeleteReportDialogFlow retryTrigger={retrySearchNow} deleteReportId={laporan.id} />
