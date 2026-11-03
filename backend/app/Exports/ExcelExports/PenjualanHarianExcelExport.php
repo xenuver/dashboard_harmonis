@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithColumnFormatting
 {
@@ -137,6 +138,8 @@ class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, 
                 foreach ($sheet->getColumnIterator() as $column) {
                     $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
                 }
+
+                $sheet->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
 
                 $sheet->setSelectedCell('A1');
             },
