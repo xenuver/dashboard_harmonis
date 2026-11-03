@@ -271,6 +271,99 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
+    protected function renderTransactionCountTable(int $coordStartX = 0, int $coordStartY = 0) {
+        $memberTransactionCount = $this->laporan->getDataTransaksi->getTotalMemberTransaction();
+        $nonMemberTransactionCount = $this->laporan->getDataTransaksi->getTotalNonMemberTransaction();
+        $totalTransactionCount = $this->laporan->getDataTransaksi->getTotalTransaction();
+
+        $memberTransactionCountPrev = 0;
+        $nonMemberTransactionCountPrev = 0;
+        $totalTransactionCountPrev = 0;
+
+        if($this->laporanPrev) {
+            $memberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();
+            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();  
+            $totalTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalTransaction(); 
+        }
+
+        // render heading
+        $tableHeading = [];
+        $headerCells = '';
+
+        $bulanLaporan = $this->monthList[$this->laporan->periode_bulan - 1].' '.$this->laporan->periode_tahun;
+
+        $tableHeading[] = ['TRANSACTION COUNT'];
+
+        $this->requestEnableColAutoWidth[] = $coordStartX;
+        $this->requestEnableColAutoWidth[] = $coordStartX + 1;
+
+        if($this->laporanPrev) {
+            $bulanLaporanPrev = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
+            $tableHeading[] = ['', $bulanLaporanPrev, $bulanLaporan, 'DIFF'];
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 4)).($coordStartY + 2);
+
+            // baris 1 kolom 1 - baris 1 kolom 4
+            $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 4)).($coordStartY + 1);
+
+            $this->requestEnableColAutoWidth[] = $coordStartX + 2;
+        } else {
+            $tableHeading[] = ['', $bulanLaporan];
+
+            $headerCells = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 2);
+
+            // baris 1 kolom 1 - baris 1 kolom 2
+            $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 2)).($coordStartY + 1);
+        }
+
+        // render data
+        if($this->laporanPrev) {
+            $tableData[] = ['MEMBER', $memberTransactionCountPrev, $memberTransactionCount, (($memberTransactionCount - $memberTransactionCountPrev) / $memberTransactionCountPrev)];
+            $tableData[] = ['NON-MEMBER', $nonMemberTransactionCountPrev, $nonMemberTransactionCount, (($nonMemberTransactionCount - $nonMemberTransactionCountPrev) / $nonMemberTransactionCountPrev)];
+            $tableData[] = ['TOTAL', $totalTransactionCountPrev, $totalTransactionCount, (($totalTransactionCount - $totalTransactionCountPrev) / $totalTransactionCountPrev)];
+        } else {
+            $tableData[] = ['MEMBER', $memberTransactionCount];
+            $tableData[] = ['NON-MEMBER', $nonMemberTransactionCount];
+            $tableData[] = ['TOTAL', $totalTransactionCount];
+        }
+
+        $finalTable = array_merge($tableHeading, $tableData);
+        $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
+        $tableSizeY = count($finalTable);
+
+        $this->requestBoldText[] = $headerCells;
+        $this->requestCellFillColor[] = [
+            'cells' => $headerCells,
+            'color' => 'ffdcf2e1',
+        ];
+        $this->requestTextAlignmentH[] = [
+            'cells' => $headerCells,
+            'align' => Alignment::HORIZONTAL_CENTER,
+        ];
+
+        if($this->laporanPrev) {
+            $this->requestNumberFormat[] = [
+                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
+                'formatCode' => '+#0;-#0;0',
+            ];
+            $this->requestNumberFormat[] = [
+                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 4).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
+                'formatCode' => '+#0.##%;-#0.##%;0.##%',
+            ];
+        } else {
+            $this->requestNumberFormat[] = [
+                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 1),
+                'formatCode' => '+#0;-#0;0',
+            ];
+        }
+
+        return [
+            'table' => $finalTable,
+            'sizeX' => $tableSizeX,
+            'sizeY' => $tableSizeY,
+        ];
+    }
+
     protected function renderMemberGrowthTable(int $coordStartX = 0, int $coordStartY = 0) {
         $memberGrowth = $this->laporan->getMemberCount->getNewMemberCount();
         $memberGrowthPrev = 0;
@@ -392,6 +485,11 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
                     $coordStartY = $coordStartY + $customerGrowthTable['sizeY'] + 1;
                 }
+
+                $transactionCountTable = $this->renderTransactionCountTable($coordStartX, $coordStartY);
+                $sheet->fromArray($transactionCountTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+
+                $coordStartY = $coordStartY + $transactionCountTable['sizeY'] + 1;
 
                 $memberGrowthTable = $this->renderMemberGrowthTable($coordStartX, $coordStartY);
                 $sheet->fromArray($memberGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
