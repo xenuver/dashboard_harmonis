@@ -49,6 +49,7 @@ class InfoSheetImport implements ToArray
             'tahun' => 'TAHUN',
             'jumlah_hari' => 'JUMLAH_HARI',
             'format' => 'FORMAT',
+            'catatan' => 'CATATAN',
         ];
 
         $requiredFields = [
