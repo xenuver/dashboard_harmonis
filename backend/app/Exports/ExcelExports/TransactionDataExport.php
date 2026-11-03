@@ -349,7 +349,6 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                 $sheet = $event->sheet->getDelegate();
 
                 foreach($this->requestNumberFormat as $selectedCells) {
-                    error_log($selectedCells['cells']);
                     $sheet->getStyle($selectedCells['cells'])->getNumberFormat()->setFormatCode($selectedCells['formatCode']);
                 }
 
