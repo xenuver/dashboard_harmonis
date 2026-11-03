@@ -271,7 +271,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
                 // format angka kpi
                 $sheet->getStyle('G7')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
-                $sheet->getStyle('L7')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_PERCENTAGE_00);
+                $sheet->getStyle('L7')->getNumberFormat()->setFormatCode('+#0.##%;-#0.##%;0.##%');
                 $sheet->getStyle('Q7')->getNumberFormat()->setFormatCode('#,##0');
                 $sheet->getStyle('V7')->getNumberFormat()->setFormatCode('+#0;-#0;0');
                 $sheet->getStyle('L10')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);

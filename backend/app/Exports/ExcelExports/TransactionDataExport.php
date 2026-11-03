@@ -261,7 +261,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         $this->requestNumberFormat[] = [
             'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 1),
-            'formatCode' => NumberFormat::FORMAT_PERCENTAGE,
+            'formatCode' => '+#0.##%;-#0.##%;0.##%',
         ];
 
         return [
@@ -427,7 +427,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             ];
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 3).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
-                'formatCode' => NumberFormat::FORMAT_PERCENTAGE,
+                'formatCode' => '+#0.##%;-#0.##%;0.##%',
             ];
         } else {
             $this->requestNumberFormat[] = [
