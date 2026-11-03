@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, FileUp, ShoppingCart, Truck, Users, FileDown } from "lucide-react";
+import { LayoutDashboard, FileUp, ShoppingCart, Truck, Users, FileDown, FileCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import Branding from "./NavBranding";
 import sessionManager from "@/services/sessionManager";
@@ -23,6 +23,7 @@ const topNavigationItems = [
 
 const manageDataNavigationItems = [
   { title: "Upload Laporan", url: "/upload", icon: FileUp, viewableBy: ["it_staff"] },
+  { title: "Kelola Laporan", url: "/kelola-laporan", icon: FileCog, viewableBy: ["it_staff"] },
   { title: "Ekspor Laporan", url: "/ekspor", icon: FileDown, viewableBy: ["owner", "it_staff"] },
 ];
 
