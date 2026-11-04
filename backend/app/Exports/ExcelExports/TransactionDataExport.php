@@ -282,7 +282,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         if($this->laporanPrev) {
             $memberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();
-            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();  
+            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalNonMemberTransaction();  
             $totalTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalTransaction(); 
         }
 
