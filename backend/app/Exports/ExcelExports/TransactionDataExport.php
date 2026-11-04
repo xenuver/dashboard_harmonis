@@ -344,7 +344,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         if($this->laporanPrev) {
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
-                'formatCode' => '+#0;-#0;0',
+                'formatCode' => '#,##0',
             ];
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 4).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
@@ -353,7 +353,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         } else {
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 1),
-                'formatCode' => '+#0;-#0;0',
+                'formatCode' => '#,##0',
             ];
         }
 
