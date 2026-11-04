@@ -155,7 +155,7 @@ export function KelolaLaporan() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue="Apapun" onChange={(event) => {setPickedJenisLaporan(event.target.value); retrySearchNow();}}>
+              <NativeSelect required={true} name="jenis_laporan" defaultValue="Apapun" onChange={(event) => {setPickedJenisLaporan(event.target.value); resetSearchNow();}}>
                 <NativeSelectOption tabIndex={0} value="" key={0}>Apapun</NativeSelectOption>
                 {
                   ["ampera", "pal", "gabungan"].map((value, index) => (
@@ -166,7 +166,7 @@ export function KelolaLaporan() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue="Apapun" onChange={(event) => {setPickedMonth(parseInt(event.target.value)); retrySearchNow();}}>
+              <NativeSelect required={true} name="periode_bulan" defaultValue="Apapun" onChange={(event) => {setPickedMonth(parseInt(event.target.value)); resetSearchNow();}}>
                 <NativeSelectOption tabIndex={0} value="" key={0}>Apapun</NativeSelectOption>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
@@ -175,7 +175,7 @@ export function KelolaLaporan() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue="Apapun" onChange={(event) => {setPickedYear(parseInt(event.target.value)); retrySearchNow();}}>
+              <NativeSelect required={true} name="periode_tahun" defaultValue="Apapun" onChange={(event) => {setPickedYear(parseInt(event.target.value)); resetSearchNow();}}>
                 <NativeSelectOption tabIndex={0} value="" key={0}>Apapun</NativeSelectOption>
                 {
                   yearOptions.map((value, index) => (
