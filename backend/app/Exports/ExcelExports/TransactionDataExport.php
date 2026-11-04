@@ -239,7 +239,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
-    protected function renderCustomerGrowthTable(int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderSalesGrowthTable(int $coordStartX = 0, int $coordStartY = 0) {
         $totalSales = $this->laporan->salesHarian()->sum('total_penjualan');
         $totalSalesPrev = 0;
         if($this->laporanPrev) {
@@ -249,7 +249,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        $finalTable = [['CUST GROWTH', (($totalSales-$totalSalesPrev)/$totalSalesPrev)]];
+        $finalTable = [['SALES GROWTH', (($totalSales-$totalSalesPrev)/$totalSalesPrev)]];
         $tableSizeX = max(array_map('count', $finalTable));
         $tableSizeY = count($finalTable);
 
@@ -480,10 +480,10 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                 $coordStartY = $coordStartY+ $totalPenjualanTable['sizeY'] + 1;
 
                 if($this->laporanPrev) {
-                    $customerGrowthTable = $this->renderCustomerGrowthTable($coordStartX, $coordStartY);
-                    $sheet->fromArray($customerGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                    $salesGrowthTable = $this->renderSalesGrowthTable($coordStartX, $coordStartY);
+                    $sheet->fromArray($salesGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
 
-                    $coordStartY = $coordStartY + $customerGrowthTable['sizeY'] + 1;
+                    $coordStartY = $coordStartY + $salesGrowthTable['sizeY'] + 1;
                 }
 
                 $transactionCountTable = $this->renderTransactionCountTable($coordStartX, $coordStartY);
