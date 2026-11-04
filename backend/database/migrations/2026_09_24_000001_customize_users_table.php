@@ -18,9 +18,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username', 50)->unique()->after('name');
-            $table->enum('role', ['it_staff', 'owner'])->default('it_staff')->after('username');
+            if (DB::getDriverName() === 'sqlite') { // sqlite tidak bisa menggunakan after
+                $table->string('username', 50)->unique();
+                $table->enum('role', ['it_staff', 'owner'])->default('it_staff');
+            } else {
+                $table->string('username', 50)->unique()->after('name');
+                $table->enum('role', ['it_staff', 'owner'])->default('it_staff')->after('username');
+            }
             $table->boolean('enabled')->default(true);
+            $table->dropUnique('users_email_unique'); // trait unique harus dihapus dalam sqlite sebelum drop kolom
             $table->dropColumn(['name', 'email', 'email_verified_at']);
         });
     }
