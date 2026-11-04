@@ -19,6 +19,7 @@ export function LoggedInLayout() {
     "/supplier-penjualan": "Peringkat Supplier",
     "/kelola-pengguna": "Kelola Pengguna",
     "/ekspor": "Ekspor Laporan",
+    "/kelola-laporan": "Kelola Laporan",
   };
 
   return (
