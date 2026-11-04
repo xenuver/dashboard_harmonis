@@ -24,14 +24,16 @@ class AuthController extends Controller
         // maka autentikasi akan ditolak walaupun username dan password sesuai.
         $credentials['enabled'] = true;
 
-        if (! Auth::guard('web')->attempt($credentials, false)) {
+        if (! Auth::guard('web')->once($credentials)) {
             return response()->json([
                 'message' => 'Username atau password salah',
             ], 401); // -> tampilkan pesan error di form Login (sesuai desain Figma)
         }
 
-        $user = $request->user();
+        $user = Auth::guard('web')->user();
         $token = $user->createToken('auth_token', ['*'], now()->addHour())->plainTextToken;
+
+        Auth::guard('web')->logout();
 
         return response()->json([
             'user' => $user->only('id', 'username', 'role'),
