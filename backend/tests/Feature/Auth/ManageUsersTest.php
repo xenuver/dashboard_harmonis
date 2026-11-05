@@ -159,6 +159,20 @@ class ManageUsersTest extends TestCase
         }
     }
 
+    public function test_cannot_delete_self() {
+        $me = $this->get('/api/whoami', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $userId = $me->json('id');
+
+        $deleteAccountResponse = $this->post('/api/delete-user', [
+            'userid' => $userId,
+        ], [
+            'Authorization' => 'Bearer '.$this->ownerToken
+        ]);
+        $deleteAccountResponse->assertUnprocessable();
+    }
+
     public function test_cannot_add_account_if_user_is_not_admin() {
         $createAccountResponse = $this->post('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
