@@ -137,10 +137,11 @@ class InfoSheetImport implements ToArray
 
             if ($field === 'jumlah_hari' && filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT) !== false) {
                 $jumlahHari = $this->data['jumlah_hari'];
-                if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > 31)) {
+                $hariDalamBulan = cal_days_in_month(CAL_GREGORIAN, $this->data['bulan'], $this->data['tahun']) ?? 0;
+                if ($jumlahHari !== null && ($jumlahHari < 1 || $jumlahHari > $hariDalamBulan)) {
                     $this->errors[] = [
                         'location' => $cellCoordinate,
-                        'message' => 'Jumlah hari harus berupa angka antara 1 sampai 31. ('.$jumlahHari.')',
+                        'message' => "Jumlah hari harus berupa angka antara 1 sampai {$hariDalamBulan}. ({$jumlahHari})",
                     ];
                 }
             }
