@@ -191,4 +191,17 @@ class ManageUsersTest extends TestCase
         ]);
         $updateAccountResponse->assertForbidden();
     }
+
+    public function test_cannot_delete_account_if_user_is_not_admin() {
+        $someone = User::factory()->create([
+            'username' => fake()->unique()->userName(),
+        ]);
+
+        $deleteAccountResponse = $this->post('/api/delete-user', [
+            'id' => $someone->id,
+        ], [
+            'Authorization' => 'Bearer '.$this->ownerToken
+        ]);
+        $deleteAccountResponse->assertForbidden();
+    }
 }
