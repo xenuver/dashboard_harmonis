@@ -97,6 +97,7 @@ class ManageUsersTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
+        Auth::forgetGuards(); // breaks second login if not calling this?
 
         try {
             if($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
@@ -123,8 +124,6 @@ class ManageUsersTest extends TestCase
                 'user.role',
                 'owner',
             );
-
-            Auth::forgetGuards(); // breaks second login if not calling this?
 
             // login akun baru
             $newUserLoginResponse = $this->login($username, $password);
