@@ -159,7 +159,7 @@ class ManageUsersTest extends TestCase
         }
     }
 
-    public function test_cannot_manage_accounts_if_user_not_admin() {
+    public function test_cannot_add_account_if_user_is_not_admin() {
         $createAccountResponse = $this->post('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
             'password' => self::CREATE_ACCOUNT_PASSWORD,
@@ -168,7 +168,9 @@ class ManageUsersTest extends TestCase
             'Authorization' => 'Bearer '.$this->ownerToken
         ]);
         $createAccountResponse->assertForbidden();
+    }
 
+    public function test_cannot_list_accounts_if_user_is_not_admin() {
         $readAccountsResponse = $this->get('/api/list-users', [
             'Authorization' => 'Bearer '.$this->ownerToken
         ]);
