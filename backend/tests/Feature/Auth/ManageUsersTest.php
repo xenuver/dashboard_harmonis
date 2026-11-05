@@ -33,7 +33,7 @@ class ManageUsersTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
         $this->ownerToken = User::factory()->create([
             'role' => 'owner',
-        ])->createToken('auth_token')->plainTextToken;;
+        ])->createToken('auth_token')->plainTextToken;
     }
 
     public static function createAccountInfoProvider(): array
