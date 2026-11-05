@@ -67,6 +67,17 @@ class ListUsersTest extends TestCase
         ];
     }
 
+    public static function filterRoleParamsProvider(): array
+    {
+        // asumsi ada 200 pengguna
+        return [
+            'it_staff (accepted)' => ['it_staff', true],
+            'staf_it (rejected)' => ['staf_it', false],
+            'owner (accepted)' => ['owner', true],
+            'guest (rejected)' => ['guest', false],
+        ];
+    }
+
     public function test_list_accounts() {
         $readAccountsResponse = $this->get('/api/list-users', [
             'Authorization' => 'Bearer '.$this->adminToken
@@ -104,6 +115,18 @@ class ListUsersTest extends TestCase
             'Authorization' => 'Bearer '.$this->adminToken
         ]);
         $listAccountsResponse->assertOk()->assertJsonPath('total', $expectedResultsCount);
+    }
+
+    #[DataProvider('filterRoleParamsProvider')]
+    public function test_filter_account_roles(string $role, bool $shouldSuccess) {
+        $listAccountsResponse = $this->get('/api/list-users?role='.($role), [
+            'Authorization' => 'Bearer '.$this->adminToken
+        ]);
+        if($shouldSuccess) {
+            $listAccountsResponse->assertOk();
+        } else {
+            $listAccountsResponse->assertUnprocessable();
+        }
     }
 
     public function test_cannot_list_accounts_if_user_is_not_admin() {
