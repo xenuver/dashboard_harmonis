@@ -61,7 +61,7 @@ class ManageUsersController extends Controller
 
         $validated = $request->validate([
             'username' => 'required|string|alpha_dash:ascii|unique:users,username',
-            'password' => 'required|string',
+            'password' => 'required|string|min:4',
             'role' => 'required|in:it_staff,owner',
             'enabled' => 'required|boolean',
         ], [
@@ -70,6 +70,7 @@ class ManageUsersController extends Controller
             'username.unique' => 'nama pengguna sudah digunakan',
             'password.required' => 'password harus diisi',
             'password.string' => 'format password harus merupakan string',
+            'password.min' => 'panjang minimal password adalah 4 simbol',
             'role.required' => 'role harus diisi',
             'role.string' => 'role hanya menerima nilai it_staff dan owner',
             'enabled.required' => 'enabled harus diisi',
@@ -94,7 +95,7 @@ class ManageUsersController extends Controller
         $validated = $request->validate([
             'userid' => 'required|exists:users,id',
             'username' => 'sometimes|string|alpha_dash:ascii',
-            'password' => 'sometimes|string',
+            'password' => 'sometimes|string|min:4',
             'role' => 'sometimes|in:it_staff,owner',
             'enabled' => 'sometimes|boolean',
         ], [
@@ -103,6 +104,7 @@ class ManageUsersController extends Controller
             'username.string' => 'format nama pengguna harus merupakan string',
             'username.alpha_dash' => 'nama pengguna hanya menerima karakter huruf, angka, - dan _',
             'password.string' => 'format password harus merupakan string',
+            'password.min' => 'panjang minimal password adalah 4 simbol',
             'role.string' => 'role hanya menerima nilai it_staff dan owner',
             'enabled.boolean' => 'enabled hanya menerima true dan false atau 1 dan 0',
         ]);
