@@ -57,16 +57,22 @@ class ProdukPenjualan extends Model
 
     public function scopeCari(Builder $query, string $keyword): Builder
     {
-        $keywords = preg_split('/\s+/', trim($keyword));
+        $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
 
         return $query->where(function (Builder $q) use ($keywords) {
             foreach ($keywords as $keyword) {
-                $keyword = addcslashes($keyword, '%_\\');
+                $keyword = strtr($keyword, [
+                    '!' => '!!',
+                    '%' => '!%',
+                    '_' => '!_',
+                ]);
 
                 $q->where(function (Builder $q) use ($keyword) {
-                    $q->where('nama_brg', 'like', "%{$keyword}%")
-                        ->orWhere('kode_brg', 'like', "%{$keyword}%")
-                        ->orWhere('barcode', 'like', "%{$keyword}%");
+                    $pattern = "%{$keyword}%";
+
+                    $q->whereRaw("nama_brg LIKE ? ESCAPE '!'", [$pattern])
+                        ->orWhereRaw("kode_brg LIKE ? ESCAPE '!'", [$pattern])
+                        ->orWhereRaw("barcode LIKE ? ESCAPE '!'", [$pattern]);
                 });
             }
         });

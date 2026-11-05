@@ -35,10 +35,15 @@ class ManageUsersController extends Controller
 
         $query = User::query();
 
-        if (! empty($validated['usernamelike'])) {
-            $term = addcslashes($validated['usernamelike'], '\\%_');
-            $query->where('username', 'like', '%'.$term.'%');
-        }
+    if (!empty($validated['usernamelike'])) {
+        $term = strtr($validated['usernamelike'], [
+            '!' => '!!',
+            '%' => '!%',
+            '_' => '!_',
+        ]);
+
+        $query->whereRaw("username LIKE ? ESCAPE '!'", ["%{$term}%"]);
+    }
 
         if (! empty($validated['role'])) {
             $query->where('role', $validated['role']);

@@ -40,15 +40,21 @@ class SupplierPenjualan extends Model
 
     public function scopeCari(Builder $query, string $keyword): Builder
     {
-        $keywords = preg_split('/\s+/', trim($keyword));
+        $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
 
         return $query->where(function (Builder $q) use ($keywords) {
             foreach ($keywords as $keyword) {
-                $keyword = addcslashes($keyword, '%_\\');
+                $keyword = strtr($keyword, [
+                    '!' => '!!',
+                    '%' => '!%',
+                    '_' => '!_',
+                ]);
 
-                return $q->where(function (Builder $q) use ($keyword) {
-                    $q->where('nama_supp', 'like', "%{$keyword}%")
-                        ->orWhere('kode_supp', 'like', "%{$keyword}%");
+                $q->where(function (Builder $q) use ($keyword) {
+                    $pattern = "%{$keyword}%";
+
+                    $q->whereRaw("nama_supp LIKE ? ESCAPE '!'", [$pattern])
+                        ->orWhereRaw("kode_supp LIKE ? ESCAPE '!'", [$pattern]);
                 });
             }
         });
