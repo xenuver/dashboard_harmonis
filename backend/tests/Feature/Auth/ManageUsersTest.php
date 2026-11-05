@@ -176,4 +176,19 @@ class ManageUsersTest extends TestCase
         ]);
         $readAccountsResponse->assertForbidden();
     }
+
+    public function test_cannot_update_account_if_user_is_not_admin() {
+        $someone = User::factory()->create([
+            'username' => fake()->unique()->userName(),
+            'role' => 'owner',
+        ]);
+
+        $updateAccountResponse = $this->post('/api/update-user', [
+            'id' => $someone->id,
+            'password' => fake()->password(),
+        ], [
+            'Authorization' => 'Bearer '.$this->ownerToken
+        ]);
+        $updateAccountResponse->assertForbidden();
+    }
 }
