@@ -173,6 +173,21 @@ class ManageUsersTest extends TestCase
         $deleteAccountResponse->assertUnprocessable();
     }
 
+    public function test_cannot_demote_self_from_admin() {
+        $me = $this->get('/api/whoami', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $userId = $me->json('id');
+
+        $updateAccountResponse = $this->post('/api/update-user', [
+            'userid' => $userId,
+            'role' => 'owner',
+        ], [
+            'Authorization' => 'Bearer '.$this->ownerToken
+        ]);
+        $updateAccountResponse->assertUnprocessable();
+    }
+
     public function test_cannot_add_account_if_user_is_not_admin() {
         $createAccountResponse = $this->post('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
