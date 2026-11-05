@@ -118,15 +118,22 @@ class PenjualanHarianSheetImport implements ToArray
                 }
             }
 
-            if ($this->isGabungan === true) {
-                $this->data[(int) $tanggal] = [
-                    'total' => (int) ($row[$totalPenjualanIndex] ?? null),
-                    'ampera' => (int) ($row[$totalPenjualanAmperaIndex] ?? null),
-                    'pal' => (int) ($row[$totalPenjualanPalIndex] ?? null),
-                ];
+            if(!array_key_exists((int) $tanggal, $this->data)) {
+                if ($this->isGabungan === true) {
+                    $this->data[(int) $tanggal] = [
+                        'total' => (int) ($row[$totalPenjualanIndex] ?? null),
+                        'ampera' => (int) ($row[$totalPenjualanAmperaIndex] ?? null),
+                        'pal' => (int) ($row[$totalPenjualanPalIndex] ?? null),
+                    ];
+                } else {
+                    $this->data[(int) $tanggal] = [
+                        'total' => (int) ($row[$totalPenjualanIndex] ?? null),
+                    ];
+                }
             } else {
-                $this->data[(int) $tanggal] = [
-                    'total' => (int) ($row[$totalPenjualanIndex] ?? null),
+                $this->errors[] = [
+                    'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
+                    'message' => "Terdapat tanggal sama! Tanggal: {$tanggal}",
                 ];
             }
         }
