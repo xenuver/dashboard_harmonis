@@ -88,8 +88,9 @@ class UploadController extends Controller
         }
 
         $isGabungan = $infoParser->getIsGabungan();
+        $hariDalamBulan = cal_days_in_month(CAL_GREGORIAN, $infoParserData['bulan'], $infoParserData['tahun']) ?? 0;
 
-        $parser = new LaporanExcelParser($validated['file'], $isGabungan, $infoParserData['jumlah_hari']);
+        $parser = new LaporanExcelParser($validated['file'], $isGabungan, $hariDalamBulan);
         $errors = $parser->getImportErrors();
 
         if (! empty($errors)) {
