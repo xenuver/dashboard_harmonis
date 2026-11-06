@@ -30,18 +30,14 @@ class LoginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! User::where('username', self::ACCOUNT_USERNAME)->exists()) {
-            User::where('username', self::ACCOUNT_PASSWORD)->delete();
-        }
+
         User::factory()->create([
             'username' => self::ACCOUNT_USERNAME,
             'password' => Hash::make(self::ACCOUNT_PASSWORD),
             'enabled' => true,
             'role' => 'it_staff',
         ]);
-        if (! User::where('username', self::DISABLED_ACCOUNT_USERNAME)->exists()) {
-            User::where('username', self::DISABLED_ACCOUNT_PASSWORD)->delete();
-        }
+
         User::factory()->create([
             'username' => self::DISABLED_ACCOUNT_USERNAME,
             'password' => Hash::make(self::DISABLED_ACCOUNT_PASSWORD),
