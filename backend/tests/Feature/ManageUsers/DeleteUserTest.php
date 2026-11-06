@@ -43,6 +43,9 @@ class DeleteUserTest extends TestCase
         ]);
         $deleteAccountResponse->assertOk();
 
+        $this->assertDatabaseMissing('users', [
+            'id' => $someone->id,
+        ]);
     }
 
     public function test_cannot_delete_self()
@@ -58,6 +61,10 @@ class DeleteUserTest extends TestCase
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $deleteAccountResponse->assertUnprocessable();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $userId,
+        ]);
     }
 
     public function test_cannot_delete_account_if_user_is_not_admin()
@@ -72,5 +79,9 @@ class DeleteUserTest extends TestCase
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $deleteAccountResponse->assertForbidden();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $someone->id,
+        ]);
     }
 }
