@@ -10,6 +10,10 @@ class DeleteUserTest extends TestCase
 {
     use RefreshDatabase;
 
+    private User $adminUser;
+
+    private User $ownerUser;
+    
     private string $adminToken;
 
     private string $ownerToken;
@@ -18,12 +22,15 @@ class DeleteUserTest extends TestCase
     {
         parent::setUp();
 
-        $this->adminToken = User::factory()->create([
+        $this->adminUser = User::factory()->create([
             'role' => 'it_staff',
-        ])->createToken('auth_token')->plainTextToken;
-        $this->ownerToken = User::factory()->create([
-            'role' => 'owner',
-        ])->createToken('auth_token')->plainTextToken;
+        ]);
+        $this->ownerUser = User::factory()->create([
+            'role' => 'owner'
+        ]);
+
+        $this->adminToken = $this->adminUser->createToken('auth_token')->plainTextToken;
+        $this->ownerToken = $this->ownerUser->createToken('auth_token')->plainTextToken;
     }
 
     public function test_admin_can_delete_user()
