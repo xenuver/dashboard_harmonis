@@ -126,11 +126,13 @@ class PenjualanHarianSheetImport implements ToArray
                         'pal' => (int) ($row[$totalPenjualanPalIndex] ?? null),
                     ];
 
+                    if($this->data[(int) $tanggal]['ampera'] && $this->data[(int) $tanggal]['pal'] && $this->data[(int) $tanggal]['total']) {
                     if(($this->data[(int) $tanggal]['ampera'] + $this->data[(int) $tanggal]['pal']) !== $this->data[(int) $tanggal]['total']) {
                         $this->errors[] = [
                             'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
                             'message' => 'Total transaksi pada tanggal '.($tanggal).' berbeda! Total: '.($row[$totalPenjualanIndex] ?? null).', Ampera: '.($row[$totalPenjualanAmperaIndex] ?? null).', Pal: '.($row[$totalPenjualanPalIndex] ?? null),
                         ];
+                        }
                     }
                 } else {
                     $this->data[(int) $tanggal] = [
