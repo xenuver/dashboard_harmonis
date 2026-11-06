@@ -100,7 +100,6 @@ class AddUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        Auth::forgetGuards(); // breaks second login if not calling this?
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $createAccountResponse->assertUnprocessable();
