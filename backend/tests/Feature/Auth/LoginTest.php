@@ -98,7 +98,7 @@ class LoginTest extends TestCase
             $body['password'] = $password;
         }
 
-        return $this->post('/api/login', $body);
+        return $this->postJson('/api/login', $body);
     }
 
     #[DataProvider('loginProvider')]

@@ -43,7 +43,7 @@ class DeleteUserTest extends TestCase
             'password' => $password,
         ]);
 
-        $deleteAccountResponse = $this->post('/api/delete-user', [
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
             'userid' => $someone->id,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
@@ -59,7 +59,7 @@ class DeleteUserTest extends TestCase
     {
         $userId = $this->adminUser->id;
 
-        $deleteAccountResponse = $this->post('/api/delete-user', [
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
             'userid' => $userId,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
@@ -77,7 +77,7 @@ class DeleteUserTest extends TestCase
             'username' => fake()->unique()->userName(),
         ]);
 
-        $deleteAccountResponse = $this->post('/api/delete-user', [
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
             'userid' => $someone->id,
         ], [
             'Authorization' => 'Bearer '.$this->ownerToken,

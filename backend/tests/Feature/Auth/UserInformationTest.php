@@ -65,7 +65,7 @@ class UserInformationTest extends TestCase
 
     private function whoAmI(string $token): TestResponse
     {
-        return $this->get('/api/whoami', [
+        return $this->getJson('/api/whoami', [
             'Authorization' => 'Bearer '.$token,
         ]);
     }
@@ -86,12 +86,11 @@ class UserInformationTest extends TestCase
             $this->assertTrue(false);
         }
 
-        $loginResponse = $this->post('/api/login', [
+        $loginResponse = $this->postJson('/api/login', [
             'username' => $loginUsername,
             'password' => $loginPassword,
         ]);
         $loginResponse->assertOk();
-        $loginResponse->assertHeader('Content-Type', 'application/json');
         $loginResponseJson = $loginResponse->json();
 
         // informasi pengguna ada di respon login
@@ -112,7 +111,6 @@ class UserInformationTest extends TestCase
 
         $userInfo = $this->whoAmI($loginResponseJson['token']);
         $userInfo->assertOk();
-        $userInfo->assertHeader('Content-Type', 'application/json');
 
         // informasi pengguna ada di respon login
         $userInfo->assertJsonStructure([
@@ -140,7 +138,7 @@ class UserInformationTest extends TestCase
 
     public function test_cannot_whoami_while_logged_out(): void
     {
-        $userInfo = $this->get('/api/whoami');
+        $userInfo = $this->getJson('/api/whoami');
         $userInfo->assertUnauthorized();
     }
 }

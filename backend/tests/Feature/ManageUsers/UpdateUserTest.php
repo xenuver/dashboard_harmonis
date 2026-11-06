@@ -35,7 +35,7 @@ class UpdateUserTest extends TestCase
             'enabled' => true,
         ]);
 
-        $updateAccountResponse = $this->post('/api/update-user', [
+        $updateAccountResponse = $this->postJson('/api/update-user', [
             'userid' => $someone->id,
             'password' => fake()->password(),
         ], [
@@ -46,12 +46,12 @@ class UpdateUserTest extends TestCase
 
     public function test_cannot_demote_self_from_admin()
     {
-        $me = $this->get('/api/whoami', [
+        $me = $this->getJson('/api/whoami', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $userId = $me->json('id');
 
-        $updateAccountResponse = $this->post('/api/update-user', [
+        $updateAccountResponse = $this->postJson('/api/update-user', [
             'userid' => $userId,
             'role' => 'owner',
         ], [
@@ -67,7 +67,7 @@ class UpdateUserTest extends TestCase
             'role' => 'owner',
         ]);
 
-        $updateAccountResponse = $this->post('/api/update-user', [
+        $updateAccountResponse = $this->postJson('/api/update-user', [
             'userid' => $someone->id,
             'password' => fake()->password(),
         ], [

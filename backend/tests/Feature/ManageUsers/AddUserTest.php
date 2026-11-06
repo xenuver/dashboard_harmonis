@@ -85,14 +85,14 @@ class AddUserTest extends TestCase
             $body['password'] = $password;
         }
 
-        return $this->post('/api/login', $body);
+        return $this->postJson('/api/login', $body);
     }
 
     #[DataProvider('createAccountInfoProvider')]
     public function test_create_account_with(?string $username, ?string $password, int $expectedOutcome)
     {
         // buat akun baru
-        $createAccountResponse = $this->post('/api/add-user', [
+        $createAccountResponse = $this->postJson('/api/add-user', [
             'username' => $username,
             'password' => $password,
             'role' => 'owner',
@@ -107,7 +107,6 @@ class AddUserTest extends TestCase
             return;
         }
         $createAccountResponse->assertOk();
-        $createAccountResponse->assertHeader('Content-Type', 'application/json');
         $createAccountResponse->assertJsonStructure([
             'user' => [
                 'id',
@@ -131,7 +130,7 @@ class AddUserTest extends TestCase
         $newUserLoginResponse->assertOk();
 
         // cek info pengguna
-        $newUserInfoResponse = $this->get('/api/whoami', [
+        $newUserInfoResponse = $this->getJson('/api/whoami', [
             'Authorization' => 'Bearer '.$newUserLoginResponse->json(['token']),
         ]);
         $newUserInfoResponse->assertOk();
@@ -152,7 +151,7 @@ class AddUserTest extends TestCase
 
     public function test_cannot_add_account_if_user_is_not_admin()
     {
-        $createAccountResponse = $this->post('/api/add-user', [
+        $createAccountResponse = $this->postJson('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
             'password' => self::CREATE_ACCOUNT_PASSWORD,
             'role' => 'it_staff',

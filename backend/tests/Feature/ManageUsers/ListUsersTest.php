@@ -81,7 +81,7 @@ class ListUsersTest extends TestCase
 
     public function test_list_accounts()
     {
-        $readAccountsResponse = $this->get('/api/list-users', [
+        $readAccountsResponse = $this->getJson('/api/list-users', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $readAccountsResponse->assertOk();
@@ -90,7 +90,7 @@ class ListUsersTest extends TestCase
     #[DataProvider('usersPerPageParamsProvider')]
     public function test_list_accounts_per_page(int $perPage, bool $shouldSuccess)
     {
-        $listAccountsResponse = $this->get('/api/list-users?per_page='.($perPage), [
+        $listAccountsResponse = $this->getJson('/api/list-users?per_page='.($perPage), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         if ($shouldSuccess) {
@@ -103,7 +103,7 @@ class ListUsersTest extends TestCase
     #[DataProvider('usersPageParamsProvider')]
     public function test_list_accounts_page(int $page, bool $shouldSuccess)
     {
-        $listAccountsResponse = $this->get('/api/list-users?page='.($page), [
+        $listAccountsResponse = $this->getJson('/api/list-users?page='.($page), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         if ($shouldSuccess) {
@@ -116,7 +116,7 @@ class ListUsersTest extends TestCase
     #[DataProvider('searchUsersParamsProvider')]
     public function test_search_accounts(string $keyword, int $expectedResultsCount)
     {
-        $listAccountsResponse = $this->get('/api/list-users?usernamelike='.($keyword), [
+        $listAccountsResponse = $this->getJson('/api/list-users?usernamelike='.($keyword), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $listAccountsResponse->assertOk()->assertJsonPath('total', $expectedResultsCount);
@@ -125,7 +125,7 @@ class ListUsersTest extends TestCase
     #[DataProvider('filterRoleParamsProvider')]
     public function test_filter_account_roles(string $role, bool $shouldSuccess)
     {
-        $listAccountsResponse = $this->get('/api/list-users?role='.($role), [
+        $listAccountsResponse = $this->getJson('/api/list-users?role='.($role), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         if ($shouldSuccess) {
@@ -137,7 +137,7 @@ class ListUsersTest extends TestCase
 
     public function test_cannot_list_accounts_if_user_is_not_admin()
     {
-        $readAccountsResponse = $this->get('/api/list-users', [
+        $readAccountsResponse = $this->getJson('/api/list-users', [
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $readAccountsResponse->assertForbidden();
