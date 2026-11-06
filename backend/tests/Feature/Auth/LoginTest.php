@@ -49,32 +49,32 @@ class LoginTest extends TestCase
     public static function loginProvider(): array
     {
         return [
-            'both correct' => [
+            'both correct (accepted)' => [
                 self::ACCOUNT_USERNAME,
                 self::ACCOUNT_PASSWORD,
                 self::LOGIN_OUTCOME_SUCCESS,
             ],
-            'invalid password' => [
+            'invalid password (rejected)' => [
                 self::ACCOUNT_USERNAME,
                 self::ACCOUNT_PASSWORD.'1',
                 self::LOGIN_OUTCOME_INVALID_CREDS,
             ],
-            'unknown username' => [
+            'unknown username (rejected)' => [
                 self::ACCOUNT_USERNAME.'1',
                 self::ACCOUNT_PASSWORD,
                 self::LOGIN_OUTCOME_INVALID_CREDS,
             ],
-            'username empty' => [
+            'username empty (rejected)' => [
                 null,
                 self::ACCOUNT_PASSWORD,
                 self::LOGIN_OUTCOME_INVALID_INPUT,
             ],
-            'password empty' => [
+            'password empty (rejected)' => [
                 self::ACCOUNT_USERNAME,
                 null,
                 self::LOGIN_OUTCOME_INVALID_INPUT,
             ],
-            'both empty' => [
+            'both empty (rejected)' => [
                 null,
                 null,
                 self::LOGIN_OUTCOME_INVALID_INPUT,
