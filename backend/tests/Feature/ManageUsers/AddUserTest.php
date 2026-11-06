@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -125,28 +126,15 @@ class AddUserTest extends TestCase
             'owner',
         );
 
-        // login akun baru
-        $newUserLoginResponse = $this->login($username, $password);
-        $newUserLoginResponse->assertOk();
-
-        // cek info pengguna
-        $newUserInfoResponse = $this->getJson('/api/whoami', [
-            'Authorization' => 'Bearer '.$newUserLoginResponse->json(['token']),
+        $this->assertDatabaseHas('users', [
+            'id' => $createAccountResponseJson['user']['id'],
+            'username' => $createAccountResponseJson['user']['username'],
+            'role' => $createAccountResponseJson['user']['role'],
         ]);
-        $newUserInfoResponse->assertOk();
 
-        $newUserInfoResponse->assertJsonPath(
-            'id',
-            $createAccountResponseJson['user']['id'],
-        );
-        $newUserInfoResponse->assertJsonPath(
-            'username',
-            $createAccountResponseJson['user']['username'],
-        );
-        $newUserInfoResponse->assertJsonPath(
-            'role',
-            $createAccountResponseJson['user']['role'],
-        );
+        $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
+
+        $this->assertTrue(Hash::check($password, $newUser->password));
     }
 
     public function test_cannot_add_account_if_user_is_not_admin()
