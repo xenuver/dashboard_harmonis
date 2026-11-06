@@ -130,6 +130,52 @@ class AddUserTest extends TestCase
         ];
     }
 
+    public function test_create_account_with_only_required()
+    {
+        // buat akun baru
+        $createAccountResponse = $this->postJson('/api/add-user', [
+            'username' => self::CREATE_ACCOUNT_USERNAME,
+            'password' => self::CREATE_ACCOUNT_PASSWORD,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+
+        $createAccountResponse->assertOk();
+        $createAccountResponse->assertJsonStructure([
+            'user' => [
+                'id',
+                'username',
+                'enabled',
+                'role'
+            ],
+        ]);
+        $createAccountResponseJson = $createAccountResponse->json();
+
+        $createAccountResponse->assertJsonPath(
+            'user.username',
+            self::CREATE_ACCOUNT_USERNAME,
+        );
+        $createAccountResponse->assertJsonPath('user.enabled', function($value) {
+            return is_bool($value);
+        });
+        $createAccountResponse->assertJsonPath('user.role', function($value) {
+            return in_array($value, ['owner', 'it_staff']);
+        });
+
+        $this->assertDatabaseHas('users', [
+            'id' => $createAccountResponseJson['user']['id'],
+            'username' => $createAccountResponseJson['user']['username'],
+        ]);
+
+        $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
+
+        $this->assertTrue(Hash::check(self::CREATE_ACCOUNT_PASSWORD, $newUser->password));
+
+        $this->assertTrue(is_bool($newUser->enabled));
+        $this->assertTrue(in_array($newUser->role, ['owner', 'it_staff']));
+    }
+
     #[DataProvider('createAccountInfoProvider')]
     public function test_create_account_with(?string $username, ?string $password, int $expectedOutcome)
     {
