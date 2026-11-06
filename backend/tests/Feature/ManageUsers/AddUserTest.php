@@ -115,7 +115,6 @@ class AddUserTest extends TestCase
         $createAccountResponse = $this->postJson('/api/add-user', [
             'username' => $username,
             'password' => $password,
-            'role' => 'owner',
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -130,7 +129,6 @@ class AddUserTest extends TestCase
             'user' => [
                 'id',
                 'username',
-                'role',
             ],
         ]);
         $createAccountResponseJson = $createAccountResponse->json();
@@ -139,15 +137,10 @@ class AddUserTest extends TestCase
             'user.username',
             $username,
         );
-        $createAccountResponse->assertJsonPath(
-            'user.role',
-            'owner',
-        );
 
         $this->assertDatabaseHas('users', [
             'id' => $createAccountResponseJson['user']['id'],
             'username' => $createAccountResponseJson['user']['username'],
-            'role' => $createAccountResponseJson['user']['role'],
         ]);
 
         $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
