@@ -104,6 +104,32 @@ class AddUserTest extends TestCase
         ];
     }
 
+    public static function createAccountRoleInfoProvider(): array
+    {
+        return [
+            'owner role (accepted)' => [
+                'owner',
+                self::OUTCOME_SUCCESS,
+            ],
+            'it staff role (accepted)' => [
+                'it_staff',
+                self::OUTCOME_SUCCESS,
+            ],
+            'invalid role (rejected)' => [
+                'admin',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'empty role (rejected)' => [
+                null,
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'uppercase role (rejected)' => [
+                'OWNER',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+        ];
+    }
+
     #[DataProvider('createAccountInfoProvider')]
     public function test_create_account_with(?string $username, ?string $password, int $expectedOutcome)
     {
@@ -184,6 +210,41 @@ class AddUserTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $createAccountResponseJson['user']['id'],
             'enabled' => $createAccountResponseJson['user']['enabled'],
+        ]);
+    }
+
+    #[DataProvider('createAccountRoleInfoProvider')]
+    public function test_create_account_with_role(mixed $role, int $expectedOutcome)
+    {
+        // buat akun baru
+        $createAccountResponse = $this->postJson('/api/add-user', [
+            'username' => self::CREATE_ACCOUNT_USERNAME,
+            'password' => self::CREATE_ACCOUNT_PASSWORD,
+            'role' => $role,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+            $createAccountResponse->assertUnprocessable();
+            return;
+        }
+        $createAccountResponse->assertOk();
+        $createAccountResponse->assertJsonStructure([
+            'user' => [
+                'id',
+                'role',
+            ],
+        ]);
+        $createAccountResponseJson = $createAccountResponse->json();
+        $createAccountResponse->assertJsonPath(
+            'user.role',
+            $role,
+        );
+
+        $this->assertDatabaseHas('users', [
+            'id' => $createAccountResponseJson['user']['id'],
+            'role' => $createAccountResponseJson['user']['role'],
         ]);
     }
 
