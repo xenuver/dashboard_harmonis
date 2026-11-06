@@ -101,10 +101,6 @@ class AddUserTest extends TestCase
                 null,
                 self::OUTCOME_INVALID_INPUT,
             ],
-            'missing (rejected)' => [
-                null,
-                self::OUTCOME_INVALID_INPUT,
-            ],
         ];
     }
 
