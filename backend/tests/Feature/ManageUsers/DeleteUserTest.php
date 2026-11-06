@@ -57,15 +57,12 @@ class DeleteUserTest extends TestCase
 
     public function test_cannot_delete_self()
     {
-        $me = $this->get('/api/whoami', [
-            'Authorization' => 'Bearer '.$this->adminToken,
-        ]);
-        $userId = $me->json('id');
+        $userId = $this->adminUser->id;
 
         $deleteAccountResponse = $this->post('/api/delete-user', [
             'userid' => $userId,
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken,
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $deleteAccountResponse->assertUnprocessable();
 
