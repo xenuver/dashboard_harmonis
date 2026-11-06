@@ -11,7 +11,7 @@ use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Concerns\SkipsUnknownSheets;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class LaporanImport implements Import, WithMultipleSheets, SkipsUnknownSheets
+class LaporanImport implements Import, SkipsUnknownSheets, WithMultipleSheets
 {
     protected InfoSheetImport $infoSheet;
 

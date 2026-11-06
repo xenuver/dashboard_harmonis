@@ -111,12 +111,12 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
         return [
             $produk->kode_brg,
             $produk->nama_brg,
-            $produk->satuan? $produk->satuan : null,
+            $produk->satuan ? $produk->satuan : null,
             (int) $produk->qty,
             (float) $produk->harga_jual,
             (float) $produk->jumlah,
-            $produk->barcode? $produk->barcode : null,
-            $produk->stok? (int) $produk->stok : null,
+            $produk->barcode ? $produk->barcode : null,
+            $produk->stok ? (int) $produk->stok : null,
         ];
     }
 

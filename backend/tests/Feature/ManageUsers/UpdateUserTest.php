@@ -11,9 +11,10 @@ class UpdateUserTest extends TestCase
     use RefreshDatabase;
 
     private string $adminToken;
+
     private string $ownerToken;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -25,7 +26,8 @@ class UpdateUserTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
     }
 
-    public function test_update_account() {
+    public function test_update_account()
+    {
         $someone = User::factory()->create([
             'username' => fake()->unique()->userName(),
             'password' => fake()->password(),
@@ -37,12 +39,13 @@ class UpdateUserTest extends TestCase
             'userid' => $someone->id,
             'password' => fake()->password(),
         ], [
-            'Authorization' => 'Bearer '.$this->adminToken
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $updateAccountResponse->assertOk();
     }
 
-    public function test_cannot_demote_self_from_admin() {
+    public function test_cannot_demote_self_from_admin()
+    {
         $me = $this->get('/api/whoami', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -52,12 +55,13 @@ class UpdateUserTest extends TestCase
             'userid' => $userId,
             'role' => 'owner',
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken
+            'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $updateAccountResponse->assertUnprocessable();
     }
 
-    public function test_cannot_update_account_if_user_is_not_admin() {
+    public function test_cannot_update_account_if_user_is_not_admin()
+    {
         $someone = User::factory()->create([
             'username' => fake()->unique()->userName(),
             'role' => 'owner',
@@ -67,7 +71,7 @@ class UpdateUserTest extends TestCase
             'userid' => $someone->id,
             'password' => fake()->password(),
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken
+            'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $updateAccountResponse->assertForbidden();
     }

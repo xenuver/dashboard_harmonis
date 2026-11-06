@@ -16,28 +16,34 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class TransactionDataExport extends DefaultValueBinder implements FromArray, WithEvents, WithStrictNullComparison, WithTitle
 {
     protected LaporanUpload $laporan;
+
     protected ?LaporanUpload $laporanPrev;
 
     protected array $monthList = [
-        'JANUARI','FEBRUARI','MARET','APRIL','MAY','JUNI',
-        'JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER',
+        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MAY', 'JUNI',
+        'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ];
 
     protected SalesHarian $prevSalesHarian;
 
     protected int $lowestGridY1 = 0;
+
     protected int $rightestGridY1 = 0;
 
     protected array $requestMergeCell = [];
+
     protected array $requestCellFillColor = [];
+
     protected array $requestBoldText = [];
+
     protected array $requestNumberFormat = [];
+
     protected array $requestTextAlignmentH = [];
+
     protected array $requestEnableColAutoWidth = [];
 
     public function __construct(LaporanUpload $laporan)
@@ -50,7 +56,8 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             ->first();
     }
 
-    protected function renderPenjualanHarianTable(LaporanUpload $laporan, int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderPenjualanHarianTable(LaporanUpload $laporan, int $coordStartX = 0, int $coordStartY = 0)
+    {
         $dataSales = DB::table(app(SalesHarian::class)->getTable().' as t')->join('cabang as c', 'c.id', '=', 't.cabang_id')
             ->where('t.upload_id', $laporan->id)
             ->selectRaw('
@@ -77,7 +84,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        if($laporan->jenis_laporan === 'gabungan') {
+        if ($laporan->jenis_laporan === 'gabungan') {
             $tableHeading[] = ['HARI', 'TOTAL', 'AMPERA', 'PAL'];
 
             $this->requestEnableColAutoWidth[] = $coordStartX + 2;
@@ -116,7 +123,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             ->values()->toArray();
 
         $finalTable = array_merge($tableHeading, $tableData);
-        $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
+        $tableSizeX = ! empty($finalTable) ? max(array_map('count', $finalTable)) : 0;
         $tableSizeY = count($finalTable);
 
         $this->requestBoldText[] = $headerCells;
@@ -142,7 +149,8 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
-    protected function renderTotalPenjualanTable(int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderTotalPenjualanTable(int $coordStartX = 0, int $coordStartY = 0)
+    {
         $totalSales = 0;
         $minSales = 0;
         $maxSales = 0;
@@ -183,7 +191,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             // baris 1 kolom 1 - baris 1 kolom 3
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 3)).($coordStartY + 1);
             $bulanLaporanPrev = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
@@ -201,7 +209,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         }
 
         // render data
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $tableData[] = ['TOTAL', $totalSalesPrev, $totalSales];
             $tableData[] = ['LOWEST', $minSalesPrev, $minSales];
             $tableData[] = ['HIGHEST', $maxSalesPrev, $maxSales];
@@ -214,7 +222,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         }
 
         $finalTable = array_merge($tableHeading, $tableData);
-        $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
+        $tableSizeX = ! empty($finalTable) ? max(array_map('count', $finalTable)) : 0;
         $tableSizeY = count($finalTable);
 
         $this->requestBoldText[] = $headerCells;
@@ -228,7 +236,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
 
         $this->requestNumberFormat[] = [
-            'cells' => Coordinate::stringFromColumnIndex($coordStartX +2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
+            'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
             'formatCode' => '[$Rp-421] #,##0',
         ];
 
@@ -239,17 +247,18 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
-    protected function renderSalesGrowthTable(int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderSalesGrowthTable(int $coordStartX = 0, int $coordStartY = 0)
+    {
         $totalSales = $this->laporan->salesHarian()->sum('total_penjualan');
         $totalSalesPrev = 0;
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $totalSalesPrev = $this->laporanPrev->salesHarian()->sum('total_penjualan');
         }
 
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        $finalTable = [['SALES GROWTH', (($totalSales-$totalSalesPrev)/$totalSalesPrev)]];
+        $finalTable = [['SALES GROWTH', (($totalSales - $totalSalesPrev) / $totalSalesPrev)]];
         $tableSizeX = max(array_map('count', $finalTable));
         $tableSizeY = count($finalTable);
 
@@ -271,7 +280,8 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
-    protected function renderTransactionCountTable(int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderTransactionCountTable(int $coordStartX = 0, int $coordStartY = 0)
+    {
         $memberTransactionCount = $this->laporan->getDataTransaksi->getTotalMemberTransaction();
         $nonMemberTransactionCount = $this->laporan->getDataTransaksi->getTotalNonMemberTransaction();
         $totalTransactionCount = $this->laporan->getDataTransaksi->getTotalTransaction();
@@ -280,10 +290,10 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $nonMemberTransactionCountPrev = 0;
         $totalTransactionCountPrev = 0;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $memberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();
-            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalNonMemberTransaction();  
-            $totalTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalTransaction(); 
+            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalNonMemberTransaction();
+            $totalTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalTransaction();
         }
 
         // render heading
@@ -297,7 +307,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $bulanLaporanPrev = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
             $tableHeading[] = ['', $bulanLaporanPrev, $bulanLaporan, 'DIFF'];
 
@@ -317,7 +327,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         }
 
         // render data
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $tableData[] = ['MEMBER', $memberTransactionCountPrev, $memberTransactionCount, (($memberTransactionCount - $memberTransactionCountPrev) / $memberTransactionCountPrev)];
             $tableData[] = ['NON-MEMBER', $nonMemberTransactionCountPrev, $nonMemberTransactionCount, (($nonMemberTransactionCount - $nonMemberTransactionCountPrev) / $nonMemberTransactionCountPrev)];
             $tableData[] = ['TOTAL', $totalTransactionCountPrev, $totalTransactionCount, (($totalTransactionCount - $totalTransactionCountPrev) / $totalTransactionCountPrev)];
@@ -328,7 +338,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         }
 
         $finalTable = array_merge($tableHeading, $tableData);
-        $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
+        $tableSizeX = ! empty($finalTable) ? max(array_map('count', $finalTable)) : 0;
         $tableSizeY = count($finalTable);
 
         $this->requestBoldText[] = $headerCells;
@@ -341,7 +351,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             'align' => Alignment::HORIZONTAL_CENTER,
         ];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
                 'formatCode' => '#,##0',
@@ -364,14 +374,15 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         ];
     }
 
-    protected function renderMemberGrowthTable(int $coordStartX = 0, int $coordStartY = 0) {
+    protected function renderMemberGrowthTable(int $coordStartX = 0, int $coordStartY = 0)
+    {
         $memberGrowth = $this->laporan->getMemberCount->getNewMemberCount();
         $memberGrowthPrev = 0;
         $memberGrowthDiff = 0;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $memberGrowthPrev = $this->laporanPrev->getMemberCount->getNewMemberCount();
-            $memberGrowthDiff = ($memberGrowth - $memberGrowthPrev)/$memberGrowthPrev;
+            $memberGrowthDiff = ($memberGrowth - $memberGrowthPrev) / $memberGrowthPrev;
         }
 
         // render heading
@@ -383,7 +394,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $tableHeading[] = ['GROWTH MEMBER'];
             $bulanLaporanPrev = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
             $tableHeading[] = [$bulanLaporanPrev, $bulanLaporan, 'DIFF'];
@@ -394,7 +405,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $tableData = [];
 
         // render data
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             // baris 1 kolom 1 - baris 1 kolom 3
             $this->requestMergeCell[] = (Coordinate::stringFromColumnIndex($coordStartX + 1)).($coordStartY + 1).':'.(Coordinate::stringFromColumnIndex($coordStartX + 3)).($coordStartY + 1);
             $tableData[] = [$memberGrowthPrev, $memberGrowth, $memberGrowthDiff];
@@ -407,7 +418,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         }
 
         $finalTable = array_merge($tableHeading, $tableData);
-        $tableSizeX = !empty($finalTable)? max(array_map('count', $finalTable)): 0;
+        $tableSizeX = ! empty($finalTable) ? max(array_map('count', $finalTable)) : 0;
         $tableSizeY = count($finalTable);
 
         $this->requestBoldText[] = $headerCells;
@@ -420,7 +431,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             'align' => Alignment::HORIZONTAL_CENTER,
         ];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $this->requestNumberFormat[] = [
                 'cells' => Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX - 1).($coordStartY + $tableSizeY),
                 'formatCode' => '+#0;-#0;0',
@@ -460,7 +471,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
                 $penjualanTablePrev = null;
 
-                if($this->laporanPrev) {
+                if ($this->laporanPrev) {
                     $penjualanTablePrev = $this->renderPenjualanHarianTable($this->laporanPrev, $coordStartX, $coordStartY);
                     $sheet->fromArray($penjualanTablePrev['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
 
@@ -477,9 +488,9 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                 $totalPenjualanTable = $this->renderTotalPenjualanTable($coordStartX, $coordStartY);
                 $sheet->fromArray($totalPenjualanTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
 
-                $coordStartY = $coordStartY+ $totalPenjualanTable['sizeY'] + 1;
+                $coordStartY = $coordStartY + $totalPenjualanTable['sizeY'] + 1;
 
-                if($this->laporanPrev) {
+                if ($this->laporanPrev) {
                     $salesGrowthTable = $this->renderSalesGrowthTable($coordStartX, $coordStartY);
                     $sheet->fromArray($salesGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
 
@@ -498,7 +509,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                foreach($this->requestNumberFormat as $selectedCells) {
+                foreach ($this->requestNumberFormat as $selectedCells) {
                     $sheet->getStyle($selectedCells['cells'])->getNumberFormat()->setFormatCode($selectedCells['formatCode']);
                 }
 
@@ -506,19 +517,19 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                     $sheet->getStyle($selectedCells)->getFont()->setBold(true);
                 }
 
-                foreach($this->requestCellFillColor as $selectedCells) {
+                foreach ($this->requestCellFillColor as $selectedCells) {
                     $sheet->getStyle($selectedCells['cells'])->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($selectedCells['color']);
                 }
 
-                foreach($this->requestMergeCell as $selectedCells) {
+                foreach ($this->requestMergeCell as $selectedCells) {
                     $sheet->mergeCells($selectedCells);
                 }
 
-                foreach($this->requestTextAlignmentH as $selectedCells) {
+                foreach ($this->requestTextAlignmentH as $selectedCells) {
                     $sheet->getStyle($selectedCells['cells'])->getAlignment()->setHorizontal($selectedCells['align']);
                 }
 
-                foreach($this->requestEnableColAutoWidth as $columnIndex) {
+                foreach ($this->requestEnableColAutoWidth as $columnIndex) {
                     $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($columnIndex + 1))->setAutoSize(true);
                 }
 

@@ -16,14 +16,15 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, WithEvents, WithColumnFormatting
+class PenjualanHarianExcelExport implements FromArray, WithColumnFormatting, WithEvents, WithHeadings, WithTitle
 {
     protected LaporanUpload $laporan;
+
     protected ?LaporanUpload $laporanPrev;
 
     protected array $monthList = [
-        'JANUARI','FEBRUARI','MARET','APRIL','MAY','JUNI',
-        'JULI','AGUSTUS','SEPTEMBER','OKTOBER','NOVEMBER','DESEMBER',
+        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MAY', 'JUNI',
+        'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ];
 
     public function __construct(LaporanUpload $laporan)
@@ -41,7 +42,7 @@ class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, 
         $reportMonthDayCount = Carbon::createFromDate($this->laporan->periode_tahun, $this->laporan->periode_bulan, 1)->daysInMonth() ?? 0;
         $reportMonthDayCountPrev = null;
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $reportMonthDayCountPrev = Carbon::createFromDate($this->laporanPrev->periode_tahun, $this->laporanPrev->periode_bulan, 1)->daysInMonth();
         }
 
@@ -57,7 +58,7 @@ class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, 
 
         $salesPrev = [];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $salesPrev = DB::table(app(SalesHarian::class)->getTable().' as t')
                 ->join('cabang as c', 'c.id', '=', 't.cabang_id')
                 ->where('t.upload_id', $this->laporanPrev->id)
@@ -91,22 +92,22 @@ class PenjualanHarianExcelExport implements FromArray, WithHeadings, WithTitle, 
     {
         $rows = ['HARI'];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $rows[] = $this->monthList[$this->laporanPrev->periode_bulan - 1].' '.$this->laporanPrev->periode_tahun;
         }
-        $rows[] = $this->monthList[$this->laporan->periode_bulan -1].' '.$this->laporan->periode_tahun;
+        $rows[] = $this->monthList[$this->laporan->periode_bulan - 1].' '.$this->laporan->periode_tahun;
 
         return $rows;
     }
 
     public function columnFormats(): array
     {
-        $columnFormats=  [
+        $columnFormats = [
             'A' => NumberFormat::FORMAT_NUMBER,
             'B' => '[$Rp-421] #,##0',
         ];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $columnFormats['C'] = '[$Rp-421] #,##0';
         }
 

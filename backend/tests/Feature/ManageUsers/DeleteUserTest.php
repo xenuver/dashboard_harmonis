@@ -11,9 +11,10 @@ class DeleteUserTest extends TestCase
     use RefreshDatabase;
 
     private string $adminToken;
+
     private string $ownerToken;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -25,7 +26,8 @@ class DeleteUserTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
     }
 
-    public function test_delete_user() {
+    public function test_delete_user()
+    {
         $username = fake()->unique()->userName();
         $password = fake()->password();
 
@@ -37,13 +39,14 @@ class DeleteUserTest extends TestCase
         $deleteAccountResponse = $this->post('/api/delete-user', [
             'userid' => $someone->id,
         ], [
-            'Authorization' => 'Bearer '.$this->adminToken
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $deleteAccountResponse->assertOk();
 
     }
 
-    public function test_cannot_delete_self() {
+    public function test_cannot_delete_self()
+    {
         $me = $this->get('/api/whoami', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -52,12 +55,13 @@ class DeleteUserTest extends TestCase
         $deleteAccountResponse = $this->post('/api/delete-user', [
             'userid' => $userId,
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken
+            'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $deleteAccountResponse->assertUnprocessable();
     }
 
-    public function test_cannot_delete_account_if_user_is_not_admin() {
+    public function test_cannot_delete_account_if_user_is_not_admin()
+    {
         $someone = User::factory()->create([
             'username' => fake()->unique()->userName(),
         ]);

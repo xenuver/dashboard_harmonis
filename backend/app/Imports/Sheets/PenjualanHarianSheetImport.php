@@ -118,7 +118,7 @@ class PenjualanHarianSheetImport implements ToArray
                 }
             }
 
-            if(!array_key_exists((int) $tanggal, $this->data)) {
+            if (! array_key_exists((int) $tanggal, $this->data)) {
                 if ($this->isGabungan === true) {
                     $this->data[(int) $tanggal] = [
                         'total' => (int) ($row[$totalPenjualanIndex] ?? null),

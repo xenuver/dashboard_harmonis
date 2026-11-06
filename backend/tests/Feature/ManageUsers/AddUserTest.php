@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Testing\TestResponse;
-use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -15,15 +14,18 @@ class AddUserTest extends TestCase
     use RefreshDatabase;
 
     private const CREATE_ACCOUNT_USERNAME = 'account';
+
     private const CREATE_ACCOUNT_PASSWORD = 'account';
 
     private string $adminToken;
+
     private string $ownerToken;
 
     private const OUTCOME_SUCCESS = 0;
+
     private const OUTCOME_INVALID_INPUT = 1;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -75,11 +77,11 @@ class AddUserTest extends TestCase
     {
         $body = [];
 
-        if($username) {
+        if ($username) {
             $body['username'] = $username;
         }
 
-        if($password) {
+        if ($password) {
             $body['password'] = $password;
         }
 
@@ -93,14 +95,15 @@ class AddUserTest extends TestCase
         $createAccountResponse = $this->post('/api/add-user', [
             'username' => $username,
             'password' => $password,
-            'role' => 'owner'
+            'role' => 'owner',
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         Auth::forgetGuards(); // breaks second login if not calling this?
 
-        if($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $createAccountResponse->assertUnprocessable();
+
             return;
         }
         $createAccountResponse->assertOk();
@@ -110,7 +113,7 @@ class AddUserTest extends TestCase
                 'id',
                 'username',
                 'role',
-            ]
+            ],
         ]);
         $createAccountResponseJson = $createAccountResponse->json();
 
@@ -147,13 +150,14 @@ class AddUserTest extends TestCase
         );
     }
 
-    public function test_cannot_add_account_if_user_is_not_admin() {
+    public function test_cannot_add_account_if_user_is_not_admin()
+    {
         $createAccountResponse = $this->post('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
             'password' => self::CREATE_ACCOUNT_PASSWORD,
-            'role' => 'it_staff'
+            'role' => 'it_staff',
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken
+            'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $createAccountResponse->assertForbidden();
     }

@@ -41,7 +41,7 @@ class UploadController extends Controller
         $infoParserData = $infoParser->parseInfo();
         $infoParserErrors = $infoParser->getImportErrors();
 
-        if(key_exists('jenis_laporan', $infoParserData)) {
+        if (array_key_exists('jenis_laporan', $infoParserData)) {
             if (strtolower($infoParserData['jenis_laporan']) != strtolower($validated['jenis_laporan'])) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -50,7 +50,7 @@ class UploadController extends Controller
             }
         }
 
-        if(key_exists('bulan', $infoParserData)) {
+        if (array_key_exists('bulan', $infoParserData)) {
             if ($infoParserData['bulan'] != $validated['periode_bulan']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -59,7 +59,7 @@ class UploadController extends Controller
             }
         }
 
-        if(key_exists('tahun', $infoParserData)) {
+        if (array_key_exists('tahun', $infoParserData)) {
             if ($infoParserData['tahun'] != $validated['periode_tahun']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -67,7 +67,6 @@ class UploadController extends Controller
                 ];
             }
         }
-
 
         if (! empty($infoParserErrors)) {
             return response()->json([

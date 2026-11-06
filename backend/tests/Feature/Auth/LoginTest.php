@@ -14,16 +14,20 @@ class LoginTest extends TestCase
     use RefreshDatabase;
 
     private const ACCOUNT_USERNAME = 'admin';
+
     private const ACCOUNT_PASSWORD = 'admin';
 
     private const DISABLED_ACCOUNT_USERNAME = 'locked';
+
     private const DISABLED_ACCOUNT_PASSWORD = 'locked';
 
     private const LOGIN_OUTCOME_SUCCESS = 0;
+
     private const LOGIN_OUTCOME_INVALID_CREDS = 1;
+
     private const LOGIN_OUTCOME_INVALID_INPUT = 2;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         if (! User::where('username', self::ACCOUNT_USERNAME)->exists()) {
@@ -86,11 +90,11 @@ class LoginTest extends TestCase
     {
         $body = [];
 
-        if($username) {
+        if ($username) {
             $body['username'] = $username;
         }
 
-        if($password) {
+        if ($password) {
             $body['password'] = $password;
         }
 
@@ -109,15 +113,16 @@ class LoginTest extends TestCase
                 'token',
             ]);
         } else {
-            if($expectedOutcome === self::LOGIN_OUTCOME_INVALID_CREDS) {
+            if ($expectedOutcome === self::LOGIN_OUTCOME_INVALID_CREDS) {
                 $response->assertUnauthorized();
-            } else if($expectedOutcome === self::LOGIN_OUTCOME_INVALID_INPUT) {
+            } elseif ($expectedOutcome === self::LOGIN_OUTCOME_INVALID_INPUT) {
                 $response->assertUnprocessable();
             }
         }
     }
 
-    public function test_cannot_login_if_user_disabled() {
+    public function test_cannot_login_if_user_disabled()
+    {
         $response = $this->login(self::DISABLED_ACCOUNT_USERNAME, self::DISABLED_ACCOUNT_PASSWORD);
         $response->assertUnauthorized();
     }

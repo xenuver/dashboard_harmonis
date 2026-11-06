@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\Import;
 use Maatwebsite\Excel\Concerns\SkipsUnknownSheets;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class LaporanInformationImport implements Import, WithMultipleSheets, SkipsUnknownSheets
+class LaporanInformationImport implements Import, SkipsUnknownSheets, WithMultipleSheets
 {
     protected InfoSheetImport $infoSheet;
 
@@ -39,7 +39,7 @@ class LaporanInformationImport implements Import, WithMultipleSheets, SkipsUnkno
     {
         $this->errors[] = [
             'location' => null,
-            'message' => 'Sheet '.($sheetName).' tidak ditemukan!'
+            'message' => 'Sheet '.($sheetName).' tidak ditemukan!',
         ];
     }
 
@@ -47,7 +47,7 @@ class LaporanInformationImport implements Import, WithMultipleSheets, SkipsUnkno
     {
         $data = [];
 
-        if(! empty($this->errors)) {
+        if (! empty($this->errors)) {
             $data['SHEETS'] = $this->errors;
         }
 

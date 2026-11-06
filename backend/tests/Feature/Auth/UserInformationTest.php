@@ -4,7 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,19 +14,24 @@ class UserInformationTest extends TestCase
     use RefreshDatabase;
 
     private const ADMIN_USERNAME = 'admin';
+
     private const ADMIN_PASSWORD = 'admin';
+
     private const ADMIN_EXPECTED_ROLE = 'it_staff';
 
     private const OWNER_USERNAME = 'owner';
+
     private const OWNER_PASSWORD = 'owner';
+
     private const OWNER_EXPECTED_ROLE = 'owner';
 
     private const TEST_IT_STAFF_USER_INFO = 0;
+
     private const TEST_OWNER_USER_INFO = 1;
 
     protected User $adminAccount;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         if (! User::where('username', self::ADMIN_USERNAME)->exists()) {
@@ -51,10 +55,10 @@ class UserInformationTest extends TestCase
     {
         return [
             'akun staf it' => [
-                self::TEST_IT_STAFF_USER_INFO
+                self::TEST_IT_STAFF_USER_INFO,
             ],
             'akun owner' => [
-                self::TEST_OWNER_USER_INFO
+                self::TEST_OWNER_USER_INFO,
             ],
         ];
     }
@@ -72,10 +76,10 @@ class UserInformationTest extends TestCase
         $loginUsername = null;
         $loginPassword = null;
 
-        if($userRole === self::TEST_IT_STAFF_USER_INFO) {
+        if ($userRole === self::TEST_IT_STAFF_USER_INFO) {
             $loginUsername = self::ADMIN_USERNAME;
             $loginPassword = self::ADMIN_PASSWORD;
-        } else if($userRole === self::TEST_OWNER_USER_INFO) {
+        } elseif ($userRole === self::TEST_OWNER_USER_INFO) {
             $loginUsername = self::OWNER_USERNAME;
             $loginPassword = self::OWNER_PASSWORD;
         } else {
@@ -95,7 +99,7 @@ class UserInformationTest extends TestCase
             'user' => [
                 'id',
                 'username',
-                'role'
+                'role',
             ],
             'token',
         ]);
@@ -114,7 +118,7 @@ class UserInformationTest extends TestCase
         $userInfo->assertJsonStructure([
             'id',
             'username',
-            'role'
+            'role',
         ]);
 
         // data endpoint login === data endpoint whoami

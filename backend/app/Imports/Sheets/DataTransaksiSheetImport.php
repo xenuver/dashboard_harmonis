@@ -97,8 +97,8 @@ class DataTransaksiSheetImport implements ToArray
                     ];
                 }
 
-                if($columnIndex === $transaksiMemberColIndex || $columnIndex === $transaksiNonMemberColIndex) {
-                    if (is_numeric($value) && $value < 0)  {
+                if ($columnIndex === $transaksiMemberColIndex || $columnIndex === $transaksiNonMemberColIndex) {
+                    if (is_numeric($value) && $value < 0) {
                         $this->errors[] = [
                             'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).'2',
                             'message' => "Nilai {$field} tidak boleh di bawah 0",

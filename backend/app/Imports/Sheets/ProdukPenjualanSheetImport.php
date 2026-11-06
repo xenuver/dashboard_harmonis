@@ -141,7 +141,7 @@ class ProdukPenjualanSheetImport implements ToArray
                 $rowItem['qty'] = (int) $rowItem['qty'];
                 $rowItem['harga_jual'] = (int) $rowItem['harga_jual'];
                 $rowItem['jumlah'] = (int) $rowItem['jumlah'];
-                if($rowItem['stok'] !== null) {
+                if ($rowItem['stok'] !== null) {
                     $rowItem['stok'] = (int) $rowItem['stok'];
                 }
 

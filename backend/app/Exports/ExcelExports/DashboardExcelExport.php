@@ -30,7 +30,6 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStrictNullComparison, WithTitle
 {
@@ -189,7 +188,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null],
             [null], // 30
-            [null, $this->laporanPrev? ($this->bulanLaporanPrev).' '.($this->tahunLaporanPrev): null],
+            [null, $this->laporanPrev ? ($this->bulanLaporanPrev).' '.($this->tahunLaporanPrev) : null],
             [null, ($this->bulanLaporan).' '.($this->tahunLaporan)],
             [null],
             [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, null, null, "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
@@ -212,7 +211,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null],
-            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()]
+            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()],
         ];
     }
 
@@ -475,7 +474,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
         $labels = [];
         $values = [];
 
-        if($this->laporanPrev) {
+        if ($this->laporanPrev) {
             $dataSeriesLabels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'VIEW\'!$B$31', null, 1);
             $labels[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'PENJUALAN HARIAN\'!$A$2:$A$'.($this->laporanPrev->jumlah_hari + 1), null, 1, ['TOTAL PENJUALAN']);
             $values[] = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'PENJUALAN HARIAN\'!$B$2:$B$'.($this->laporanPrev->jumlah_hari + 1), $this->idrCurrentyFormat, 5);
