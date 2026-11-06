@@ -74,19 +74,38 @@ class AddUserTest extends TestCase
         ];
     }
 
-    protected function login(?string $username, ?string $password): TestResponse
+    public static function createAccountEnabledInfoProvider(): array
     {
-        $body = [];
-
-        if ($username) {
-            $body['username'] = $username;
-        }
-
-        if ($password) {
-            $body['password'] = $password;
-        }
-
-        return $this->postJson('/api/login', $body);
+        return [
+            'enabled true (accepted)' => [
+                true,
+                self::OUTCOME_SUCCESS,
+            ],
+            'enabled false (accepted)' => [
+                false,
+                self::OUTCOME_SUCCESS,
+            ],
+            'enabled integer 1 (accepted)' => [
+                1,
+                self::OUTCOME_SUCCESS,
+            ],
+            'enabled integer 0 (accepted)' => [
+                0,
+                self::OUTCOME_SUCCESS,
+            ],
+            'enabled invalid string (rejected)' => [
+                'yes',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'enabled null (rejected)' => [
+                null,
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'missing (rejected)' => [
+                null,
+                self::OUTCOME_INVALID_INPUT,
+            ],
+        ];
     }
 
     #[DataProvider('createAccountInfoProvider')]
@@ -134,6 +153,49 @@ class AddUserTest extends TestCase
         $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
 
         $this->assertTrue(Hash::check($password, $newUser->password));
+    }
+
+    #[DataProvider('createAccountEnabledInfoProvider')]
+    public function test_create_account_enabled_disabled(mixed $enabled, int $expectedOutcome)
+    {
+        // buat akun baru
+        $createAccountResponse = $this->postJson('/api/add-user', [
+            'username' => self::CREATE_ACCOUNT_USERNAME,
+            'password' => self::CREATE_ACCOUNT_PASSWORD,
+            'role' => 'owner',
+            'enabled' => $enabled,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+            $createAccountResponse->assertUnprocessable();
+            return;
+        }
+        $createAccountResponse->assertOk();
+        $createAccountResponse->assertJsonStructure([
+            'user' => [
+                'id',
+                'enabled',
+            ],
+        ]);
+        $createAccountResponseJson = $createAccountResponse->json();
+        if($enabled == 1 || $enabled == true) {
+            $createAccountResponse->assertJsonPath(
+                'user.enabled',
+                true,
+            );
+        } else {
+            $createAccountResponse->assertJsonPath(
+                'user.enabled',
+                false,
+            );
+        }
+
+        $this->assertDatabaseHas('users', [
+            'id' => $createAccountResponseJson['user']['id'],
+            'enabled' => $createAccountResponseJson['user']['enabled'],
+        ]);
     }
 
     public function test_cannot_add_account_if_user_is_not_admin()
