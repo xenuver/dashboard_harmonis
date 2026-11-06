@@ -26,7 +26,7 @@ class DeleteUserTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
     }
 
-    public function test_delete_user()
+    public function test_admin_can_delete_user()
     {
         $username = fake()->unique()->userName();
         $password = fake()->password();
