@@ -253,7 +253,6 @@ class AddUserTest extends TestCase
         $createAccountResponse = $this->postJson('/api/add-user', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
             'password' => self::CREATE_ACCOUNT_PASSWORD,
-            'role' => 'it_staff',
         ], [
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
