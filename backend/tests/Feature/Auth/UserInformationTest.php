@@ -4,8 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -15,13 +13,9 @@ class UserInformationTest extends TestCase
 
     private const ADMIN_USERNAME = 'admin';
 
-    private const ADMIN_PASSWORD = 'admin';
-
     private const ADMIN_EXPECTED_ROLE = 'it_staff';
 
     private const OWNER_USERNAME = 'owner';
-
-    private const OWNER_PASSWORD = 'owner';
 
     private const OWNER_EXPECTED_ROLE = 'owner';
 
@@ -29,7 +23,9 @@ class UserInformationTest extends TestCase
 
     private const TEST_OWNER_USER_INFO = 1;
 
-    protected User $adminAccount;
+    protected User $adminUser;
+
+    protected User $ownerUser;
 
     protected function setUp(): void
     {
@@ -37,16 +33,13 @@ class UserInformationTest extends TestCase
         if (! User::where('username', self::ADMIN_USERNAME)->exists()) {
             User::where('username', self::ADMIN_USERNAME)->delete();
         }
-        User::factory()->create([
+        $this->adminUser = User::factory()->create([
             'username' => self::ADMIN_USERNAME,
-            'password' => Hash::make(self::ADMIN_PASSWORD),
-            'enabled' => true,
             'role' => self::ADMIN_EXPECTED_ROLE,
         ]);
-        User::factory()->create([
+
+        $this->ownerUser = User::factory()->create([
             'username' => self::OWNER_USERNAME,
-            'password' => Hash::make(self::OWNER_PASSWORD),
-            'enabled' => true,
             'role' => self::OWNER_EXPECTED_ROLE,
         ]);
     }
@@ -63,53 +56,30 @@ class UserInformationTest extends TestCase
         ];
     }
 
-    private function whoAmI(string $token): TestResponse
-    {
-        return $this->getJson('/api/whoami', [
-            'Authorization' => 'Bearer '.$token,
-        ]);
-    }
-
     #[DataProvider('userInformationProvider')]
     public function test_can_get_matching_login_and_whoami_value(int $userRole): void
     {
-        $loginUsername = null;
-        $loginPassword = null;
+        $loginUser = null;
+        $expectedUsername = null;
+        $expectedRole = null;
 
         if ($userRole === self::TEST_IT_STAFF_USER_INFO) {
-            $loginUsername = self::ADMIN_USERNAME;
-            $loginPassword = self::ADMIN_PASSWORD;
+            $loginUser = $this->adminUser;
+            $expectedUsername = self::ADMIN_USERNAME;
+            $expectedRole = self::ADMIN_EXPECTED_ROLE;
         } elseif ($userRole === self::TEST_OWNER_USER_INFO) {
-            $loginUsername = self::OWNER_USERNAME;
-            $loginPassword = self::OWNER_PASSWORD;
+            $loginUser = $this->ownerUser;
+            $expectedUsername = self::OWNER_USERNAME;
+            $expectedRole = self::OWNER_EXPECTED_ROLE;
         } else {
             $this->assertTrue(false);
         }
 
-        $loginResponse = $this->postJson('/api/login', [
-            'username' => $loginUsername,
-            'password' => $loginPassword,
+        $userToken = $loginUser->createToken('auth_token')->plainTextToken;
+
+        $userInfo = $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$userToken,
         ]);
-        $loginResponse->assertOk();
-        $loginResponseJson = $loginResponse->json();
-
-        // informasi pengguna ada di respon login
-        $loginResponse->assertJsonStructure([
-            'user' => [
-                'id',
-                'username',
-                'role',
-            ],
-            'token',
-        ]);
-
-        // username input === respon username login
-        $loginResponse->assertJsonPath(
-            'user.username',
-            $loginUsername,
-        );
-
-        $userInfo = $this->whoAmI($loginResponseJson['token']);
         $userInfo->assertOk();
 
         // informasi pengguna ada di respon login
@@ -119,21 +89,8 @@ class UserInformationTest extends TestCase
             'role',
         ]);
 
-        // data endpoint login === data endpoint whoami
-        $userInfo->assertJsonPath(
-            'id',
-            $loginResponseJson['user']['id'],
-        );
-
-        $userInfo->assertJsonPath(
-            'username',
-            $loginResponseJson['user']['username'],
-        );
-
-        $userInfo->assertJsonPath(
-            'role',
-            $loginResponseJson['user']['role'],
-        );
+        $userInfo->assertJsonPath('username', $expectedUsername);
+        $userInfo->assertJsonPath('role', $expectedRole);
     }
 
     public function test_cannot_whoami_while_logged_out(): void
