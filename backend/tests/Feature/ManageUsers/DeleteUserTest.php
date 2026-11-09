@@ -140,4 +140,20 @@ class DeleteUserTest extends TestCase
             'id' => $someone->id,
         ]);
     }
+
+    public function test_cannot_delete_account_if_user_is_not_logged_in()
+    {
+        $someone = User::factory()->create([
+            'username' => fake()->unique()->userName(),
+        ]);
+
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
+            'userid' => $someone->id,
+        ]);
+        $deleteAccountResponse->assertUnauthorized();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $someone->id,
+        ]);
+    }
 }

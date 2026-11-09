@@ -391,4 +391,25 @@ class UpdateUserTest extends TestCase
         ]);
         $updateAccountResponse->assertForbidden();
     }
+
+    public function test_cannot_update_account_if_user_is_not_logged_in()
+    {
+        $oldPassword = fake()->password();
+        $someone = User::factory()->create([
+            'username' => fake()->unique()->userName(),
+            'password' => $oldPassword,
+            'role' => 'owner',
+        ]);
+
+        $newPassword = fake()->password();
+        $updateAccountResponse = $this->postJson('/api/update-user', [
+            'userid' => $someone->id,
+            'password' => $newPassword,
+        ]);
+        $updateAccountResponse->assertUnauthorized();
+
+        $someone->refresh();
+        $this->assertFalse(Hash::check($newPassword, $someone->password));
+        $this->assertTrue(Hash::check($oldPassword, $someone->password));
+    }
 }

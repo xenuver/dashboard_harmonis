@@ -142,4 +142,10 @@ class ListUsersTest extends TestCase
         ]);
         $readAccountsResponse->assertForbidden();
     }
+
+    public function test_cannot_list_accounts_if_user_is_not_logged_in()
+    {
+        $readAccountsResponse = $this->getJson('/api/list-users');
+        $readAccountsResponse->assertUnauthorized();
+    }
 }

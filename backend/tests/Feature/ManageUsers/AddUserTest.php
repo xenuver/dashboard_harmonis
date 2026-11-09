@@ -410,4 +410,17 @@ class AddUserTest extends TestCase
         ]);
         $createAccountResponse->assertForbidden();
     }
+
+    public function test_cannot_add_account_if_user_is_not_logged_in()
+    {
+        $createAccountResponse = $this->postJson('/api/add-user', [
+            'username' => self::CREATE_ACCOUNT_USERNAME,
+            'password' => self::CREATE_ACCOUNT_PASSWORD,
+        ]);
+        $createAccountResponse->assertUnauthorized();
+
+        $this->assertDatabaseMissing('users', [
+            'username' => self::CREATE_ACCOUNT_USERNAME
+        ]);
+    }
 }
