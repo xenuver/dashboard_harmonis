@@ -55,6 +55,29 @@ class DeleteUserTest extends TestCase
         ]);
     }
 
+    public function test_admin_cannot_delete_user_with_invalid_id()
+    {
+        $userId = 0;
+        do {
+            $userId = rand(0, 100);
+        } while ($userId !== $this->adminUser->id && $userId !== $this->ownerUser->id);
+
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
+            'userid' => $userId,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $deleteAccountResponse->assertUnprocessable();
+    }
+
+    public function test_admin_cannot_delete_user_without_user_id()
+    {
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $deleteAccountResponse->assertUnprocessable();
+    }
+
     public function test_cannot_delete_self()
     {
         $userId = $this->adminUser->id;
