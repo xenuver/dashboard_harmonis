@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class DeleteUserTest extends TestCase
@@ -31,6 +32,21 @@ class DeleteUserTest extends TestCase
 
         $this->adminToken = $this->adminUser->createToken('auth_token')->plainTextToken;
         $this->ownerToken = $this->ownerUser->createToken('auth_token')->plainTextToken;
+    }
+
+    public static function deleteInvalidUserIdProvider() 
+    {
+        $invalidInputCases = ['a', 'admin', 'username', '%', '!', -1];
+
+        $cases = [];
+
+        foreach($invalidInputCases as $value) {
+            $cases['set to '.(json_encode($value))] = [
+                $value,
+            ];
+        }
+
+        return $cases;
     }
 
     public function test_admin_can_delete_user()
@@ -77,6 +93,19 @@ class DeleteUserTest extends TestCase
         ]);
         $deleteAccountResponse->assertUnprocessable();
     }
+
+    #[DataProvider('deleteInvalidUserIdProvider')]
+    public function test_admin_cannot_delete_user_with_user_id(mixed $userId)
+    {
+        $deleteAccountResponse = $this->postJson('/api/delete-user', [
+            'userid' => $userId
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $deleteAccountResponse->assertUnprocessable();
+        $deleteAccountResponse->assertJsonValidationErrors('userid');
+    }
+
 
     public function test_cannot_delete_self()
     {
