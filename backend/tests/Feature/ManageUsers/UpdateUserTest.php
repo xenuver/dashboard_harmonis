@@ -164,7 +164,7 @@ class UpdateUserTest extends TestCase
     #[DataProvider('updateUsernameProvider')]
     public function test_update_username(mixed $value, int $expectedOutcome)
     {
-        $oldUsername = fake()->unique()->regexify('[a-zA-Z0-9_-]{8,16}');
+        $oldUsername = fake()->unique()->regexify('[a-zA-Z0-9_-]{4,8}');
 
         $someone = User::factory()->create([
             'username' => $oldUsername,
