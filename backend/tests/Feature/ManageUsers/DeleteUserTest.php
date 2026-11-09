@@ -13,7 +13,7 @@ class DeleteUserTest extends TestCase
     private User $adminUser;
 
     private User $ownerUser;
-    
+
     private string $adminToken;
 
     private string $ownerToken;
@@ -26,7 +26,7 @@ class DeleteUserTest extends TestCase
             'role' => 'it_staff',
         ]);
         $this->ownerUser = User::factory()->create([
-            'role' => 'owner'
+            'role' => 'owner',
         ]);
 
         $this->adminToken = $this->adminUser->createToken('auth_token')->plainTextToken;
