@@ -163,6 +163,7 @@ class AddUserTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $createAccountResponseJson['user']['id'],
             'username' => $createAccountResponseJson['user']['username'],
+            'role' => $createAccountResponseJson['user']['role'],
         ]);
 
         $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
