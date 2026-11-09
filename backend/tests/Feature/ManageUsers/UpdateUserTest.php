@@ -204,7 +204,6 @@ class UpdateUserTest extends TestCase
 
         foreach ($original as $key => $value) {
             if ($field === 'password' && $key === $field) {
-                $changedFieldIsPassword = true;
                 continue;
             }
             if ($key === $field) {
