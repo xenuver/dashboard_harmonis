@@ -60,7 +60,7 @@ class DeleteUserTest extends TestCase
         $userId = 0;
         do {
             $userId = rand(0, 100);
-        } while ($userId !== $this->adminUser->id && $userId !== $this->ownerUser->id);
+        } while ($userId === $this->adminUser->id || $userId === $this->ownerUser->id);
 
         $deleteAccountResponse = $this->postJson('/api/delete-user', [
             'userid' => $userId,
