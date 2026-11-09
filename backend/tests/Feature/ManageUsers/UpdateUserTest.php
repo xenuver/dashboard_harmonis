@@ -43,6 +43,16 @@ class UpdateUserTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
     }
 
+    public static function updateAccountOnlyOneFieldProvider(): array
+    {
+        return [
+            'username' => ['username', fake()->unique()->regexify('[a-zA-Z0-9_-]{4,8}')],
+            'password' => ['password', fake()->password()],
+            'role' => ['role', 'it_staff'],
+            'enabled' => ['enabled', false],
+        ];
+    }
+
     public static function updateUsernameProvider() 
     {
         // username tidak diacak supaya bisa bisa diprediksi
@@ -159,6 +169,57 @@ class UpdateUserTest extends TestCase
         }
 
         return $cases;
+    }
+
+    #[DataProvider('updateAccountOnlyOneFieldProvider')]
+    public function test_update_account_only(string $field, mixed $fieldValue)
+    {
+        $oldUsername = fake()->unique()->regexify('[a-zA-Z0-9_-]{4,8}');
+        $oldPassword = fake()->password();
+        $oldRole = 'owner';
+        $oldAccountEnabled = true;
+
+        $someone = User::factory()->create([
+            'username' => $oldUsername,
+            'password' => $oldPassword,
+            'role' => $oldRole,
+            'enabled' => $oldAccountEnabled,
+        ]);
+
+        $original = $someone->getAttributes();
+
+        $updateAccountResponse = $this->postJson('/api/update-user', [
+            'userid' => $someone->id,
+            $field => $fieldValue,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $updateAccountResponse->assertOk();
+
+        $someone->refresh();
+
+        if($field !== 'password') {
+            $this->assertEquals($fieldValue, $someone->$field);
+        }
+
+        foreach ($original as $key => $value) {
+            if ($field === 'password' && $key === $field) {
+                $changedFieldIsPassword = true;
+                continue;
+            }
+            if ($key === $field) {
+                continue;
+            }
+
+            $this->assertEquals($value, $someone->$key);
+        }
+
+        if($field === 'password') {
+            $this->assertFalse(Hash::check($oldPassword, $someone->password));
+            $this->assertTrue(Hash::check($fieldValue, $someone->password));
+        } else {
+            $this->assertTrue(Hash::check($oldPassword, $someone->password));
+        }
     }
 
     #[DataProvider('updateUsernameProvider')]
