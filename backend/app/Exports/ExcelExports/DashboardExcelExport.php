@@ -268,6 +268,10 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
                 $sheet->mergeCells('X47:Y47');
                 $sheet->mergeCells('X48:Y48');
 
+                // merge cell dari label data grafik
+                $sheet->mergeCells('R12:R13');
+                $sheet->mergeCells('M34:M35');
+
                 // format angka kpi
                 $sheet->getStyle('G7')->getNumberFormat()->setFormatCode($this->idrCurrentyFormat);
                 $sheet->getStyle('L7')->getNumberFormat()->setFormatCode('+#0.##%;-#0.##%;0.##%');
