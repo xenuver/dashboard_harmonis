@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
@@ -45,6 +46,9 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithEvents
                     'font' => [
                         'bold' => true,
                     ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER
+                    ]
                 ]);
 
                 foreach ($sheet->getColumnIterator() as $column) {
