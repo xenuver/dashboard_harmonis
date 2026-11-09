@@ -44,11 +44,6 @@ class AddUserTest extends TestCase
                 self::CREATE_ACCOUNT_PASSWORD,
                 self::OUTCOME_SUCCESS,
             ],
-            'invalid username (rejected)' => [
-                self::CREATE_ACCOUNT_USERNAME.'#!', // alpha_dash
-                self::CREATE_ACCOUNT_PASSWORD,
-                self::OUTCOME_INVALID_INPUT,
-            ],
             'password with symbol (accepted)' => [
                 self::CREATE_ACCOUNT_USERNAME, // alpha_dash
                 self::CREATE_ACCOUNT_PASSWORD.'#!',
@@ -70,6 +65,60 @@ class AddUserTest extends TestCase
                 self::OUTCOME_INVALID_INPUT,
             ],
         ];
+    }
+
+    public static function createAccountUsernameProvider() 
+    {
+        // username tidak diacak supaya bisa bisa diprediksi
+        $acceptedInputCases = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_', '-'];
+        $invalidInputCases = ['.', ',', '/', '\\', '!', '~', '#', '+', '|', '$', '?', '&', ':', ';', '{', '}', '(', ')', '[', ']', '\"', '\''];
+
+        $cases = [
+            'set to null (rejected)' => [
+                null,
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'set to empty string (rejected)' => [
+                '',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'only lowercase letters (accepted)' => [
+                'johnpork',
+                self::OUTCOME_SUCCESS,
+            ],
+            'only uppercase letters (accepted)' => [
+                'JOHNPORK',
+                self::OUTCOME_SUCCESS,
+            ],
+            'mixed letters (accepted)' => [
+                'JohnPork',
+                self::OUTCOME_SUCCESS,
+            ],
+            'has whitespace (rejected)' => [
+                'john'.' '.'pork',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+            'has yet another whitespace (rejected)' => [
+                'john'.' '.'pork',
+                self::OUTCOME_INVALID_INPUT,
+            ],
+        ];
+
+        foreach($acceptedInputCases as $value) {
+            $cases["has '{$value}' symbol (accepted)"] = [
+                'john'.($value).'pork',
+                self::OUTCOME_SUCCESS,
+            ];
+        }
+
+        foreach($invalidInputCases as $value) {
+            $cases["has '{$value}' symbol (rejected)"] = [
+                'john'.($value).'pork',
+                self::OUTCOME_INVALID_INPUT,
+            ];
+        }
+
+        return $cases;
     }
 
     public static function createAccountEnabledInfoProvider(): array
@@ -126,6 +175,63 @@ class AddUserTest extends TestCase
                 self::OUTCOME_INVALID_INPUT,
             ],
         ];
+    }
+
+    #[DataProvider('createAccountUsernameProvider')]
+    public function test_create_account_with_username(mixed $username, int $expectedOutcome)
+    {
+        // buat akun baru
+        $createAccountResponse = $this->postJson('/api/add-user', [
+            'username' => $username,
+            'password' => self::CREATE_ACCOUNT_PASSWORD,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        if($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+            $createAccountResponse->assertUnprocessable();
+            $createAccountResponse->assertJsonValidationErrors("username");
+            $this->assertDatabaseMissing('users', [
+                'username' => $username
+            ]);
+
+            return;
+        }
+
+        $createAccountResponse->assertOk();
+        $createAccountResponse->assertJsonStructure([
+            'user' => [
+                'id',
+                'username',
+                'enabled',
+                'role',
+            ],
+        ]);
+        $createAccountResponseJson = $createAccountResponse->json();
+
+        $createAccountResponse->assertJsonPath(
+            'user.username',
+            $username,
+        );
+        $createAccountResponse->assertJsonPath('user.enabled', function ($value) {
+            return is_bool($value);
+        });
+        $createAccountResponse->assertJsonPath('user.role', function ($value) {
+            return in_array($value, ['owner', 'it_staff']);
+        });
+
+        $this->assertDatabaseHas('users', [
+            'id' => $createAccountResponseJson['user']['id'],
+            'username' => $createAccountResponseJson['user']['username'],
+            'role' => $createAccountResponseJson['user']['role'],
+        ]);
+
+        $newUser = User::where('id', $createAccountResponseJson['user']['id'])->firstOrFail();
+
+        $this->assertTrue(Hash::check(self::CREATE_ACCOUNT_PASSWORD, $newUser->password));
+
+        $this->assertTrue(is_bool($newUser->enabled));
+        $this->assertTrue(in_array($newUser->role, ['owner', 'it_staff']));
     }
 
     public function test_create_account_with_only_required()
