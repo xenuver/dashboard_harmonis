@@ -69,7 +69,7 @@ class UpdateUserTest extends TestCase
                 self::OUTCOME_SUCCESS,
             ],
             'mixed letters (accepted)' => [
-                'JOHNPORK',
+                'JohnPork',
                 self::OUTCOME_SUCCESS,
             ],
             'has whitespace (rejected)' => [
