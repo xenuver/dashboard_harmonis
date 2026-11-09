@@ -409,6 +409,10 @@ class AddUserTest extends TestCase
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $createAccountResponse->assertForbidden();
+
+        $this->assertDatabaseMissing('users', [
+            'username' => self::CREATE_ACCOUNT_USERNAME
+        ]);
     }
 
     public function test_cannot_add_account_if_user_is_not_logged_in()

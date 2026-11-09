@@ -378,18 +378,25 @@ class UpdateUserTest extends TestCase
 
     public function test_cannot_update_account_if_user_is_not_admin()
     {
+        $oldPassword = fake()->password();
         $someone = User::factory()->create([
             'username' => fake()->unique()->userName(),
+            'password' => $oldPassword,
             'role' => 'owner',
         ]);
 
+        $newPassword = fake()->password();
         $updateAccountResponse = $this->postJson('/api/update-user', [
             'userid' => $someone->id,
-            'password' => fake()->password(),
+            'password' => $newPassword,
         ], [
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
         $updateAccountResponse->assertForbidden();
+
+        $someone->refresh();
+        $this->assertFalse(Hash::check($newPassword, $someone->password));
+        $this->assertTrue(Hash::check($oldPassword, $someone->password));
     }
 
     public function test_cannot_update_account_if_user_is_not_logged_in()
