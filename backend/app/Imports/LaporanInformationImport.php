@@ -32,7 +32,7 @@ class LaporanInformationImport implements Import, SkipsUnknownSheets, WithMultip
 
     public function getIsGabungan(): bool
     {
-        return $this->infoSheet->getData()['jenis_laporan'] === 'GABUNGAN';
+        return strtoupper($this->infoSheet->getData()['jenis_laporan']) === 'GABUNGAN';
     }
 
     public function onUnknownSheet(string|int $sheetName): void

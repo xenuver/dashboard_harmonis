@@ -13,6 +13,7 @@ use App\Services\InfoLaporanExcelParser;
 use App\Services\LaporanExcelParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UploadController extends Controller
 {
@@ -50,7 +51,7 @@ class UploadController extends Controller
             }
         }
 
-        if (array_key_exists('bulan', $infoParserData)) {
+        if (array_key_exists('bulan', $infoParserData) && filter_var($infoParserData['bulan'] ?? null, FILTER_VALIDATE_INT) === true) {
             if ($infoParserData['bulan'] != $validated['periode_bulan']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -59,7 +60,7 @@ class UploadController extends Controller
             }
         }
 
-        if (array_key_exists('tahun', $infoParserData)) {
+        if (array_key_exists('tahun', $infoParserData) && filter_var($infoParserData['tahun'] ?? null, FILTER_VALIDATE_INT) === true) {
             if ($infoParserData['tahun'] != $validated['periode_tahun']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -121,7 +122,14 @@ class UploadController extends Controller
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangAmpera->id, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['ampera']]);
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangPal->id, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['pal']]);
                 } else {
-                    $cabangId = $validated['jenis_laporan'] === 'ampera' ? $cabangAmpera->id : $cabangPal->id;
+                    $cabangId = null;
+                    if(strtoupper($infoParserData['jenis_laporan']) === 'AMPERA') {
+                        $cabangId = $cabangAmpera->id;
+                    } else if (strtoupper($infoParserData['jenis_laporan']) === 'PAL') {
+                        $cabangId = $cabangPal->id;
+                    } else {
+                        throw ValidationException::withMessages(['file' => 'Jenis laporan dalam laporan hanya menerima gabungan, ampera dan pal tanpa huruf kapital']);
+                    }
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangId, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['total']]);
                 }
             }
