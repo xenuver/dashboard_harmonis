@@ -11,6 +11,9 @@ class InfoSheetImport implements ToArray
 
     protected array $errors = [];
 
+    private bool $monthCheckFailed = false;
+    private bool $yearCheckFailed = false;
+
     public function array(array $rows): void
     {
         if (empty($rows)) {
@@ -97,6 +100,14 @@ class InfoSheetImport implements ToArray
             'jumlah_hari' => 'JUMLAH_HARI',
         ];
 
+        if(!in_array('bulan', $this->data)) {
+            $this->monthCheckFailed = true;
+        }
+
+        if(!in_array('tahun', $this->data)) {
+            $this->monthCheckFailed = true;
+        }
+
         foreach ($integerFields as $field => $label) {
             $value = $this->data[$field] ?? null;
 
@@ -112,6 +123,14 @@ class InfoSheetImport implements ToArray
                     'message' => "{$label} harus berupa angka bulat.",
                 ];
 
+                if($field === 'bulan') {
+                    $this->monthCheckFailed = true;
+                }
+
+                if($field === 'tahun') {
+                    $this->yearCheckFailed = true;
+                }
+
                 continue;
             }
 
@@ -123,6 +142,7 @@ class InfoSheetImport implements ToArray
                         'message' => 'Bulan harus berupa angka antara 1 sampai 12. ('.$bulan.')',
                     ];
                 }
+                $this->monthCheckFailed = true;
             }
 
             if ($field === 'tahun' && filter_var($this->data['tahun'] ?? null, FILTER_VALIDATE_INT) !== false) {
@@ -133,9 +153,10 @@ class InfoSheetImport implements ToArray
                         'message' => 'Tahun harus berupa angka antara 0 sampai 65535. ('.$tahun.')',
                     ];
                 }
+                $this->yearCheckFailed = true;
             }
 
-            if ($field === 'jumlah_hari' && filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT) !== false) {
+            if ($field === 'jumlah_hari' && filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT) !== false && $this->monthCheckFailed === false && $this->yearCheckFailed === false) {
                 $jumlahHari = $this->data['jumlah_hari'];
                 $hariDalamBulan = cal_days_in_month(CAL_GREGORIAN, $this->data['bulan'], $this->data['tahun']) ?? 0;
                 if ($jumlahHari !== null && ($jumlahHari !== $hariDalamBulan)) {
