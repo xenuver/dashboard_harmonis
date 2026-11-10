@@ -29,30 +29,84 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
   ...props
 }, ref) => {
   const [file, setFile] = React.useState<File | null>(null)
+  const inputRef = React.useRef<HTMLInputElement | null>(null)
+  const [filePickerErrorMessageText, setFilePickerErrorMessageText] = React.useState<string | null>(null)
+
+  function clearDroppedFiles() {
+    setFile(null)
+
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
+  }
+
+  function resetDropzone() {
+    clearDroppedFiles()
+    setFilePickerErrorMessageText(null)
+  }
 
   const handleDrop = React.useCallback(
-    (acceptedFiles: File[], fileRejections: FileRejection[], event: DropEvent) => {
-      if (acceptedFiles.length > 0) {
-        setFile(acceptedFiles[0])
+    (
+      acceptedFiles: File[],
+      fileRejections: FileRejection[],
+      event: DropEvent
+    ) => {
+      setFilePickerErrorMessageText(null);
+      if(acceptedFiles.length + fileRejections.length > 1) {
+        setFilePickerErrorMessageText("Anda hanya dapat mengunggah maksimal 1 file");
+        onDrop?.(acceptedFiles, fileRejections, event);
       }
-      if (onDrop) {
-        onDrop(acceptedFiles, fileRejections, event)
+
+      const selectedFile = acceptedFiles[0] ?? null
+      const rejectedFile = fileRejections[0] ?? null
+
+      setFile(selectedFile)
+
+      if (selectedFile && inputRef.current) {
+        setFilePickerErrorMessageText(null);
+        const dataTransfer = new DataTransfer()
+        dataTransfer.items.add(selectedFile)
+
+        inputRef.current.files = dataTransfer.files
+      } else if (rejectedFile && inputRef.current) {
+        setFilePickerErrorMessageText(`Anda hanya dapat mengunggah file .xlsx (file dipilih: ${rejectedFile.file.name})`);
+        clearDroppedFiles();
       }
+
+      onDrop?.(acceptedFiles, fileRejections, event)
     },
     [onDrop]
   )
 
-  // Expose clear function to parent component
   React.useImperativeHandle(ref, () => ({
-    clear: () => setFile(null),
+    clear: () => resetDropzone(),
   }))
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const {
+    getRootProps, getInputProps, isDragActive} = useDropzone({
     onDrop: handleDrop,
     accept,
     multiple: false,
     ...props,
   })
+
+  const inputProps = getInputProps({
+    required,
+  })
+
+  const dropzoneOnClickHandlerOrig = inputRef.current?.onclick;
+
+  const { ref: dropzoneRef, ...restInputProps } = inputProps
+
+  const setInputRef = (node: HTMLInputElement | null) => {
+    inputRef.current = node
+
+    if (typeof dropzoneRef === "function") {
+      dropzoneRef(node)
+    } else if (dropzoneRef) {
+      dropzoneRef.current = node
+    }
+  }
 
   return (
     <div
@@ -63,15 +117,17 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
         className
       )}
     >
-      <input required={required} {...getInputProps()} />
+      <input {...restInputProps} onClick={(event => { resetDropzone(); dropzoneOnClickHandlerOrig?.(event); })} ref={setInputRef}/>
       {icon}
       <p className="text-sm font-medium text-foreground">{label}</p>
-      {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
-      
+      {description && (
+        <p className="text-xs text-muted-foreground mt-1">{description}</p>
+      )}
       {file && (
-        <div className="mt-4 text-xs font-semibold text-primary">
-          Selected: {file.name}
-        </div>
+        <div className="mt-4 text-xs font-semibold text-primary">Selected: {file.name}</div>
+      )}
+      {filePickerErrorMessageText && (
+        <div className="mt-4 text-xs font-semibold text-red-600">{filePickerErrorMessageText}</div>
       )}
     </div>
   )
