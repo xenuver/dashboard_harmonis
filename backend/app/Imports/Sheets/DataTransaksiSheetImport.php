@@ -97,7 +97,7 @@ class DataTransaksiSheetImport implements ToArray
                     ];
                 }
 
-                if ($columnIndex === $transaksiMemberColIndex || $columnIndex === $transaksiNonMemberColIndex) {
+                if ($columnIndex === $transaksiMemberColIndex || $columnIndex === $transaksiNonMemberColIndex || $columnIndex === $memberBaruColIndex) {
                     if (is_numeric($value) && $value < 0) {
                         $this->errors[] = [
                             'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).'2',
