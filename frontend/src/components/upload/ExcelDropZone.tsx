@@ -29,7 +29,7 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
   ...props
 }, ref) => {
   const [file, setFile] = React.useState<File | null>(null)
-  const inputRef = React.useRef<HTMLInputElement | null>(null)
+  const inputRef = React.useRef<HTMLInputElement>(null)
   const [filePickerErrorMessageText, setFilePickerErrorMessageText] = React.useState<string | null>(null)
 
   function clearDroppedFiles() {
@@ -92,9 +92,9 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
 
   const inputProps = getInputProps({
     required,
-  })
-
-  const dropzoneOnClickHandlerOrig = inputRef.current?.onclick;
+  })  as React.InputHTMLAttributes<HTMLInputElement> & {
+    ref?: React.Ref<HTMLInputElement>
+  }
 
   const { ref: dropzoneRef, ...restInputProps } = inputProps
 
@@ -117,7 +117,7 @@ export const Dropzone = React.forwardRef<ExcelDropzoneRef, DropzoneProps>(({
         className
       )}
     >
-      <input {...restInputProps} onClick={(event => { resetDropzone(); dropzoneOnClickHandlerOrig?.(event); })} ref={setInputRef}/>
+      <input {...restInputProps} onClick={() => resetDropzone()} ref={setInputRef}/>
       {icon}
       <p className="text-sm font-medium text-foreground">{label}</p>
       {description && (
