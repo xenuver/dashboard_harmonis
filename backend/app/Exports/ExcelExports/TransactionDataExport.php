@@ -362,7 +362,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             ];
         } else {
             $this->requestNumberFormat[] = [
-                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 1),
+                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
                 'formatCode' => '#,##0',
             ];
         }
