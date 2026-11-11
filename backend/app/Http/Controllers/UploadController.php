@@ -13,7 +13,6 @@ use App\Services\InfoLaporanExcelParser;
 use App\Services\LaporanExcelParser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class UploadController extends Controller
 {
