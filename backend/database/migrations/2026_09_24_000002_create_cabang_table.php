@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -14,8 +15,14 @@ return new class extends Migration
     {
         Schema::create('cabang', function (Blueprint $table) {
             $table->id();
-            $table->string('kode', 20)->unique();  // contoh: AMPERA, PAL
-            $table->string('nama', 100);           // contoh: Ampera, Pal
+            $kode = $table->string('kode', 20);  // contoh: AMPERA, PAL
+            $nama = $table->string('nama', 100); // contoh: Ampera, Pal
+            if (DB::getDriverName() === 'sqlite') {
+                $kode->collation('NOCASE');
+                $nama->collation('NOCASE');
+            }
+            $kode->unique();
+            
             $table->timestamps();
         });
     }
