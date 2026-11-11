@@ -123,12 +123,12 @@ class UploadController extends Controller
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangPal->id, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['pal']]);
                 } else {
                     $cabangId = null;
-                    if(strtoupper($infoParserData['jenis_laporan']) === 'AMPERA') {
+                    if($infoParserData['jenis_laporan'] === 'AMPERA') {
                         $cabangId = $cabangAmpera->id;
-                    } else if (strtoupper($infoParserData['jenis_laporan']) === 'PAL') {
+                    } else if ($infoParserData['jenis_laporan'] === 'PAL') {
                         $cabangId = $cabangPal->id;
                     } else {
-                        throw ValidationException::withMessages(['file' => 'Jenis laporan dalam laporan hanya menerima gabungan, ampera dan pal tanpa huruf kapital']);
+                        throw ValidationException::withMessages(['file' => 'Jenis laporan dalam laporan hanya menerima GABUNGAN, AMPERA dan PAL (semua huruf kapital)']);
                     }
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangId, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['total']]);
                 }
