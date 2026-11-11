@@ -110,6 +110,12 @@ class PenjualanHarianSheetImport implements ToArray
                             'message' => "{$field} harus berupa angka bulat",
                         ];
                     }
+                    if (is_numeric($value) && $value < 0) {
+                        $this->errors[] = [
+                            'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
+                            'message' => "Nilai {$field} tidak boleh di bawah 0 ({$value})",
+                        ];
+                    }
                 } else {
                     $this->errors[] = [
                         'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
