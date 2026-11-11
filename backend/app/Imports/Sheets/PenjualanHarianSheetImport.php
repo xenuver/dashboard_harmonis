@@ -107,19 +107,19 @@ class PenjualanHarianSheetImport implements ToArray
                     if (! is_numeric($value) || (float) $value != (int) $value) {
                         $this->errors[] = [
                             'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
-                            'message' => "{$field} harus berupa angka bulat",
+                            'message' => "Nilai pada sel ini di kolom {$field} harus berupa angka bulat",
                         ];
                     }
                     if (is_numeric($value) && $value < 0) {
                         $this->errors[] = [
                             'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
-                            'message' => "Nilai {$field} tidak boleh di bawah 0 ({$value})",
+                            'message' => "Nilai pada sel ini di kolom {$field} tidak boleh di bawah 0",
                         ];
                     }
                 } else {
                     $this->errors[] = [
                         'location' => Coordinate::stringFromColumnIndex($columnIndex + 1).($rowIndex + 2),
-                        'message' => "{$field} kosong!",
+                        'message' => "Nilai pada sel ini di kolom {$field} kosong!",
                     ];
                 }
             }

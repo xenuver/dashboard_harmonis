@@ -103,7 +103,7 @@ class ProdukPenjualanSheetImport implements ToArray
 
                     $this->errors[] = [
                         'location' => "{$excelColumn}{$excelRowNumber}",
-                        'message' => "Field {$field} tidak boleh kosong.",
+                        'message' => "Nilai pada sel ini di kolom {$label} kosong!",
                     ];
 
                     $hasError = true;
@@ -129,7 +129,7 @@ class ProdukPenjualanSheetImport implements ToArray
 
                         $this->errors[] = [
                             'location' => "{$excelColumn}{$excelRowNumber}",
-                            'message' => "Field {$field} harus berupa angka bulat.",
+                            'message' => "Nilai pada sel ini di kolom {$label} harus berupa angka bulat ({$value})",
                         ];
 
                         $hasError = true;
