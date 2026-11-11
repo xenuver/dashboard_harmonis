@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,10 +20,14 @@ return new class extends Migration
             $table->foreignId('uploaded_by')
                 ->constrained('users')
                 ->onDelete('restrict');
-            $table->enum('jenis_laporan', ['ampera', 'pal', 'gabungan']);
+            $jenis_laporan = $table->enum('jenis_laporan', ['ampera', 'pal', 'gabungan']);
             $table->unsignedTinyInteger('periode_bulan'); // 1-12
             $table->unsignedSmallInteger('periode_tahun'); // contoh: 2026
-            $table->enum('status', ['berhasil', 'gagal'])->default('berhasil');
+            $status = $table->enum('status', ['berhasil', 'gagal'])->default('berhasil');
+            if (DB::getDriverName() === 'sqlite') {
+                $jenis_laporan->collation('NOCASE');
+                $status->collation('NOCASE');
+            }
             $table->timestamps();
 
             // Cegah upload dobel untuk kombinasi jenis laporan + periode yang sama

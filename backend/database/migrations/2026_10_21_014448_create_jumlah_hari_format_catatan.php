@@ -15,8 +15,12 @@ return new class extends Migration
         Schema::table('laporan_uploads', function (Blueprint $table) {
             if (DB::getDriverName() === 'sqlite') { // sqlite tidak bisa menggunakan after
                 $table->unsignedTinyInteger('jumlah_hari');
-                $table->string('format_data', 50);
-                $table->text('catatan')->nullable();
+                $format_data = $table->string('format_data', 50);
+                $catatan = $table->text('catatan')->nullable();
+                if (DB::getDriverName() === 'sqlite') {
+                    $format_data->collation('NOCASE');
+                    $catatan->collation('NOCASE');
+                }
             } else {
                 $table->unsignedTinyInteger('jumlah_hari')->after('periode_tahun');
                 $table->string('format_data', 50)->after('jumlah_hari');
