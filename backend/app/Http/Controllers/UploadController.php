@@ -69,6 +69,13 @@ class UploadController extends Controller
             }
         }
 
+        if(!in_array($infoParserData['jenis_laporan'], ['GABUNGAN', 'AMPERA', 'PAL'])) {
+            $infoParserErrors['INFO'][] = [
+                'location' => null,
+                'message' => 'Jenis laporan dalam laporan hanya menerima GABUNGAN, AMPERA dan PAL (semua huruf kapital). Laporan: '.($infoParserData['jenis_laporan'])
+            ];
+        }
+
         if (! empty($infoParserErrors)) {
             return response()->json([
                 'message' => 'Validasi spreadsheet gagal.',
@@ -128,7 +135,7 @@ class UploadController extends Controller
                     } else if ($infoParserData['jenis_laporan'] === 'PAL') {
                         $cabangId = $cabangPal->id;
                     } else {
-                        throw ValidationException::withMessages(['file' => 'Jenis laporan dalam laporan hanya menerima GABUNGAN, AMPERA dan PAL (semua huruf kapital)']);
+                        abort(500);
                     }
                     SalesHarian::create(['upload_id' => $upload->id, 'cabang_id' => $cabangId, 'tanggal' => $tanggal, 'total_penjualan' => $nilai['total']]);
                 }
