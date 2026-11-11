@@ -33,11 +33,6 @@ class LaporanUpload extends Model
 
     // ── Relasi ─────────────────────────────────────────────
 
-    public function kpiSummary(): HasOne
-    {
-        return $this->hasOne(KpiSummary::class, 'upload_id');
-    }
-
     public function salesHarian(): HasMany
     {
         return $this->hasMany(SalesHarian::class, 'upload_id');
