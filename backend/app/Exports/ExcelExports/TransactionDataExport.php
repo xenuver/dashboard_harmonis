@@ -84,7 +84,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        if ($laporan->jenis_laporan === 'gabungan') {
+        if (strtoupper($laporan->jenis_laporan) === 'GABUNGAN') {
             $tableHeading[] = ['HARI', 'TOTAL', 'AMPERA', 'PAL'];
 
             $this->requestEnableColAutoWidth[] = $coordStartX + 2;
@@ -112,7 +112,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
                     'total' => $items->sum('total'),
                 ];
 
-                if ($this->laporan->jenis_laporan === 'gabungan') {
+                if (strtoupper($this->laporan->jenis_laporan) === 'GABUNGAN') {
                     foreach ($items as $item) {
                         $row[$item->cabang_nama] = $item->total;
                     }
