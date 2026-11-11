@@ -19,11 +19,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (DB::getDriverName() === 'sqlite') { // sqlite tidak bisa menggunakan after
-                $table->string('username', 50);
-                $role = $table->enum('role', ['it_staff', 'owner'])->default('it_staff');
-                if (DB::getDriverName() === 'sqlite') {
-                    $role->collation('NOCASE');
-                }
+                $table->string('username', 50)->unique();
+                $table->enum('role', ['it_staff', 'owner'])->default('it_staff');
             } else {
                 $table->string('username', 50)->unique()->after('name');
                 $table->enum('role', ['it_staff', 'owner'])->default('it_staff')->after('username');
@@ -39,11 +36,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             if (DB::getDriverName() === 'sqlite') { // sqlite tidak bisa menggunakan after
                 $table->string('name');
-                $email = $table->string('email', 50);
-                if (DB::getDriverName() === 'sqlite') {
-                    $email->collation('NOCASE');
-                }
-                $email->unique();
+                $table->string('email')->unique();
                 $table->timestamp('email_verified_at')->nullable();
             } else {
                 $table->string('name')->after('id');

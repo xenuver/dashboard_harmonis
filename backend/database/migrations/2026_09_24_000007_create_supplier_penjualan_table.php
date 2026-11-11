@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,16 +18,11 @@ return new class extends Migration
             $table->foreignId('upload_id')
                 ->constrained('laporan_uploads')
                 ->onDelete('cascade');
-            $kode_supp = $table->string('kode_supp', 20);
-            $nama_supp = $table->string('nama_supp', 255);
+            $table->string('kode_supp', 20);
+            $table->string('nama_supp', 255);
             $table->bigInteger('gross_total');
             $table->bigInteger('net_sales_total');
             $table->timestamps();
-
-            if (DB::getDriverName() === 'sqlite') {
-                $kode_supp->collation('NOCASE');
-                $nama_supp->collation('NOCASE');
-            }
 
             $table->index(['upload_id', 'net_sales_total']); // buat sort ranking
             $table->index('kode_supp'); // buat search
