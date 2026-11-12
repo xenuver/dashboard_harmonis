@@ -14,7 +14,7 @@ class MemberCountFactory extends Factory
     {
         return [
             'upload_id' => null,
-            'member_baru' => fake()->numberBetween(0, PHP_INT_MAX),
+            'member_baru' => fake()->numberBetween(0, 10000),
         ];
     }
 
