@@ -32,6 +32,7 @@ class LaporanUploadFactory extends Factory
                 return cal_days_in_month(CAL_GREGORIAN, $attributes['periode_bulan'], $attributes['periode_tahun']);
             },
             'format_data' => 'DATA MENTAH v2',
+            'catatan' => null,
             'status' => 'berhasil',
         ];
     }
@@ -62,6 +63,12 @@ class LaporanUploadFactory extends Factory
         ]);
     }
 
+    public function catatan(?string $value) {
+        return $this->state([
+            'catatan' => $value,
+        ]);
+    }
+
     public function top_products_count(int $value) {
         $this->topProductsCount = $value;
         return $this;
@@ -76,7 +83,6 @@ class LaporanUploadFactory extends Factory
         $this->supplierCount = $value;
         return $this;
     }
-
 
     public function generateFullReport() {
         return $this->afterCreating(function (LaporanUpload $report) {
