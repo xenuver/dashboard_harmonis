@@ -2,6 +2,7 @@ import type { Kpi } from "./Models/Kpi"
 import type { Product } from "./Models/Product"
 import type { Supplier } from "./Models/Supplier"
 import type { TrendData } from "./Models/TrendData"
+import type { DashboardMemberVsNonMemberData } from "./DashboardMemberVsNonMemberData"
 
 export interface DashboardResponseData {
     kpi: Kpi,
@@ -13,4 +14,5 @@ export interface DashboardResponseData {
         kategori: "terendah"
     }>,
     top_supplier: Array<Supplier>
+    transaksi: DashboardMemberVsNonMemberData;
 }

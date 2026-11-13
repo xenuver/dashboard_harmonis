@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer, Pie, PieChart } from 'recharts';
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { Landmark, ChartNoAxesCombined, Receipt, IdCard, ArrowRight } from "lucide-react";
 
@@ -25,6 +25,7 @@ import type { TrendData } from "../../types/Models/TrendData";
 import type { Supplier } from "../../types/Models/Supplier";
 
 import '../styles/dashboard.css';
+import type { DashboardMemberVsNonMemberData } from "types/DashboardMemberVsNonMemberData";
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -35,6 +36,11 @@ const ERROR_CODE_DASHBOARD_NO_ERROR = 0;
 const ERROR_CODE_DASHBOARD_NO_DATA = 1;
 const ERROR_CODE_DASHBOARD_CONNECTION_ERROR = 2;
 const ERROR_CODE_DASHBOARD_UNKNOWN_ERROR = 3;
+const PIE_CHART_COLORS = [
+  '#007A55',
+  '#FFA500',
+  '#FF0000',
+];
 
 export function Dashboard() {
   const yearNow = new Date().getFullYear();
@@ -57,6 +63,7 @@ export function Dashboard() {
   const [kpiGrowthMemberToolTip, setKpiGrowthMemberToolTip] = useState<string | undefined>();
 
   const [trendGraphViewData, setTrendGraphViewData] = useState<TrendDataView[]>([]);
+  const [memberNonMemberCount, setMemberNonMemberCount] = useState<{name: string; value: number;}[]>([]);
   const [topProductsList, setTopProductsList] = useState<Product[]>([]);
   const [worstProductsList, setWorstProductsList] = useState<Product[]>([]);
   const [topSuppliersList, setTopSuppliersList] = useState<Supplier[]>([]);
@@ -73,6 +80,16 @@ export function Dashboard() {
     }
     yearOptions.push(calcYear);
   }
+
+  function getColorFromPalette(str: string) {
+    let hash = 0;
+
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    }
+
+    return PIE_CHART_COLORS[hash % PIE_CHART_COLORS.length];
+  };
 
   const [pickedJenisLaporan, setPickedJenisLaporan] = useState<string>(function() {
     const jenis = searchParams.get("jenis_laporan");
@@ -199,6 +216,25 @@ export function Dashboard() {
     setTrendGraphViewData(chartData);
   };
 
+  function consumeMemberVsNonMemberData(input: DashboardMemberVsNonMemberData): void {
+    const chartData = Object.entries(input).map(([name, value]) => {
+      let pcname = name;
+      if(name === "transaksi_member") {
+        pcname = "Member";
+      } else if (name === "transaksi_non_member") {
+        pcname = "Non-Member";
+      }
+
+      return {
+        name: pcname,
+        value,
+        fill: getColorFromPalette(pcname),
+      }
+    });
+
+    setMemberNonMemberCount(chartData);
+  };
+
   function handleRetryApi() {
     shouldRetryNow((prev) => !prev);
   }
@@ -223,6 +259,7 @@ export function Dashboard() {
 
         consumeKpi(responseData.kpi);
         consumeGraphData(responseData.trend);
+        consumeMemberVsNonMemberData(responseData.transaksi);
         setTopProductsList(responseData.top_produk_terlaris);
         setWorstProductsList(responseData.top_produk_terendah);
         setTopSuppliersList(responseData.top_supplier);
@@ -315,34 +352,61 @@ export function Dashboard() {
             </div>
           </div>
 
-          <Card className="pb-6 m-5">
-            <CardHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-5 m-5">
+            <Card className="pb-6">
+              <CardHeader>
                 <CardTitle>Grafik Penjualan Harian</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="w-full h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart responsive data={trendGraphViewData}>
-                      <CartesianGrid />
-                      { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "ampera" )) &&
-                        <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
-                      }
-                      { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "pal" )) &&
-                        <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
-                      }
-                      { isLoaded === false &&
-                        <Line isAnimationActive={false} name="Memuat..." stroke="black" />
-                      }
-                      <XAxis dataKey="tanggal" tickFormatter={formatDate} />
-                      <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
-                      <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
-                        formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
-                      <Legend />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                  <div className="w-full h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart responsive data={trendGraphViewData}>
+                        <CartesianGrid />
+                        { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "ampera" )) &&
+                          <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
+                        }
+                        { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "pal" )) &&
+                          <Line dataKey="pal" isAnimationActive={false} name="Cabang Pal" fill="green" stroke="green" />
+                        }
+                        { isLoaded === false &&
+                          <Line isAnimationActive={false} name="Memuat..." stroke="black" />
+                        }
+                        <XAxis dataKey="tanggal" tickFormatter={formatDate} />
+                        <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
+                        <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
+                          formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
+                        <Legend />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+              </CardContent>
+            </Card>
+            <Card className="pb-6">
+              <CardHeader>
+                <CardTitle>Grafik Transaksi Member vs Non-Member</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <div className="w-full h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "pal" )) &&
+                          <Pie
+                            dataKey="value"
+                            data={memberNonMemberCount}
+                            isAnimationActive={false}
+                          />
+                        }
+                        { isLoaded === false &&
+                          <Pie isAnimationActive={false} data={[{name: "memuat...", value: 0}]} stroke="black" />
+                        }
+                        <Legend />
+                        <Tooltip formatter={(value) => (typeof value === 'number')? formatAngka(value) : ""} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+              </CardContent>
+            </Card>
+          </div>
 
           <Card className="m-5">
             <CardHeader>
