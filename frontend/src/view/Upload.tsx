@@ -206,7 +206,7 @@ export function Upload() {
             <CardTitle>Informasi Laporan</CardTitle>
           </CardHeader>
           <CardContent>
-            <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+            <FieldGroup className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
                 <NativeSelect required={true} name="jenis_laporan" defaultValue="gabungan" disabled={restrictFormChange}>

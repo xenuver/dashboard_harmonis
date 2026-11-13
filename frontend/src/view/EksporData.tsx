@@ -190,7 +190,7 @@ export function EksporData() {
       <Card className="m-5">
         <CardContent>
             <form onSubmit={runExportData}>
-                <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <FieldGroup className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     <Field>
                     <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
                     <NativeSelect required={true} name="jenis_laporan" defaultValue="gabungan" disabled={restrictFormChange}>
@@ -222,8 +222,8 @@ export function EksporData() {
                 </FieldGroup>
                 <FieldGroup className="gap-4 mt-4">
                     <Field className="flex flex-col gap-2 w-full">
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                        <Button className="w-full sm:w-auto shrink-0 px-4" type="submit" disabled={restrictFormChange}>
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 w-full">
+                        <Button className="w-full lg:w-auto shrink-0 px-4" type="submit" disabled={restrictFormChange}>
                         <Download className="w-5 h-5" />
                         Unduh .xlsx
                         </Button>

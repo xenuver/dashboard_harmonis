@@ -296,7 +296,7 @@ export function Dashboard() {
 
       <Card className="m-5">
         <CardContent>
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel>Jenis Laporan:</FieldLabel>
               <NativeSelect required={true} name="jenis_laporan" defaultValue={pickedJenisLaporan} onChange={(event) => { setPickedJenisLaporan(event.target.value); handleRetryApi(); }}>
@@ -344,7 +344,7 @@ export function Dashboard() {
       {errorCode === ERROR_CODE_DASHBOARD_NO_ERROR && 
         <>
           <div className="m-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
               <KpiCard title="Total Penjualan" value={kpiTotalSales} tooltip={kpiTotalSalesToolTip} isLoading={!isLoaded} icon={Landmark} />
               <KpiCard title="Total Growth" value={kpiTotalGrowth} tooltip={kpiTotalGrowthToolTip} isLoading={!isLoaded} icon={ChartNoAxesCombined} />
               <KpiCard title="Jumlah Transaksi" value={kpiJumlahTransaksi} tooltip={kpiJumlahTransaksiToolTip} isLoading={!isLoaded} icon={Receipt} />
@@ -352,7 +352,7 @@ export function Dashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-5 m-5">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 m-5">
             <Card className="pb-6">
               <CardHeader>
                 <CardTitle>Grafik Penjualan Harian</CardTitle>

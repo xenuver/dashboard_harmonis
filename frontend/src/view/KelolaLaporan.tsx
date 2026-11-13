@@ -152,7 +152,7 @@ export function KelolaLaporan() {
       <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl m-5">Kelola Laporan</h1>
       <Card className="m-5">
         <CardContent>
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <FieldGroup className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
               <NativeSelect required={true} name="jenis_laporan" defaultValue="Apapun" onChange={(event) => {setPickedJenisLaporan(event.target.value); resetSearchNow();}}>
