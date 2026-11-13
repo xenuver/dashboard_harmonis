@@ -15,27 +15,7 @@ class ProdukPenjualanPaginateTest extends TestCase
 
     protected $seed = true;
 
-    private string $adminToken;
-
     private string $ownerToken;
-
-    private const REPORT_TEST_JENIS = 'gabungan';
-
-    private const REPORT_TEST_MONTH = 11;
-
-    private const REPORT_TEST_YEAR = 2026;
-
-    private const REPORT_TEST_KATEGORI = 'tertinggi';
-
-    private const REPORT_TEST_SEARCH  = 'cake';
-
-    private const OUTCOME_SUCCESS = 0;
-
-    private const OUTCOME_NOT_FOUND = 1;
-
-    private const OUTCOME_INVALID_INPUT = 2;
-
-    private const OUTCOME_NOT_INVALID_INPUT = 3;
 
     private const FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE = [
         'current_page',
@@ -73,9 +53,6 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         parent::setUp();
 
-        $this->adminToken = User::factory()->create([
-            'role' => 'it_staff',
-        ])->createToken('auth_token')->plainTextToken;
         $this->ownerToken = User::factory()->create([
             'role' => 'owner',
         ])->createToken('auth_token')->plainTextToken;
