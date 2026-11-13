@@ -199,9 +199,9 @@ export function ProdukPenjualan() {
             </Field>
             <Field>
               <FieldLabel htmlFor="kategori">Kategori Laporan:</FieldLabel>
-              <ToggleGroup defaultValue={["tertinggi"]} variant="outline" value={[sortirTingkatProduk]} onValueChange={(e) => setSortirTingkatProduk(e[0])} spacing={0}>
-                <ToggleGroupItem value="tertinggi">Tertinggi</ToggleGroupItem>
-                <ToggleGroupItem value="terendah">Terendah</ToggleGroupItem>
+              <ToggleGroup defaultValue={["tertinggi"]} variant="outline" value={[sortirTingkatProduk]} onValueChange={(e) => setSortirTingkatProduk(e[0])} spacing={0} className="w-full md:w-auto shrink-0">
+                <ToggleGroupItem value="tertinggi" className="flex-1 md:flex-none">Tertinggi</ToggleGroupItem>
+                <ToggleGroupItem value="terendah" className="flex-1 md:flex-none">Terendah</ToggleGroupItem>
               </ToggleGroup>
             </Field>
             <Field>
