@@ -116,9 +116,9 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
             $produk->kode_brg,
             $produk->nama_brg,
             $produk->satuan ? $produk->satuan : null,
-            (int) $produk->qty,
-            (float) $produk->harga_jual,
-            (float) $produk->jumlah,
+            $produk->qty !== null ? (int) $produk->qty : null,
+            $produk->harga_jual !== null ? (float) $produk->harga_jual : null,
+            $produk->jumlah !== null ? (float) $produk->jumlah : null,
             $produk->barcode ? $produk->barcode : null,
             $produk->stok !== null ? (int) $produk->stok : null,
         ];
