@@ -18,13 +18,15 @@ class MemberCountFactory extends Factory
         ];
     }
 
-    public function upload_id(int $value) {
+    public function upload_id(int $value)
+    {
         return $this->state([
             'upload_id' => $value,
         ]);
     }
 
-    public function member_baru(string $value) {
+    public function member_baru(string $value)
+    {
         return $this->state([
             'member_baru' => $value,
         ]);
@@ -33,13 +35,13 @@ class MemberCountFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (MemberCount $report) {
-            if($report->upload_id === null) {
+            if ($report->upload_id === null) {
                 throw new InvalidArgumentException(
                     'ID upload harus diisi'
                 );
-            }    
-        
-            if($report->member_baru < 0) {
+            }
+
+            if ($report->member_baru < 0) {
                 throw new InvalidArgumentException(
                     'Member baru di bawah 0'
                 );

@@ -52,25 +52,25 @@ class SalesHarianFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (SalesHarian $report) {
-            if($report->upload_id === null) {
+            if ($report->upload_id === null) {
                 throw new InvalidArgumentException(
                     'ID upload harus diisi'
                 );
             }
 
-            if($report->cabang_id === null) {
+            if ($report->cabang_id === null) {
                 throw new InvalidArgumentException(
                     'ID cabang harus diisi'
                 );
             }
 
-            if($report->tanggal === null) {
+            if ($report->tanggal === null) {
                 throw new InvalidArgumentException(
                     'Tanggal harus diisi'
                 );
             }
-        
-            if($report->total_penjualan < 0) {
+
+            if ($report->total_penjualan < 0) {
                 throw new InvalidArgumentException(
                     'Total penjualan di bawah 0'
                 );

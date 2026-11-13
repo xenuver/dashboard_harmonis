@@ -47,8 +47,8 @@ class SupplierExcelExport implements FromQuery, WithColumnFormatting, WithEvents
                         'bold' => true,
                     ],
                     'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER
-                    ]
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    ],
                 ]);
 
                 foreach ($sheet->getColumnIterator() as $column) {

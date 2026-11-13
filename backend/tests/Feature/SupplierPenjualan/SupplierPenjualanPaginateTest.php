@@ -56,7 +56,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $cases = [];
 
-        foreach($pageNumberValidInputCases as $value) {
+        foreach ($pageNumberValidInputCases as $value) {
             $cases["page set to '{$value}' (accepted)"] = [
                 $value,
             ];
@@ -71,7 +71,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $cases = [];
 
-        foreach($pageNumberInvalidInputCases as $value) {
+        foreach ($pageNumberInvalidInputCases as $value) {
             $cases["page set to '{$value}' (rejected)"] = [
                 $value,
             ];
@@ -94,7 +94,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -123,7 +123,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -147,7 +147,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -169,10 +169,10 @@ class SupplierPenjualanPaginateTest extends TestCase
         LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
         $perPage = 10;
 
-        $exptectedLastPage = ceil($itemCount/$perPage);
+        $exptectedLastPage = ceil($itemCount / $perPage);
         $exptectedLastPageItemCount = $itemCount % $perPage;
 
-        if($exptectedLastPage !== 0 && $exptectedLastPageItemCount === 0 ) {
+        if ($exptectedLastPage !== 0 && $exptectedLastPageItemCount === 0) {
             $exptectedLastPageItemCount = $perPage;
         }
 
@@ -185,7 +185,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -207,7 +207,7 @@ class SupplierPenjualanPaginateTest extends TestCase
         LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
         $perPage = 10;
 
-        $exptectedLastPage = ceil($itemCount/$perPage) + 5;
+        $exptectedLastPage = ceil($itemCount / $perPage) + 5;
 
         $requestParams = [
             'page' => $exptectedLastPage,
@@ -218,7 +218,7 @@ class SupplierPenjualanPaginateTest extends TestCase
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 

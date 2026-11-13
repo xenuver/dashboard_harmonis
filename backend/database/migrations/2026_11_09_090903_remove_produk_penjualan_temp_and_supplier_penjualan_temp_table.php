@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     private Closure $createProductTempTable;
+
     private Closure $createSupplierTempTable;
 
     /**

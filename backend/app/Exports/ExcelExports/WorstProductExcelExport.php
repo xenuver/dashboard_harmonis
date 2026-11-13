@@ -64,7 +64,7 @@ class WorstProductExcelExport extends DefaultValueBinder implements FromQuery, W
                         'bold' => true,
                     ],
                     'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
                     ],
                 ]);
 

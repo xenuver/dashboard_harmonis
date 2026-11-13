@@ -20,7 +20,7 @@ class UpdateUserTest extends TestCase
 
     private const OUTCOME_INVALID_INPUT = 1;
 
-    private const BASE_PROVIDER = [ /// case null dan string kosong bisa ada di body
+    private const BASE_PROVIDER = [ // / case null dan string kosong bisa ada di body
         'literal null (rejected)' => [
             null,
             self::OUTCOME_INVALID_INPUT,
@@ -28,7 +28,7 @@ class UpdateUserTest extends TestCase
         'empty string (rejected)' => [
             '',
             self::OUTCOME_INVALID_INPUT,
-        ]
+        ],
     ];
 
     protected function setUp(): void
@@ -53,7 +53,7 @@ class UpdateUserTest extends TestCase
         ];
     }
 
-    public static function updateUsernameProvider() 
+    public static function updateUsernameProvider()
     {
         // username tidak diacak supaya bisa bisa diprediksi
         $acceptedInputCases = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_', '-'];
@@ -82,14 +82,14 @@ class UpdateUserTest extends TestCase
             ],
         ]);
 
-        foreach($acceptedInputCases as $value) {
+        foreach ($acceptedInputCases as $value) {
             $cases["has '{$value}' symbol (accepted)"] = [
                 'john'.($value).'pork',
                 self::OUTCOME_SUCCESS,
             ];
         }
 
-        foreach($invalidInputCases as $value) {
+        foreach ($invalidInputCases as $value) {
             $cases["has '{$value}' symbol (rejected)"] = [
                 'john'.($value).'pork',
                 self::OUTCOME_INVALID_INPUT,
@@ -99,7 +99,7 @@ class UpdateUserTest extends TestCase
         return $cases;
     }
 
-    public static function updatePasswordProvider() 
+    public static function updatePasswordProvider()
     {
         return array_merge(self::BASE_PROVIDER, [
             'valid password (>= 4 symbols, accepted)' => [
@@ -117,7 +117,7 @@ class UpdateUserTest extends TestCase
         ]);
     }
 
-    public static function updateRoleProvider() 
+    public static function updateRoleProvider()
     {
         return array_merge(self::BASE_PROVIDER, [
             'set to it_staff (accepted)' => [
@@ -135,7 +135,7 @@ class UpdateUserTest extends TestCase
         ]);
     }
 
-    public static function updateAccountEnabledProvider() 
+    public static function updateAccountEnabledProvider()
     {
         $acceptedInputCasesLiteral = [true, false];
         $acceptedInputCases = [0, 1];
@@ -143,21 +143,21 @@ class UpdateUserTest extends TestCase
 
         $cases = array_merge(self::BASE_PROVIDER, []);
 
-        foreach(array_merge($acceptedInputCasesLiteral, $acceptedInputCases) as $value) {
+        foreach (array_merge($acceptedInputCasesLiteral, $acceptedInputCases) as $value) {
             $cases["set to '".(json_encode($value))."' (accepted)"] = [
                 $value,
                 self::OUTCOME_SUCCESS,
             ];
         }
 
-        foreach($acceptedInputCases as $value) {
+        foreach ($acceptedInputCases as $value) {
             $cases["set to '".(json_encode($value))."' string (accepted)"] = [
                 strval($value),
                 self::OUTCOME_SUCCESS,
             ];
         }
 
-        foreach($invalidInputCases as $value) {
+        foreach ($invalidInputCases as $value) {
             $cases["set to '".(json_encode($value))."' (rejected)"] = [
                 $value,
                 self::OUTCOME_INVALID_INPUT,
@@ -198,7 +198,7 @@ class UpdateUserTest extends TestCase
 
         $someone->refresh();
 
-        if($field !== 'password') {
+        if ($field !== 'password') {
             $this->assertEquals($fieldValue, $someone->$field);
         }
 
@@ -213,7 +213,7 @@ class UpdateUserTest extends TestCase
             $this->assertEquals($value, $someone->$key);
         }
 
-        if($field === 'password') {
+        if ($field === 'password') {
             $this->assertFalse(Hash::check($oldPassword, $someone->password));
             $this->assertTrue(Hash::check($fieldValue, $someone->password));
         } else {
@@ -236,14 +236,14 @@ class UpdateUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if($expectedOutcome === self::OUTCOME_SUCCESS) {
+        if ($expectedOutcome === self::OUTCOME_SUCCESS) {
             $updateAccountResponse->assertOk();
 
             $this->assertDatabaseHas('users', [
                 'id' => $someone->id,
                 'username' => $value,
             ]);
-        } else if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $updateAccountResponse->assertUnprocessable();
             $updateAccountResponse->assertJsonValidationErrors(['username']);
 
@@ -271,13 +271,13 @@ class UpdateUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if($expectedOutcome === self::OUTCOME_SUCCESS) {
+        if ($expectedOutcome === self::OUTCOME_SUCCESS) {
             $updateAccountResponse->assertOk();
 
             $someone->refresh();
             $this->assertFalse(Hash::check($oldPassword, $someone->password));
             $this->assertTrue(Hash::check($value, $someone->password));
-        } else if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $updateAccountResponse->assertUnprocessable();
             $updateAccountResponse->assertJsonValidationErrors(['password']);
 
@@ -307,14 +307,14 @@ class UpdateUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if($expectedOutcome === self::OUTCOME_SUCCESS) {
+        if ($expectedOutcome === self::OUTCOME_SUCCESS) {
             $updateAccountResponse->assertOk();
 
             $this->assertDatabaseHas('users', [
                 'id' => $someone->id,
                 'role' => $value,
             ]);
-        } else if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $updateAccountResponse->assertUnprocessable();
             $updateAccountResponse->assertJsonValidationErrors(['role']);
 
@@ -340,14 +340,14 @@ class UpdateUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if($expectedOutcome === self::OUTCOME_SUCCESS) {
+        if ($expectedOutcome === self::OUTCOME_SUCCESS) {
             $updateAccountResponse->assertOk();
 
             $this->assertDatabaseHas('users', [
                 'id' => $someone->id,
                 'enabled' => $value,
             ]);
-        } else if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $updateAccountResponse->assertUnprocessable();
             $updateAccountResponse->assertJsonValidationErrors(['enabled']);
 

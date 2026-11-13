@@ -94,19 +94,19 @@ class ProdukPenjualanFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (ProdukPenjualan $report) {
-            if(!in_array($report->kategori, ['tertinggi', 'terendah'])) {
+            if (! in_array($report->kategori, ['tertinggi', 'terendah'])) {
                 throw new InvalidArgumentException(
                     'Kategori hanya menerima tertinggi dan terendah'
                 );
             }
 
-            if($report->upload_id === null) {
+            if ($report->upload_id === null) {
                 throw new InvalidArgumentException(
                     'ID upload harus diisi'
                 );
-            }    
-        
-            if($report->harga_jual < 0) {
+            }
+
+            if ($report->harga_jual < 0) {
                 throw new InvalidArgumentException(
                     'Harga jual di bawah 0'
                 );

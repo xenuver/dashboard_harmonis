@@ -80,7 +80,7 @@ class ProdukPenjualanMainTest extends TestCase
     public static function produkPenjualanMonthYearKategoriProvider(): array
     {
         $jenisLaporanAcceptedInputCases = ['gabungan', 'ampera', 'pal'];
-        $jenisLaporanInvalidInputCases = ['ampera1', 'jeruju', 'paI', '']; 
+        $jenisLaporanInvalidInputCases = ['ampera1', 'jeruju', 'paI', ''];
 
         $monthAcceptedInputCases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         $monthInvalidInputCases = [0, -1, 13, -12, ''];
@@ -129,7 +129,7 @@ class ProdukPenjualanMainTest extends TestCase
             ],
         ];
 
-        foreach($jenisLaporanAcceptedInputCases as $value) {
+        foreach ($jenisLaporanAcceptedInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (accepted)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -139,7 +139,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($monthAcceptedInputCases as $value) {
+        foreach ($monthAcceptedInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -149,7 +149,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($yearAcceptedInputCases as $value) {
+        foreach ($yearAcceptedInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -159,7 +159,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($kategoriAcceptedInputCases as $value) {
+        foreach ($kategoriAcceptedInputCases as $value) {
             $cases["kategori has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -169,7 +169,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($jenisLaporanInvalidInputCases as $value) {
+        foreach ($jenisLaporanInvalidInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (rejected)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -179,7 +179,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($monthInvalidInputCases as $value) {
+        foreach ($monthInvalidInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -189,7 +189,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($yearInvalidInputCases as $value) {
+        foreach ($yearInvalidInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -199,7 +199,7 @@ class ProdukPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($kategoriInvalidInputCases as $value) {
+        foreach ($kategoriInvalidInputCases as $value) {
             $cases["kategori has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -217,22 +217,22 @@ class ProdukPenjualanMainTest extends TestCase
     {
         $requestParams = [];
 
-        if($jenisLaporan !== null) {
+        if ($jenisLaporan !== null) {
             $requestParams['jenis_laporan'] = $jenisLaporan;
         }
-        if($periodeBulan !== null) {
+        if ($periodeBulan !== null) {
             $requestParams['periode_bulan'] = $periodeBulan;
         }
-        if($periodeTahun !== null) {
+        if ($periodeTahun !== null) {
             $requestParams['periode_tahun'] = $periodeTahun;
         }
-        if($kategori !== null) {
+        if ($kategori !== null) {
             $requestParams['kategori'] = $kategori;
         }
 
         $url = '/api/produk-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -242,7 +242,7 @@ class ProdukPenjualanMainTest extends TestCase
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $getProdukPenjualanResponse->assertUnprocessable();
-        } else if ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $status = $getProdukPenjualanResponse->status();
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);

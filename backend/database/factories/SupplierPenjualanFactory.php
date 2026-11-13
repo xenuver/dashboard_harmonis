@@ -64,7 +64,7 @@ class SupplierPenjualanFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (SupplierPenjualan $report) {
-            if($report->upload_id === null) {
+            if ($report->upload_id === null) {
                 throw new InvalidArgumentException(
                     'ID upload harus diisi'
                 );

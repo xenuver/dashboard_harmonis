@@ -73,7 +73,7 @@ class SupplierPenjualanMainTest extends TestCase
     public static function supplierPenjualanMonthYearKategoriProvider(): array
     {
         $jenisLaporanAcceptedInputCases = ['gabungan', 'ampera', 'pal'];
-        $jenisLaporanInvalidInputCases = ['ampera1', 'jeruju', 'paI', '']; 
+        $jenisLaporanInvalidInputCases = ['ampera1', 'jeruju', 'paI', ''];
 
         $monthAcceptedInputCases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         $monthInvalidInputCases = [0, -1, 13, -12, ''];
@@ -114,7 +114,7 @@ class SupplierPenjualanMainTest extends TestCase
             ],
         ];
 
-        foreach($jenisLaporanAcceptedInputCases as $value) {
+        foreach ($jenisLaporanAcceptedInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (accepted)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -123,7 +123,7 @@ class SupplierPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($monthAcceptedInputCases as $value) {
+        foreach ($monthAcceptedInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -132,7 +132,7 @@ class SupplierPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($yearAcceptedInputCases as $value) {
+        foreach ($yearAcceptedInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -141,7 +141,7 @@ class SupplierPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($jenisLaporanInvalidInputCases as $value) {
+        foreach ($jenisLaporanInvalidInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (rejected)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -150,7 +150,7 @@ class SupplierPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($monthInvalidInputCases as $value) {
+        foreach ($monthInvalidInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -159,7 +159,7 @@ class SupplierPenjualanMainTest extends TestCase
             ];
         }
 
-        foreach($yearInvalidInputCases as $value) {
+        foreach ($yearInvalidInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -176,19 +176,19 @@ class SupplierPenjualanMainTest extends TestCase
     {
         $requestParams = [];
 
-        if($jenisLaporan !== null) {
+        if ($jenisLaporan !== null) {
             $requestParams['jenis_laporan'] = $jenisLaporan;
         }
-        if($periodeBulan !== null) {
+        if ($periodeBulan !== null) {
             $requestParams['periode_bulan'] = $periodeBulan;
         }
-        if($periodeTahun !== null) {
+        if ($periodeTahun !== null) {
             $requestParams['periode_tahun'] = $periodeTahun;
         }
 
         $url = '/api/supplier-penjualan';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -198,7 +198,7 @@ class SupplierPenjualanMainTest extends TestCase
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $getSupplierPenjualanResponse->assertUnprocessable();
-        } else if ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $status = $getSupplierPenjualanResponse->status();
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);

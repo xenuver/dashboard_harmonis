@@ -39,7 +39,7 @@ class DashboardTest extends TestCase
         'top_produk_terlaris',
         'top_produk_terendah',
         'top_supplier',
-    ];  
+    ];
 
     protected function setUp(): void
     {
@@ -58,7 +58,7 @@ class DashboardTest extends TestCase
         $invalidInputCases = ['', '.', ',', '/', '\\', '!', '~', '#', '+', '|', '$', '?', '&', ':', ';', '{', '}', '(', ')', '[', ']', '\"', '\''];
 
         $jenisLaporanAcceptedInputCases = ['gabungan', 'ampera', 'pal'];
-        $jenisLaporanInvalidInputCases = array_merge(['ampera1', 'jeruju', 'paI'], $invalidInputCases); 
+        $jenisLaporanInvalidInputCases = array_merge(['ampera1', 'jeruju', 'paI'], $invalidInputCases);
 
         $monthAcceptedInputCases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
         $monthInvalidInputCases = array_merge([0, -1, 13, -12], $invalidInputCases);
@@ -99,7 +99,7 @@ class DashboardTest extends TestCase
             ],
         ];
 
-        foreach($jenisLaporanAcceptedInputCases as $value) {
+        foreach ($jenisLaporanAcceptedInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (accepted)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -108,7 +108,7 @@ class DashboardTest extends TestCase
             ];
         }
 
-        foreach($monthAcceptedInputCases as $value) {
+        foreach ($monthAcceptedInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -117,7 +117,7 @@ class DashboardTest extends TestCase
             ];
         }
 
-        foreach($yearAcceptedInputCases as $value) {
+        foreach ($yearAcceptedInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (accepted)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -126,7 +126,7 @@ class DashboardTest extends TestCase
             ];
         }
 
-        foreach($jenisLaporanInvalidInputCases as $value) {
+        foreach ($jenisLaporanInvalidInputCases as $value) {
             $cases["jenis_laporan has '{$value}' symbol (rejected)"] = [
                 $value,
                 self::REPORT_TEST_MONTH,
@@ -135,7 +135,7 @@ class DashboardTest extends TestCase
             ];
         }
 
-        foreach($monthInvalidInputCases as $value) {
+        foreach ($monthInvalidInputCases as $value) {
             $cases["periode_bulan has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 $value,
@@ -144,7 +144,7 @@ class DashboardTest extends TestCase
             ];
         }
 
-        foreach($yearInvalidInputCases as $value) {
+        foreach ($yearInvalidInputCases as $value) {
             $cases["periode_tahun has '{$value}' symbol (rejected)"] = [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
@@ -161,19 +161,19 @@ class DashboardTest extends TestCase
     {
         $requestParams = [];
 
-        if($jenisLaporan !== null) {
+        if ($jenisLaporan !== null) {
             $requestParams['jenis_laporan'] = $jenisLaporan;
         }
-        if($periodeBulan !== null) {
+        if ($periodeBulan !== null) {
             $requestParams['periode_bulan'] = $periodeBulan;
         }
-        if($periodeTahun !== null) {
+        if ($periodeTahun !== null) {
             $requestParams['periode_tahun'] = $periodeTahun;
         }
 
         $url = '/api/dashboard';
 
-        if(!empty($requestParams)) {
+        if (! empty($requestParams)) {
             $url = $url.'?'.http_build_query($requestParams);
         }
 
@@ -183,7 +183,7 @@ class DashboardTest extends TestCase
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $getDashboardResponse->assertUnprocessable();
-        } else if ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
+        } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $status = $getDashboardResponse->status();
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);

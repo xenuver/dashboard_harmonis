@@ -67,7 +67,7 @@ class AddUserTest extends TestCase
         ];
     }
 
-    public static function createAccountUsernameProvider() 
+    public static function createAccountUsernameProvider()
     {
         // username tidak diacak supaya bisa bisa diprediksi
         $acceptedInputCases = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '_', '-'];
@@ -104,14 +104,14 @@ class AddUserTest extends TestCase
             ],
         ];
 
-        foreach($acceptedInputCases as $value) {
+        foreach ($acceptedInputCases as $value) {
             $cases["has '{$value}' symbol (accepted)"] = [
                 'john'.($value).'pork',
                 self::OUTCOME_SUCCESS,
             ];
         }
 
-        foreach($invalidInputCases as $value) {
+        foreach ($invalidInputCases as $value) {
             $cases["has '{$value}' symbol (rejected)"] = [
                 'john'.($value).'pork',
                 self::OUTCOME_INVALID_INPUT,
@@ -188,11 +188,11 @@ class AddUserTest extends TestCase
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
-        if($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $createAccountResponse->assertUnprocessable();
-            $createAccountResponse->assertJsonValidationErrors("username");
+            $createAccountResponse->assertJsonValidationErrors('username');
             $this->assertDatabaseMissing('users', [
-                'username' => $username
+                'username' => $username,
             ]);
 
             return;
@@ -411,7 +411,7 @@ class AddUserTest extends TestCase
         $createAccountResponse->assertForbidden();
 
         $this->assertDatabaseMissing('users', [
-            'username' => self::CREATE_ACCOUNT_USERNAME
+            'username' => self::CREATE_ACCOUNT_USERNAME,
         ]);
     }
 
@@ -424,7 +424,7 @@ class AddUserTest extends TestCase
         $createAccountResponse->assertUnauthorized();
 
         $this->assertDatabaseMissing('users', [
-            'username' => self::CREATE_ACCOUNT_USERNAME
+            'username' => self::CREATE_ACCOUNT_USERNAME,
         ]);
     }
 }

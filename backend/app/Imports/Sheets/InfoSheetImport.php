@@ -12,6 +12,7 @@ class InfoSheetImport implements ToArray
     protected array $errors = [];
 
     private bool $monthCheckFailed = false;
+
     private bool $yearCheckFailed = false;
 
     public function array(array $rows): void
@@ -100,11 +101,11 @@ class InfoSheetImport implements ToArray
             'jumlah_hari' => 'JUMLAH_HARI',
         ];
 
-        if(!in_array('bulan', $this->data)) {
+        if (! in_array('bulan', $this->data)) {
             $this->monthCheckFailed = true;
         }
 
-        if(!in_array('tahun', $this->data)) {
+        if (! in_array('tahun', $this->data)) {
             $this->monthCheckFailed = true;
         }
 
@@ -123,11 +124,11 @@ class InfoSheetImport implements ToArray
                     'message' => "{$label} harus berupa angka bulat.",
                 ];
 
-                if($field === 'bulan') {
+                if ($field === 'bulan') {
                     $this->monthCheckFailed = true;
                 }
 
-                if($field === 'tahun') {
+                if ($field === 'tahun') {
                     $this->yearCheckFailed = true;
                 }
 

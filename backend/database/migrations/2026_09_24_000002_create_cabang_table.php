@@ -22,7 +22,7 @@ return new class extends Migration
                 $nama->collation('NOCASE');
             }
             $kode->unique();
-            
+
             $table->timestamps();
         });
     }

@@ -64,7 +64,7 @@ class TopProductsExcelExport extends DefaultValueBinder implements FromQuery, Wi
                         'bold' => true,
                     ],
                     'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
                     ],
                 ]);
 

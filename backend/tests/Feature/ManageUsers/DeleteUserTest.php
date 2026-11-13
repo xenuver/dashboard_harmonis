@@ -34,13 +34,13 @@ class DeleteUserTest extends TestCase
         $this->ownerToken = $this->ownerUser->createToken('auth_token')->plainTextToken;
     }
 
-    public static function deleteInvalidUserIdProvider() 
+    public static function deleteInvalidUserIdProvider()
     {
         $invalidInputCases = ['a', 'admin', 'username', '%', '!', -1];
 
         $cases = [];
 
-        foreach($invalidInputCases as $value) {
+        foreach ($invalidInputCases as $value) {
             $cases['set to '.(json_encode($value))] = [
                 $value,
             ];
@@ -98,14 +98,13 @@ class DeleteUserTest extends TestCase
     public function test_admin_cannot_delete_user_with_user_id(mixed $userId)
     {
         $deleteAccountResponse = $this->postJson('/api/delete-user', [
-            'userid' => $userId
+            'userid' => $userId,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $deleteAccountResponse->assertUnprocessable();
         $deleteAccountResponse->assertJsonValidationErrors('userid');
     }
-
 
     public function test_cannot_delete_self()
     {
