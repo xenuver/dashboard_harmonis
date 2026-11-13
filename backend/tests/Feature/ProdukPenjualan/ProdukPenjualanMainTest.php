@@ -237,14 +237,14 @@ class ProdukPenjualanMainTest extends TestCase
             $url = $url.'?'.http_build_query($requestParams);
         }
 
-        $getDashboardResponse = $this->getJson($url, [
+        $getProdukPenjualanResponse = $this->getJson($url, [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $getDashboardResponse->assertUnprocessable();
+            $getProdukPenjualanResponse->assertUnprocessable();
         } else if ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $status = $getDashboardResponse->status();
+            $status = $getProdukPenjualanResponse->status();
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);
         } else {
@@ -256,23 +256,23 @@ class ProdukPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
 
-        $getDashboardResponse = $this->getJson('/api/produk-penjualan', [
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
             'Authorization' => 'Bearer '.($this->adminToken),
         ]);
 
-        $getDashboardResponse->assertOk();
+        $getProdukPenjualanResponse->assertOk();
     }
 
     public function test_can_get_produk_penjualan_as_owner(): void
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
 
-        $getDashboardResponse = $this->getJson('/api/produk-penjualan', [
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
-        $getDashboardResponse->assertOk();
-        $getDashboardResponse->assertJsonStructure(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
+        $getProdukPenjualanResponse->assertOk();
+        $getProdukPenjualanResponse->assertJsonStructure(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
     }
 
 
@@ -280,9 +280,9 @@ class ProdukPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
 
-        $getDashboardResponse = $this->getJson('/api/produk-penjualan');
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan');
 
-        $getDashboardResponse->assertUnauthorized();
-        $getDashboardResponse->assertJsonMissing(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
+        $getProdukPenjualanResponse->assertUnauthorized();
+        $getProdukPenjualanResponse->assertJsonMissing(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
     }
 }
