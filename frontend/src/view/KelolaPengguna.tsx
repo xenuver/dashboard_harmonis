@@ -180,7 +180,7 @@ export function KelolaPengguna() {
               </NativeSelect>
             </Field>
           </FieldGroup>
-          <AddNewUserDialogFlow retryTrigger={retrySearchNow} buttonClassName="mt-3" />
+          <AddNewUserDialogFlow retryTrigger={retrySearchNow} buttonClassName="mt-3 w-full sm:w-auto shrink-0" />
         </CardContent>
       </Card>
 
