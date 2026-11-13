@@ -26,8 +26,6 @@ class ProdukPenjualanMainTest extends TestCase
 
     private const REPORT_TEST_KATEGORI = 'tertinggi';
 
-    private const REPORT_TEST_SEARCH  = 'cake';
-
     private const OUTCOME_SUCCESS = 0;
 
     private const OUTCOME_NOT_FOUND = 1;
@@ -93,7 +91,7 @@ class ProdukPenjualanMainTest extends TestCase
         $kategoriInvalidInputCases = ['sedang', 'bagus', 'makanan', 'elektronik', ''];
 
         $cases = [
-            'periode_bulan, periode_tahun, kategori, and search filled (accepted)' => [
+            'periode_bulan, periode_tahun, and kategori filled (accepted)' => [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
                 self::REPORT_TEST_YEAR,
