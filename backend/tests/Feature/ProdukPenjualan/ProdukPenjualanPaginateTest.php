@@ -75,7 +75,7 @@ class ProdukPenjualanPaginateTest extends TestCase
 
     public static function produkPenjualanRejectedPageNumberProvider(): array
     {
-        $pageNumberInvalidInputCases = ['', 0, -5];
+        $pageNumberInvalidInputCases = ['', 0, -5, 'dua', 'seven', '&'];
 
         $cases = [];
 
