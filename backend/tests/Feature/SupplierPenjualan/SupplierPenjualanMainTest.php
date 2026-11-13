@@ -208,7 +208,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_can_get_supplier_penjualan_as_admin(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
             'Authorization' => 'Bearer '.($this->adminToken),
@@ -219,7 +219,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_can_get_supplier_penjualan_as_owner(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
             'Authorization' => 'Bearer '.($this->ownerToken),
@@ -232,7 +232,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_cannot_get_supplier_penjualan_while_logged_out(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan');
 
