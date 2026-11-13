@@ -153,6 +153,9 @@ export function Dashboard() {
         setKpiTotalGrowth("-");
         setKpiTotalGrowthToolTip(undefined);
       }
+    } else if (data.total_growth === undefined) {
+      setKpiTotalGrowth("-");
+      setKpiTotalGrowthToolTip(undefined);
     } else {
       console.warn(`respon total_growth dari backend tidak terduga: ${data?.total_growth}`);
       setKpiTotalGrowth("-");
