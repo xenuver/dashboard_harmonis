@@ -83,9 +83,7 @@ export function DeleteUserDialogFlow({ retryTrigger, deleteUsername, deleteUserI
               <DialogTitle>Hapus Pengguna</DialogTitle>
               <DialogDescription>
                 Anda akan menghapus pengguna{deleteUsername? ` dengan nama pengguna '${deleteUsername}'. ` : ". "} 
-                Setelah dihapus, pengguna ini tidak dapat diakses lagi dan jika terdapat laporan yang diunggah pengguna ini,
-                pengguna ini tidak dapat dihapus lagi hingga semua pengunggah laporan dirubah ke pengguna lain.
-                Apakah anda ingin melanjutkan?
+                Setelah dihapus, pengguna ini tidak dapat diakses lagi. Apakah anda ingin melanjutkan?
               </DialogDescription>
               <div className="text-red-700">{fetchMessageText}</div>
             </DialogHeader>
