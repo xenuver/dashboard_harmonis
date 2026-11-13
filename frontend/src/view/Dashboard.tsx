@@ -317,7 +317,7 @@ export function Dashboard() {
 
           <Card className="pb-6 m-5">
             <CardHeader>
-              <CardTitle>Grafik Penjualan</CardTitle>
+                <CardTitle>Grafik Penjualan Harian</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="w-full h-80">
