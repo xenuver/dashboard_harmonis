@@ -4,6 +4,7 @@ namespace Tests\Feature\ProdukPenjualan;
 
 use App\Models\LaporanUpload;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -273,6 +274,20 @@ class ProdukPenjualanMainTest extends TestCase
         $getProdukPenjualanResponse->assertJsonStructure(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
     }
 
+    public function test_return_not_found_if_report_not_found(): void
+    {
+        LaporanUpload::factory()->jenis_laporan('gabungan')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+
+        $prevMonthDate = Carbon::create(self::REPORT_TEST_YEAR, self::REPORT_TEST_MONTH, 1)->subMonth();
+        $lastMonth = $prevMonthDate->month;
+        $lastYear = $prevMonthDate->year;
+
+        $getSupplierPenjualanResponse = $this->getJson("/api/supplier-penjualan?periode_bulan={$lastMonth}&periode_tahun={$lastYear}", [
+            'Authorization' => 'Bearer '.($this->adminToken),
+        ]);
+
+        $getSupplierPenjualanResponse->assertNotFound();
+    }
 
     public function test_cannot_get_produk_penjualan_while_logged_out(): void
     {
