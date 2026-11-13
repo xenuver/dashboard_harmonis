@@ -32,8 +32,6 @@ class ProdukPenjualanPaginateTest extends TestCase
                 'jumlah',
                 'qty',
                 'stok',
-                'created_at',
-                'updated_at',
             ],
         ],
         'first_page_url',
