@@ -23,6 +23,7 @@ services:
     env_file:
       - ./.env.backend
     volumes:
+      - ./backend/php-fpm/config/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
 
 networks:
