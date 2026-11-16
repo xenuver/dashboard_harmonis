@@ -1,0 +1,76 @@
+FROM php:8.3-fpm-alpine AS php-extension-builder
+
+COPY --from=mlocati/php-extension-installer:latest \
+    /usr/bin/install-php-extensions \
+    /usr/local/bin/
+
+RUN IPE_SAVE_PERMDEPS_TO=/tmp/php-runtime-deps.txt \
+    IPE_SAVE_VOLDEPS_TO=/tmp/php-build-deps.txt \
+    install-php-extensions \
+        bcmath \
+        curl \
+        gd \
+        intl \
+        mbstring \
+        mysqli \
+        opcache \
+        pdo_mysql \
+        pdo_sqlite \
+        sqlite3 \
+        xml \
+        zip
+
+FROM php-extension-builder AS composer-builder
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+RUN apk add --no-cache git unzip
+
+WORKDIR /var/www/html
+
+COPY . .
+
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --classmap-authoritative
+
+FROM php:8.3-fpm-alpine AS app
+
+COPY --from=php-extension-builder \
+    /tmp/php-runtime-deps.txt \
+    /tmp/php-runtime-deps.txt
+
+RUN set -eux; \
+    test -f /tmp/php-runtime-deps.txt; \
+    packages="$(tr '\n' ' ' < /tmp/php-runtime-deps.txt | xargs)"; \
+    if [ -n "$packages" ]; then \
+        apk add --no-cache $packages; \
+    else \
+        echo "No runtime dependencies to install."; \
+    fi; \
+    rm -f /tmp/php-runtime-deps.txt
+
+COPY --from=php-extension-builder \
+    /usr/local/lib/php/extensions/ \
+    /usr/local/lib/php/extensions/
+
+COPY --from=php-extension-builder \
+    /usr/local/etc/php/conf.d/ \
+    /usr/local/etc/php/conf.d/
+
+WORKDIR /var/www/html
+
+COPY . .
+
+COPY --from=composer-builder \
+    /var/www/html/vendor \
+    ./vendor
+
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
