@@ -1,0 +1,35 @@
+version: '3.8' 
+services: 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./nginx/Dockerfile.alpine-frontend
+    restart: unless-stopped
+    networks:
+      - outside_access
+      - backend_access
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/nginx/config/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 15001:8080
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: ./Dockerfile.alpine
+    restart: unless-stopped
+    networks:
+      - backend_access
+    env_file:
+      - ./.env.backend
+    volumes:
+      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+
+networks:
+  outside_access:
+    driver: bridge
+  backend_access:
+    driver: bridge
+    internal: true
