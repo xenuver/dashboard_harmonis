@@ -4,12 +4,14 @@ import tailwindcss from '@tailwindcss/vite'
 import path from "path"
 import { visualizer } from "rollup-plugin-visualizer";
 
+const runViteChunkVisualizer = process.env.VITE_VISUALIZE_BUILD_CHUNK_SIZE?.toLowerCase() === "true";
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    visualizer({
+    runViteChunkVisualizer && visualizer({
       // filename: 'chunk-stats.html',
       // emitFile: true,
       // template: 'treemap',
