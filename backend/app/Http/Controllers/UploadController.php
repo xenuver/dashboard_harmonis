@@ -68,7 +68,7 @@ class UploadController extends Controller
             }
         }
 
-        if (! in_array($infoParserData['jenis_laporan'], ['GABUNGAN', 'AMPERA', 'PAL'])) {
+        if (array_key_exists('jenis_laporan', $infoParserData) && ! in_array($infoParserData['jenis_laporan'], ['GABUNGAN', 'AMPERA', 'PAL'])) {
             $infoParserErrors['INFO'][] = [
                 'location' => null,
                 'message' => 'Jenis laporan dalam laporan hanya menerima GABUNGAN, AMPERA dan PAL (semua huruf kapital). Laporan: '.($infoParserData['jenis_laporan']),
