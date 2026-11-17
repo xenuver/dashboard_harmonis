@@ -73,9 +73,9 @@ class DeleteUserTest extends TestCase
 
     public function test_admin_cannot_delete_user_with_invalid_id()
     {
-        $userId = 0;
+        $userId = 1;
         do {
-            $userId = rand(0, 100);
+            $userId = rand(1, 100);
         } while ($userId === $this->adminUser->id || $userId === $this->ownerUser->id);
 
         $deleteAccountResponse = $this->postJson('/api/delete-user', [
