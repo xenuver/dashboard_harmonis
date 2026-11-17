@@ -2,12 +2,18 @@
 import { create as axiosCreate, AxiosError } from "axios";
 import sessionManager from "./sessionManager";
 
-const backendProtocol = location.protocol;
-const backendHostname = location.hostname;
-const backendPort = 8000;
+const backendProtocol = import.meta.env.VITE_BACKEND_PROTOCOL === "current"? 
+    location.protocol : import.meta.env.VITE_BACKEND_PROTOCOL || location.protocol;
+
+const backendHostname = import.meta.env.VITE_BACKEND_HOSTNAME === "current"? 
+    location.hostname : import.meta.env.VITE_BACKEND_HOSTNAME || location.hostname;
+
+const backendPort = import.meta.env.VITE_BACKEND_PORT === "current"?
+    location.port : import.meta.env.VITE_BACKEND_PORT === "default"?
+    "" : import.meta.env.VITE_BACKEND_PORT || "";
 
 export const api = axiosCreate({
-  baseURL: `${backendProtocol}//${backendHostname}:${backendPort}`,
+  baseURL: `${backendProtocol}//${backendHostname}${backendPort ? `:${backendPort}` : ""}`,
 });
 
 api.interceptors.request.use((config) => {
