@@ -4,6 +4,10 @@ services:
     build:
       context: ./frontend
       dockerfile: ./nginx/Dockerfile.alpine-frontend
+      args:
+        VITE_BACKEND_PROTOCOL: current
+        VITE_BACKEND_HOSTNAME: current
+        VITE_BACKEND_PORT: current
     restart: unless-stopped
     networks:
       - outside_access
