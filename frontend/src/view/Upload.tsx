@@ -169,6 +169,9 @@ export function Upload() {
             setUploadMessageText("Terjadi kesalahan dalam membaca data. Pastikan laporan merupakan file .xlsx yang valid");
             setUploadMessageState(UPLOAD_MESSAGE_FAIL);
           }
+        } else if(status === 413) {
+          setUploadMessageState(UPLOAD_MESSAGE_FAIL);
+          setUploadMessageText("File/permintaan yang diunggah terlalu besar");
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
