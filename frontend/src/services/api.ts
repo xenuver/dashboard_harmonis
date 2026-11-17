@@ -45,7 +45,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use((done)=> Promise.resolve(done), function(error: AxiosError) {
   if((error.status === 401 || error.response?.status === 401) && location.pathname !== "/login") {
     sessionManager.deleteTokens();
-    window.location.href = "/login?reason=invalid_session";
+    const lastLocation = `${location.pathname}${location.search}`;
+    let nextUrl = "/login?reason=invalid_session";
+
+    if(lastLocation) {
+      nextUrl = `${nextUrl}&next=${encodeURIComponent(lastLocation)}`;
+    }
+
+    window.location.href = nextUrl;
   }
 
   return Promise.reject(error);

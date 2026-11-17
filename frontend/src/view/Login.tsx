@@ -70,7 +70,17 @@ export function LoginScreen() {
           session.setToken(la.token);
           session.setIdentity(la.user);
 
-          navigate("/dashboard");
+          const nextUrl = searchParams.get("next");
+          if(nextUrl !== null) {
+            searchParams.delete("next");
+            setSearchParams(searchParams, { replace: true });
+          }
+
+          if(typeof nextUrl === "string" && nextUrl.startsWith('/') && !nextUrl.startsWith('//') && !nextUrl.startsWith('/\\')) {
+            navigate(nextUrl);
+          } else {
+            navigate("/dashboard");
+          }
         } catch(e) {
           console.error(e);
           setLoginMessageText("Respon login berhasil memiliki format yang tidak tepat");
