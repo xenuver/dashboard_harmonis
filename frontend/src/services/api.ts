@@ -18,6 +18,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.request.use((config) => {
+  const accept = config.headers.get('Accept');
+
+  const expectsJson =
+      config.responseType === 'json' || (typeof accept === 'string' && accept.includes('application/json'));
+
+  if (expectsJson) {
+    config.responseType = 'json';
+
+    config.transitional = {
+      ...config.transitional,
+      silentJSONParsing: false,
+    };
+  }
+
+  return config;
+});
+
 api.interceptors.response.use((done)=> Promise.resolve(done), function(error: AxiosError) {
   if((error.status === 401 || error.response?.status === 401) && location.pathname !== "/login") {
     sessionManager.deleteTokens();
