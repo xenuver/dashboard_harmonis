@@ -1,5 +1,6 @@
-data
-mock_data
+/data
+/mock_data
 
-.env
-.env.*
+/.env
+/.env.*
+!/.env.example
