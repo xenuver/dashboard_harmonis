@@ -35,6 +35,7 @@ services:
       - type: bind
         source: ./backend/php-fpm/config/custom.ini
         target: /usr/local/etc/php/conf.d/custom.ini
+        read_only: true
         bind:
           create_host_path: false
       - type: bind
