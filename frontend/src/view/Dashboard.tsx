@@ -363,7 +363,7 @@ export function Dashboard() {
               <CardContent>
                   <div className="w-full h-80">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart responsive data={trendGraphViewData}>
+                      <LineChart data={trendGraphViewData}>
                         <CartesianGrid />
                         { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "ampera" )) &&
                           <Line dataKey="ampera" isAnimationActive={false} name="Cabang Ampera" fill="orange" stroke="orange" />
@@ -375,7 +375,12 @@ export function Dashboard() {
                           <Line isAnimationActive={false} name="Memuat..." stroke="black" />
                         }
                         <XAxis dataKey="tanggal" tickFormatter={formatDate} />
-                        <YAxis width="auto" name="Total Penjualan" tickFormatter={formatRupiahSingkat} />
+                        <YAxis width="auto" orientation="left" tickFormatter={formatRupiahSingkat} label={{
+                          value: "Total Penjualan",
+                          angle: -90,
+                          position: "insideLeft",
+                          style: { textAnchor: "middle" },
+                        }} />
                         <Tooltip isAnimationActive={true} labelFormatter={(value) => (typeof value === 'string' || typeof value === 'number')? formatDate(value) : value} 
                           formatter={(value) => (typeof value === 'number')? formatRupiah(value) : ""} />
                         <Legend />
