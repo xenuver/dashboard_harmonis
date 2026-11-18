@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { cn } from "cn";
 
 import "../../styles/index.css";
 
@@ -20,7 +19,7 @@ export default function PageNotFound() {
         <EmptyTitle className="font-medium">Halaman Tidak Ditemukan</EmptyTitle>
       </EmptyHeader>
       <EmptyContent>
-        <Link to="/" className={cn(buttonVariants({ variant: "default" }), "mt-4")}>Kembali ke Halaman Utama</Link>
+        <Link to="/" className={buttonVariants({ variant: "default" })}>Kembali ke Halaman Utama</Link>
       </EmptyContent>
     </Empty>
   )
