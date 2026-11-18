@@ -89,7 +89,6 @@ class SupplierPenjualanPaginateTest extends TestCase
         $requestParams = [
             'page' => $page,
             'jenis_laporan' => 'gabungan',
-            'kategori' => 'terendah',
         ];
 
         $url = '/api/supplier-penjualan';
@@ -118,7 +117,6 @@ class SupplierPenjualanPaginateTest extends TestCase
         $requestParams = [
             'page' => $page,
             'jenis_laporan' => 'gabungan',
-            'kategori' => 'terendah',
         ];
 
         $url = '/api/supplier-penjualan';
@@ -180,7 +178,6 @@ class SupplierPenjualanPaginateTest extends TestCase
             'page' => $exptectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
-            'kategori' => 'terendah',
         ];
 
         $url = '/api/supplier-penjualan';
@@ -213,7 +210,6 @@ class SupplierPenjualanPaginateTest extends TestCase
             'page' => $exptectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
-            'kategori' => 'terendah',
         ];
 
         $url = '/api/supplier-penjualan';
