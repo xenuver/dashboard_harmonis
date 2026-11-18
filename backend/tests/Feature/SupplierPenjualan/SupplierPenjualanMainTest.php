@@ -70,7 +70,7 @@ class SupplierPenjualanMainTest extends TestCase
         ])->createToken('auth_token')->plainTextToken;
     }
 
-    public static function supplierPenjualanMonthYearKategoriProvider(): array
+    public static function supplierPenjualanMonthYearProvider(): array
     {
         $jenisLaporanAcceptedInputCases = ['gabungan', 'ampera', 'pal'];
         $jenisLaporanInvalidInputCases = ['ampera1', 'jeruju', 'paI', ''];
@@ -82,7 +82,7 @@ class SupplierPenjualanMainTest extends TestCase
         $yearInvalidInputCases = [-1000, -5, 65536, 100000, ''];
 
         $cases = [
-            'periode_bulan, periode_tahun, and kategori filled (accepted)' => [
+            'jenis_laporan, periode_bulan, and periode_tahun filled (accepted)' => [
                 self::REPORT_TEST_JENIS,
                 self::REPORT_TEST_MONTH,
                 self::REPORT_TEST_YEAR,
@@ -171,7 +171,7 @@ class SupplierPenjualanMainTest extends TestCase
         return $cases;
     }
 
-    #[DataProvider('supplierPenjualanMonthYearKategoriProvider')]
+    #[DataProvider('supplierPenjualanMonthYearProvider')]
     public function test_validate_supplier_penjualan_input_with(mixed $jenisLaporan, mixed $periodeBulan, mixed $periodeTahun, mixed $expectedOutcome)
     {
         $requestParams = [];
