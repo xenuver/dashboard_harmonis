@@ -209,7 +209,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_can_get_supplier_penjualan_as_admin(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
             'Authorization' => 'Bearer '.($this->adminToken),
@@ -220,7 +220,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_can_get_supplier_penjualan_as_owner(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
             'Authorization' => 'Bearer '.($this->ownerToken),
@@ -232,7 +232,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_return_not_found_if_report_not_found(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
         $prevMonthDate = Carbon::create(self::REPORT_TEST_YEAR, self::REPORT_TEST_MONTH, 1)->subMonth();
         $lastMonth = $prevMonthDate->month;
@@ -247,7 +247,7 @@ class SupplierPenjualanMainTest extends TestCase
 
     public function test_cannot_get_supplier_penjualan_while_logged_out(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
         $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan');
 

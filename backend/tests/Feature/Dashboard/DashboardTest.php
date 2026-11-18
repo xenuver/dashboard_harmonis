@@ -194,7 +194,9 @@ class DashboardTest extends TestCase
 
     public function test_can_get_dashboard_data_as_admin(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
+        $this->seed();
+
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSalesHarian()->withDataTransaksi()->withMemberCount()->withProdukPenjualan(50, 50)->withSupplierPenjualan(50)->create();
 
         $getDashboardResponse = $this->getJson('/api/dashboard', [
             'Authorization' => 'Bearer '.($this->adminToken),
@@ -206,7 +208,9 @@ class DashboardTest extends TestCase
 
     public function test_can_get_dashboard_data_as_owner(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->generateFullReport()->create();
+        $this->seed();
+
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSalesHarian()->withDataTransaksi()->withMemberCount()->withProdukPenjualan(50, 50)->withSupplierPenjualan(50)->create();
 
         $getDashboardResponse = $this->getJson('/api/dashboard', [
             'Authorization' => 'Bearer '.($this->ownerToken),

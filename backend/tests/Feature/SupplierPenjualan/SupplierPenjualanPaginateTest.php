@@ -84,7 +84,7 @@ class SupplierPenjualanPaginateTest extends TestCase
     public function test_can_paginate_between_pages(mixed $page): void
     {
         $itemCount = 50;
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan($itemCount)->create();
 
         $requestParams = [
             'page' => $page,
@@ -113,7 +113,7 @@ class SupplierPenjualanPaginateTest extends TestCase
     #[DataProvider('supplierPenjualanRejectedPageNumberProvider')]
     public function test_cannot_paginate_between_pages(mixed $page): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan()->create();
 
         $requestParams = [
             'page' => $page,
@@ -137,7 +137,7 @@ class SupplierPenjualanPaginateTest extends TestCase
     public function test_can_return_data_less_than_one_page(): void
     {
         $itemCount = 5;
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan($itemCount)->create();
         $perPage = 10;
 
         $requestParams = [
@@ -166,7 +166,7 @@ class SupplierPenjualanPaginateTest extends TestCase
     public function test_last_page_possibly_return_less_data(): void
     {
         $itemCount = 30;
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan()->create();
         $perPage = 10;
 
         $exptectedLastPage = ceil($itemCount / $perPage);
@@ -204,7 +204,7 @@ class SupplierPenjualanPaginateTest extends TestCase
     public function test_return_no_data_beyond_last_page(): void
     {
         $itemCount = 20;
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(1)->worst_products_count(1)->supplier_count($itemCount)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan($itemCount)->create();
         $perPage = 10;
 
         $exptectedLastPage = ceil($itemCount / $perPage) + 5;

@@ -253,7 +253,7 @@ class ProdukPenjualanMainTest extends TestCase
 
     public function test_can_get_produk_penjualan_as_admin(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
         $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
             'Authorization' => 'Bearer '.($this->adminToken),
@@ -264,7 +264,7 @@ class ProdukPenjualanMainTest extends TestCase
 
     public function test_can_get_produk_penjualan_as_owner(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
         $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
             'Authorization' => 'Bearer '.($this->ownerToken),
@@ -276,7 +276,7 @@ class ProdukPenjualanMainTest extends TestCase
 
     public function test_return_not_found_if_report_not_found(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->withProdukPenjualan(10, 10)->create();
 
         $prevMonthDate = Carbon::create(self::REPORT_TEST_YEAR, self::REPORT_TEST_MONTH, 1)->subMonth();
         $lastMonth = $prevMonthDate->month;
@@ -291,7 +291,7 @@ class ProdukPenjualanMainTest extends TestCase
 
     public function test_cannot_get_produk_penjualan_while_logged_out(): void
     {
-        LaporanUpload::factory()->jenis_laporan('gabungan')->top_products_count(5)->worst_products_count(5)->supplier_count(5)->generateFullReport()->create();
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
         $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan');
 
