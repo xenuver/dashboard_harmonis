@@ -9,6 +9,7 @@ import SupplierPenjualan from './view/SupplierPenjualan';
 // import UiTest from './view/UiTest';
 import KelolaPengguna from './view/KelolaPengguna';
 import KelolaLaporan from './view/KelolaLaporan';
+import PageNotFound from './view/errors/PageNotFound';
 import { LoggedInLayout } from "./layouts/LoggedInLayout";
 import { LoggedOutLayout } from "./layouts/LoggedOutLayout";
 import AutoRedirectIfSignedIn from "./components/routes/auth/AutoRedirectIfSignedIn";
@@ -42,6 +43,10 @@ const App = () => {
         </Route>
       </Route>
       {/* <Route path="/uitest" element={<UiTest />} /> */}
+
+      <Route element={<LoggedOutLayout />}>
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
     </Routes>
   );
 }
