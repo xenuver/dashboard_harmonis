@@ -106,7 +106,7 @@ class UploadController extends Controller
             ], 422);
         }
 
-        return DB::transaction(function () use ($request, $validated, $parser, $isGabungan, $infoParserData) {
+        return DB::transaction(function () use ($validated, $parser, $isGabungan, $infoParserData) {
             $upload = LaporanUpload::create([
                 'jenis_laporan' => strtolower($infoParserData['jenis_laporan']),
                 'periode_bulan' => $infoParserData['bulan'],

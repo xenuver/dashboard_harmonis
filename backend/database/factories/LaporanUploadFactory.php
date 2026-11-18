@@ -88,13 +88,14 @@ class LaporanUploadFactory extends Factory
         ]);
     }
 
-    public function withSalesHarian() {
+    public function withSalesHarian()
+    {
         return $this->afterCreating(function (LaporanUpload $report) {
             $jumlahHari = $report->jumlah_hari;
             $cabangAll = Cabang::all(['id', 'kode']);
 
             DB::transaction(function () use ($jumlahHari, $cabangAll, $report) {
-                if($cabangAll->isEmpty()) {
+                if ($cabangAll->isEmpty()) {
                     throw new \RuntimeException('Tabel cabang kosong. Pastikan database terdapat setidaknya 1 cabang.');
                 }
                 for ($i = 1; $i <= $jumlahHari; $i++) {
@@ -112,19 +113,22 @@ class LaporanUploadFactory extends Factory
         });
     }
 
-    public function withDataTransaksi() {
+    public function withDataTransaksi()
+    {
         return $this->afterCreating(function (LaporanUpload $report) {
             DataTransaksi::factory()->upload_id($report->id)->create();
         });
     }
 
-    public function withMemberCount() {
+    public function withMemberCount()
+    {
         return $this->afterCreating(function (LaporanUpload $report) {
             MemberCount::factory()->upload_id($report->id)->create();
         });
     }
 
-    public function withProdukPenjualan(int $topProductsCount = 300, int $worstProductsCount = 300) {
+    public function withProdukPenjualan(int $topProductsCount = 300, int $worstProductsCount = 300)
+    {
         if ($topProductsCount < 0) {
             throw new InvalidArgumentException('Nilai jumlah produk teratas di bawah 0');
         }
@@ -139,7 +143,8 @@ class LaporanUploadFactory extends Factory
         });
     }
 
-    public function withSupplierPenjualan(int $supplierCount = 400) {
+    public function withSupplierPenjualan(int $supplierCount = 400)
+    {
         if ($supplierCount < 0) {
             throw new InvalidArgumentException('Nilai jumlah supplier di bawah 0');
         }

@@ -35,7 +35,7 @@ class ListReportsTest extends TestCase
 
         $date = Carbon::create(2026, 11);
 
-        for($i = 0; $i < $this->fakeReportsCount; $i++) {
+        for ($i = 0; $i < $this->fakeReportsCount; $i++) {
             LaporanUpload::factory()->periode($date->month, $date->year)->create();
             $date->addMonthNoOverflow();
         }
@@ -150,7 +150,7 @@ class ListReportsTest extends TestCase
         ]);
         if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $listAccountsResponse->assertOk()->assertJsonCount($perPage, 'data');
-        } else if ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $listAccountsResponse->assertUnprocessable();
         } else {
             $this->fail('Unexpected outcome');
@@ -170,10 +170,10 @@ class ListReportsTest extends TestCase
 
             // Assert that EVERY item matches the filter
             $this->assertTrue(
-                $reports->every(fn($report) => $report['periode_bulan'] == $bulan),
+                $reports->every(fn ($report) => $report['periode_bulan'] == $bulan),
                 "Response contains reports that do not match the month filter: {$bulan}"
             );
-        } else if ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $listAccountsResponse->assertUnprocessable();
         } else {
             $this->fail('Unexpected outcome');
@@ -188,7 +188,7 @@ class ListReportsTest extends TestCase
         ]);
         if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $listAccountsResponse->assertOk();
-        } else if ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $listAccountsResponse->assertUnprocessable();
         } else {
             $this->fail('Unexpected outcome');
@@ -203,7 +203,7 @@ class ListReportsTest extends TestCase
         ]);
         if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
             $listAccountsResponse->assertOk();
-        } else if ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
+        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $listAccountsResponse->assertUnprocessable();
         } else {
             $this->fail('Unexpected outcome');
