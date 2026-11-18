@@ -16,7 +16,7 @@ import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
 import { AddNewUserDialogFlow } from "@/components/manageusers/AddNewUserDialogFlow";
 
 import type { UserSearchResponse } from "../../types/UserSearchResponse";
-import type { UserInformation } from "types/UserInformation";
+import type { UserInformation } from "../../types/UserInformation";
 import { DeleteUserDialogFlow } from "@/components/manageusers/DeleteUserDialogFlow";
 import { EditUserDialogFlow } from "@/components/manageusers/EditUserDialogFlow";
 

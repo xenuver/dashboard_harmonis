@@ -25,7 +25,7 @@ import type { TrendData } from "../../types/Models/TrendData";
 import type { Supplier } from "../../types/Models/Supplier";
 
 import '../styles/dashboard.css';
-import type { DashboardMemberVsNonMemberData } from "types/DashboardMemberVsNonMemberData";
+import type { DashboardMemberVsNonMemberData } from "../../types/DashboardMemberVsNonMemberData";
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",

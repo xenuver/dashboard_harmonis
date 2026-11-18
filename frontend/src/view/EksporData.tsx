@@ -8,7 +8,7 @@ import { Button, } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import type LaravelValidationError from "types/LaravelValidationError";
+import type LaravelValidationError from "../../types/LaravelValidationError";
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
