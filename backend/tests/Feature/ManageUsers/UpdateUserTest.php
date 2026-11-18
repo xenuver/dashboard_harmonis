@@ -252,7 +252,7 @@ class UpdateUserTest extends TestCase
                 'username' => $oldUsername,
             ]);
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
     }
 
@@ -290,7 +290,7 @@ class UpdateUserTest extends TestCase
             $this->assertFalse(Hash::check($value, $someone->password));
             $this->assertTrue(Hash::check($oldPassword, $someone->password));
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
     }
 
@@ -323,7 +323,7 @@ class UpdateUserTest extends TestCase
                 'role' => $someone->role,
             ]);
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
     }
 
@@ -356,7 +356,7 @@ class UpdateUserTest extends TestCase
                 'enabled' => $someone->enabled,
             ]);
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
     }
 

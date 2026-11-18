@@ -72,7 +72,7 @@ class UserInformationTest extends TestCase
             $expectedUsername = self::OWNER_USERNAME;
             $expectedRole = self::OWNER_EXPECTED_ROLE;
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
 
         $userToken = $loginUser->createToken('auth_token')->plainTextToken;

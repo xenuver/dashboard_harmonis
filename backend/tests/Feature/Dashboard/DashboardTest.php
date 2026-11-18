@@ -188,7 +188,7 @@ class DashboardTest extends TestCase
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);
         } else {
-            $this->assertTrue(false);
+            $this->fail('Unexpected outcome');
         }
     }
 
