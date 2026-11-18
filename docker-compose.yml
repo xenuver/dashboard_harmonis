@@ -13,7 +13,12 @@ services:
       - outside_access
       - backend_access
     volumes:
-      - ./frontend/nginx/config/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - type: bind
+        source: ./frontend/nginx/config/default.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+        bind:
+          create_host_path: false
     ports:
       - 15001:8080
 
@@ -27,8 +32,16 @@ services:
     env_file:
       - ./.env.backend
     volumes:
-      - ./backend/php-fpm/config/custom.ini:/usr/local/etc/php/conf.d/custom.ini:ro
-      - /var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+      - type: bind
+        source: ./backend/php-fpm/config/custom.ini
+        target: /usr/local/etc/php/conf.d/custom.ini
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /var/run/mysqld/mysqld.sock
+        target: /var/run/mysqld/mysqld.sock
+        bind:
+          create_host_path: false
 
 networks:
   outside_access:
