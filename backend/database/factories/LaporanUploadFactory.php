@@ -106,6 +106,9 @@ class LaporanUploadFactory extends Factory
             $cabangAll = Cabang::all(['id', 'kode']);
 
             DB::transaction(function () use ($jumlahHari, $cabangAll, $report) {
+                if($cabangAll->isEmpty()) {
+                    throw new \RuntimeException('Tabel cabang kosong. Pastikan database terdapat setidaknya 1 cabang.');
+                }
                 for ($i = 1; $i <= $jumlahHari; $i++) {
                     $salesHarianDate = Carbon::create($report->periode_tahun, $report->periode_bulan, $i);
                     if ($report->jenis_laporan === 'gabungan') {
