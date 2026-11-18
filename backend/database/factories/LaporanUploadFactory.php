@@ -113,7 +113,7 @@ class LaporanUploadFactory extends Factory
                             SalesHarian::factory()->upload_id($report->id)->cabang_id($cabang->id)->tanggal($salesHarianDate)->create();
                         }
                     } else {
-                        $cabang = $cabangAll->where('kode', strtoupper($report->jenis_laporan));
+                        $cabang = $cabangAll->where('kode', strtoupper($report->jenis_laporan))->firstOrFail();
                         SalesHarian::factory()->upload_id($report->id)->cabang_id($cabang->id)->tanggal($salesHarianDate)->create();
                     }
                 }
