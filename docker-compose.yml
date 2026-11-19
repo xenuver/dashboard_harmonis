@@ -4,7 +4,7 @@ services:
     build:
       context: ./frontend
       dockerfile: ./nginx/Dockerfile.alpine-frontend
-      args:
+      args: # Penjelasan setiap args dapat dilihat di file .env dalam folder frontend
         VITE_BACKEND_PROTOCOL: current
         VITE_BACKEND_HOSTNAME: current
         VITE_BACKEND_PORT: current
@@ -22,25 +22,18 @@ services:
     ports:
       - 15001:8080
 
-  backend:
+  backend: # Semua contoh .env dapat dilihat di folder beckend. Disarankan menggunakan .env.prod.example di lingkungan production
     build: 
       context: ./backend
       dockerfile: ./Dockerfile.alpine
     restart: unless-stopped
     networks:
       - backend_access
-    env_file:
-      - ./.env.backend
     volumes:
       - type: bind
         source: ./backend/php-fpm/config/custom.ini
         target: /usr/local/etc/php/conf.d/custom.ini
         read_only: true
-        bind:
-          create_host_path: false
-      - type: bind
-        source: /var/run/mysqld/mysqld.sock
-        target: /var/run/mysqld/mysqld.sock
         bind:
           create_host_path: false
 
