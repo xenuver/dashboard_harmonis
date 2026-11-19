@@ -51,7 +51,7 @@ class UploadController extends Controller
             }
         }
 
-        if (array_key_exists('bulan', $infoParserData) && filter_var($infoParserData['bulan'] ?? null, FILTER_VALIDATE_INT) === true) {
+        if (array_key_exists('bulan', $infoParserData) && filter_var($infoParserData['bulan'] ?? null, FILTER_VALIDATE_INT) !== false) {
             if ($infoParserData['bulan'] != $validated['periode_bulan']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
@@ -60,7 +60,7 @@ class UploadController extends Controller
             }
         }
 
-        if (array_key_exists('tahun', $infoParserData) && filter_var($infoParserData['tahun'] ?? null, FILTER_VALIDATE_INT) === true) {
+        if (array_key_exists('tahun', $infoParserData) && filter_var($infoParserData['tahun'] ?? null, FILTER_VALIDATE_INT) !== false) {
             if ($infoParserData['tahun'] != $validated['periode_tahun']) {
                 $infoParserErrors['INFO'][] = [
                     'location' => null,
