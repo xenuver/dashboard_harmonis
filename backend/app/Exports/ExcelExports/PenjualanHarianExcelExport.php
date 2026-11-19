@@ -39,11 +39,11 @@ class PenjualanHarianExcelExport implements FromArray, WithColumnFormatting, Wit
 
     public function array(): array
     {
-        $reportMonthDayCount = Carbon::createFromDate($this->laporan->periode_tahun, $this->laporan->periode_bulan, 1)->daysInMonth() ?? 0;
+        $reportMonthDayCount = Carbon::createFromDate($this->laporan->periode_tahun, $this->laporan->periode_bulan, 1)->daysInMonth;
         $reportMonthDayCountPrev = null;
 
         if ($this->laporanPrev) {
-            $reportMonthDayCountPrev = Carbon::createFromDate($this->laporanPrev->periode_tahun, $this->laporanPrev->periode_bulan, 1)->daysInMonth();
+            $reportMonthDayCountPrev = Carbon::createFromDate($this->laporanPrev->periode_tahun, $this->laporanPrev->periode_bulan, 1)->daysInMonth;
         }
 
         $pickedReportDayCount = max($reportMonthDayCount, $reportMonthDayCountPrev);
