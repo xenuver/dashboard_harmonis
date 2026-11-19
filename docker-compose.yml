@@ -14,7 +14,7 @@ services:
       - backend_access
     volumes:
       - type: bind
-        source: ./frontend/nginx/config/default.conf
+        source: ./frontend/nginx/config/default.conf # URL backend dapat dirubah dalam file ini jika diperlukan
         target: /etc/nginx/conf.d/default.conf
         read_only: true
         bind:
@@ -32,7 +32,7 @@ services:
       - database_access
     volumes:
       - type: bind
-        source: ./backend/php-fpm/config/custom.ini
+        source: ./backend/php-fpm/config/custom.ini # Konfigurasi ini menaikkan batas ukuran request
         target: /usr/local/etc/php/conf.d/custom.ini
         read_only: true
         bind:
