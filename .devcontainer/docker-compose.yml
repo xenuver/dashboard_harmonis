@@ -9,7 +9,7 @@ services:
       - ../..:/workspaces:cached
 
   mariadb:
-    image: mariadb:lts-ubi10
+    image: mariadb:lts
     restart: no
     environment:
       - MARIADB_ROOT_PASSWORD=admin
