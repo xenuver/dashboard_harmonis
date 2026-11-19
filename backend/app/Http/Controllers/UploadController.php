@@ -11,6 +11,7 @@ use App\Models\SalesHarian;
 use App\Models\SupplierPenjualan;
 use App\Services\InfoLaporanExcelParser;
 use App\Services\LaporanExcelParser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -94,7 +95,7 @@ class UploadController extends Controller
         }
 
         $isGabungan = $infoParser->getIsGabungan();
-        $hariDalamBulan = cal_days_in_month(CAL_GREGORIAN, $infoParserData['bulan'], $infoParserData['tahun']) ?? 0;
+        $hariDalamBulan = Carbon::create($infoParserData['tahun'], $infoParserData['bulan'], 1)->daysInMonth;
 
         $parser = new LaporanExcelParser($validated['file'], $isGabungan, $hariDalamBulan);
         $errors = $parser->getImportErrors();

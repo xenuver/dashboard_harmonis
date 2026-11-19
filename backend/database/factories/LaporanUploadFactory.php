@@ -25,7 +25,7 @@ class LaporanUploadFactory extends Factory
             'periode_bulan' => idate('m'),
             'periode_tahun' => idate('Y'),
             'jumlah_hari' => function (array $attributes) {
-                return cal_days_in_month(CAL_GREGORIAN, $attributes['periode_bulan'], $attributes['periode_tahun']);
+                return Carbon::create($attributes['periode_tahun'], $attributes['periode_bulan'], 1)->daysInMonth;
             },
             'format_data' => 'DATA MENTAH v2',
             'catatan' => null,
@@ -59,7 +59,7 @@ class LaporanUploadFactory extends Factory
         return $this->state([
             'periode_bulan' => $bulan,
             'periode_tahun' => $tahun,
-            'jumlah_hari' => cal_days_in_month(CAL_GREGORIAN, $bulan, $tahun),
+            'jumlah_hari' => Carbon::create($tahun, $bulan, 1)->daysInMonth,
         ]);
     }
 

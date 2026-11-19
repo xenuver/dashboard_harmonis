@@ -2,6 +2,7 @@
 
 namespace App\Imports\Sheets;
 
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\ToArray;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
@@ -159,7 +160,7 @@ class InfoSheetImport implements ToArray
 
             if ($field === 'jumlah_hari' && filter_var($this->data['jumlah_hari'] ?? null, FILTER_VALIDATE_INT) !== false && $this->monthCheckFailed === false && $this->yearCheckFailed === false) {
                 $jumlahHari = $this->data['jumlah_hari'];
-                $hariDalamBulan = cal_days_in_month(CAL_GREGORIAN, $this->data['bulan'], $this->data['tahun']) ?? 0;
+                $hariDalamBulan = Carbon::create($this->data['tahun'], $this->data['bulan'], 1)->daysInMonth;
                 if ($jumlahHari !== null && ($jumlahHari !== $hariDalamBulan)) {
                     $this->errors[] = [
                         'location' => $cellCoordinate,
