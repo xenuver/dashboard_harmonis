@@ -29,6 +29,7 @@ services:
     restart: unless-stopped
     networks:
       - backend_access
+      - database_access
     volumes:
       - type: bind
         source: ./backend/php-fpm/config/custom.ini
@@ -37,9 +38,29 @@ services:
         bind:
           create_host_path: false
 
+  database:
+    image: mariadb:lts
+    restart: unless-stopped
+    networks:
+      - backend_access
+      - database_access
+    environment:
+      - MARIADB_DATABASE=dashboard_harmonis
+      - MARIADB_ROOT_PASSWORD=admin # sangat disarankan untuk hapus env ini menggunakan docker compose override, kemudian atur password baru dalam file env
+      - MARIADB_USER=laravel # disarankan untuk hapus env ini menggunakan docker compose override, kemudian atur username baru dalam file env. Pastikan username sama dengan username database Laravel!
+      - MARIADB_PASSWORD=laravel # sama juga dengan password root, tetapi pastikan password sama dengan pasword database Laravel!
+    volumes:
+      - dashboard_harmonis_db:/var/lib/mysql
+
 networks:
   outside_access:
     driver: bridge
   backend_access:
     driver: bridge
     internal: true
+  database_access:
+    driver: bridge
+    internal: true
+
+volumes:
+  dashboard_harmonis_db:
