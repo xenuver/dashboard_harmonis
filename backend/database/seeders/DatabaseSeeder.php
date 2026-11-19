@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         Cabang::firstOrCreate(['kode' => 'PAL'], ['nama' => 'Pal']);
 
         if (! User::where('role', 'it_staff')->exists()) {
-            User::factory()->create([
+            User::create([
                 'username' => 'admin',
                 'password' => Hash::make('admin'),
                 'enabled' => true,
