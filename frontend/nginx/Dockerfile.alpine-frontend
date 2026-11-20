@@ -1,4 +1,4 @@
-FROM node:26-alpine AS frontend-builder
+FROM node:24-alpine AS frontend-builder
 
 ARG VITE_BACKEND_PROTOCOL
 ARG VITE_BACKEND_HOSTNAME
