@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -188,8 +189,15 @@ class LoginTest extends TestCase
         $loginResponse->assertOk();
         $token = $loginResponse->json('token');
 
-        // Fast forward 61 minutes: token has expired
-        $this->travel(61)->minutes();
+        // 50 minutes later: still valid
+        $this->travel(50)->minutes();
+        $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk();
+
+        // 12 more minutes later (62 minutes total): expired
+        $this->travel(12)->minutes();
+        Auth::forgetGuards();
 
         $this->getJson('/api/whoami', [
             'Authorization' => 'Bearer '.$token,
