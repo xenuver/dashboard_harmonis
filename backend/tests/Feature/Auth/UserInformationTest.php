@@ -30,9 +30,6 @@ class UserInformationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        if (! User::where('username', self::ADMIN_USERNAME)->exists()) {
-            User::where('username', self::ADMIN_USERNAME)->delete();
-        }
         $this->adminUser = User::factory()->create([
             'username' => self::ADMIN_USERNAME,
             'role' => self::ADMIN_EXPECTED_ROLE,
