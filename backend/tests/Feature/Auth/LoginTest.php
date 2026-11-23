@@ -5,7 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Testing\TestResponse;
+use Laravel\Sanctum\PersonalAccessToken;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -20,12 +20,6 @@ class LoginTest extends TestCase
     private const DISABLED_ACCOUNT_USERNAME = 'locked';
 
     private const DISABLED_ACCOUNT_PASSWORD = 'locked';
-
-    private const LOGIN_OUTCOME_SUCCESS = 0;
-
-    private const LOGIN_OUTCOME_INVALID_CREDS = 1;
-
-    private const LOGIN_OUTCOME_INVALID_INPUT = 2;
 
     protected function setUp(): void
     {
@@ -46,80 +40,159 @@ class LoginTest extends TestCase
         ]);
     }
 
-    public static function loginProvider(): array
+    public static function invalidCredentialsProvider(): array
     {
         return [
-            'both correct (accepted)' => [
-                self::ACCOUNT_USERNAME,
-                self::ACCOUNT_PASSWORD,
-                self::LOGIN_OUTCOME_SUCCESS,
-            ],
-            'invalid password (rejected)' => [
+            'invalid password' => [
                 self::ACCOUNT_USERNAME,
                 self::ACCOUNT_PASSWORD.'1',
-                self::LOGIN_OUTCOME_INVALID_CREDS,
             ],
-            'unknown username (rejected)' => [
+            'unknown username' => [
                 self::ACCOUNT_USERNAME.'1',
                 self::ACCOUNT_PASSWORD,
-                self::LOGIN_OUTCOME_INVALID_CREDS,
-            ],
-            'username empty (rejected)' => [
-                null,
-                self::ACCOUNT_PASSWORD,
-                self::LOGIN_OUTCOME_INVALID_INPUT,
-            ],
-            'password empty (rejected)' => [
-                self::ACCOUNT_USERNAME,
-                null,
-                self::LOGIN_OUTCOME_INVALID_INPUT,
-            ],
-            'both empty (rejected)' => [
-                null,
-                null,
-                self::LOGIN_OUTCOME_INVALID_INPUT,
             ],
         ];
     }
 
-    protected function login(?string $username, ?string $password): TestResponse
+    public static function invalidValidationProvider(): array
+    {
+        return [
+            'username missing' => [
+                null,
+                self::ACCOUNT_PASSWORD,
+                ['username'],
+            ],
+            'password missing' => [
+                self::ACCOUNT_USERNAME,
+                null,
+                ['password'],
+            ],
+            'both missing' => [
+                null,
+                null,
+                ['username', 'password'],
+            ],
+            'username is empty string' => [
+                '',
+                self::ACCOUNT_PASSWORD,
+                ['username'],
+            ],
+            'password is empty string' => [
+                self::ACCOUNT_USERNAME,
+                '',
+                ['password'],
+            ],
+            'username is array' => [
+                ['admin'],
+                self::ACCOUNT_PASSWORD,
+                ['username'],
+            ],
+            'password is array' => [
+                self::ACCOUNT_USERNAME,
+                ['admin'],
+                ['password'],
+            ],
+        ];
+    }
+
+    public function test_user_can_login_with_valid_credentials(): void
+    {
+        $response = $this->postJson('/api/login', [
+            'username' => self::ACCOUNT_USERNAME,
+            'password' => self::ACCOUNT_PASSWORD,
+        ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'user' => [
+                'id',
+                'username',
+                'role',
+            ],
+            'token',
+        ]);
+
+        $response->assertJsonPath('user.username', self::ACCOUNT_USERNAME);
+        $response->assertJsonPath('user.role', 'it_staff');
+        $response->assertJsonMissing(['password']);
+
+        $token = $response->json('token');
+        $this->assertNotEmpty($token);
+
+        // Verify the token actually authenticates to protected endpoints
+        $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk()
+            ->assertJsonPath('username', self::ACCOUNT_USERNAME);
+
+        // Verify token in database has 1-hour expiration
+        $personalAccessToken = PersonalAccessToken::findToken($token);
+        $this->assertNotNull($personalAccessToken);
+        $this->assertTrue($personalAccessToken->expires_at->isFuture());
+        $this->assertEquals(60, (int) round(now()->diffInMinutes($personalAccessToken->expires_at)));
+    }
+
+    #[DataProvider('invalidCredentialsProvider')]
+    public function test_cannot_login_with_invalid_credentials(string $username, string $password): void
+    {
+        $response = $this->postJson('/api/login', [
+            'username' => $username,
+            'password' => $password,
+        ]);
+
+        $response->assertUnauthorized();
+        $response->assertJson([
+            'message' => 'Username atau password salah',
+        ]);
+    }
+
+    #[DataProvider('invalidValidationProvider')]
+    public function test_login_validation_fails_with_invalid_input(mixed $username, mixed $password, array $expectedErrors): void
     {
         $body = [];
 
-        if ($username) {
+        if ($username !== null) {
             $body['username'] = $username;
         }
 
-        if ($password) {
+        if ($password !== null) {
             $body['password'] = $password;
         }
 
-        return $this->postJson('/api/login', $body);
+        $response = $this->postJson('/api/login', $body);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors($expectedErrors);
     }
 
-    #[DataProvider('loginProvider')]
-    public function test_user_can_login_if(?string $username, ?string $password, int $expectedOutcome)
+    public function test_cannot_login_if_user_disabled(): void
     {
-        $response = $this->login($username, $password);
+        $response = $this->postJson('/api/login', [
+            'username' => self::DISABLED_ACCOUNT_USERNAME,
+            'password' => self::DISABLED_ACCOUNT_PASSWORD,
+        ]);
 
-        if ($expectedOutcome === self::LOGIN_OUTCOME_SUCCESS) {
-            $response->assertOk();
-            $response->assertJsonStructure([
-                'user',
-                'token',
-            ]);
-        } else {
-            if ($expectedOutcome === self::LOGIN_OUTCOME_INVALID_CREDS) {
-                $response->assertUnauthorized();
-            } elseif ($expectedOutcome === self::LOGIN_OUTCOME_INVALID_INPUT) {
-                $response->assertUnprocessable();
-            }
-        }
-    }
-
-    public function test_cannot_login_if_user_disabled()
-    {
-        $response = $this->login(self::DISABLED_ACCOUNT_USERNAME, self::DISABLED_ACCOUNT_PASSWORD);
         $response->assertUnauthorized();
+        $response->assertJson([
+            'message' => 'Username atau password salah',
+        ]);
+    }
+
+    public function test_login_token_expires_after_one_hour(): void
+    {
+        $loginResponse = $this->postJson('/api/login', [
+            'username' => self::ACCOUNT_USERNAME,
+            'password' => self::ACCOUNT_PASSWORD,
+        ]);
+
+        $loginResponse->assertOk();
+        $token = $loginResponse->json('token');
+
+        // Fast forward 61 minutes: token has expired
+        $this->travel(61)->minutes();
+
+        $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertUnauthorized();
     }
 }
