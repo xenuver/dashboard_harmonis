@@ -26,11 +26,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('login', function (Request $request) {
+            $username = $request->input('username');
+            $usernameKey = is_string($username)? strtolower(trim($username)) : 'invalid';
+
             return [
                 Limit::perSecond(3)->by('login-ip:'.$request->ip()),
 
                 Limit::perSecond(3)->by(
-                    'login-username:'.strtolower($request->input('username', ''))
+                    'login-username:'.($usernameKey)
                 ),
             ];
         });
