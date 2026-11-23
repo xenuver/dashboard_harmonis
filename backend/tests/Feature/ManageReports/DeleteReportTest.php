@@ -14,23 +14,25 @@ class DeleteReportTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $seed = true;
+
     private User $adminUser;
 
     private User $ownerUser;
-
-    private const REPORT_TEST_JENIS = 'gabungan';
-
-    private const REPORT_TEST_MONTH = 11;
-
-    private const REPORT_TEST_YEAR = 2026;
 
     private string $adminToken;
 
     private string $ownerToken;
 
+    private const REPORT_TEST_MONTH = 11;
+
+    private const REPORT_TEST_YEAR = 2026;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->seed();
 
         $this->adminUser = User::factory()->create([
             'role' => 'it_staff',
@@ -41,37 +43,43 @@ class DeleteReportTest extends TestCase
 
         $this->adminToken = $this->adminUser->createToken('auth_token')->plainTextToken;
         $this->ownerToken = $this->ownerUser->createToken('auth_token')->plainTextToken;
-
-        $this->seed();
     }
 
-    public static function deleteInvalidUserIdProvider()
+    public static function invalidReportIdProvider(): array
     {
-        $invalidInputCases = ['a', 'admin', 'username', '%', '!', -1];
-
-        $cases = [];
-
-        foreach ($invalidInputCases as $value) {
-            $cases['set to '.(json_encode($value))] = [
-                $value,
-            ];
-        }
-
-        return $cases;
+        return [
+            'alphabetic string' => ['abc'],
+            'special characters' => ['%!@'],
+            'negative integer' => [-1],
+            'zero' => [0],
+            'decimal float' => [1.5],
+        ];
     }
 
     public function test_admin_can_delete_report()
     {
-        $report = LaporanUpload::factory()->jenis_laporan('pal')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->withSalesHarian()->withDataTransaksi()->withMemberCount()->withProdukPenjualan(5, 5)->withSupplierPenjualan(5)->create();
+        $report = LaporanUpload::factory()
+            ->jenis_laporan('pal')
+            ->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)
+            ->withSalesHarian()
+            ->withDataTransaksi()
+            ->withMemberCount()
+            ->withProdukPenjualan(5, 5)
+            ->withSupplierPenjualan(5)
+            ->create();
 
         $reportId = $report->id;
 
-        $deleteAccountResponse = $this->postJson('/api/delete-report', [
+        $response = $this->postJson('/api/delete-report', [
             'reportid' => $reportId,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $deleteAccountResponse->assertOk();
+
+        $response->assertOk()
+            ->assertJson([
+                'message' => 'Laporan berhasil dihapus',
+            ]);
 
         $this->assertDatabaseMissing('laporan_uploads', [
             'id' => $reportId,
@@ -98,47 +106,83 @@ class DeleteReportTest extends TestCase
         ]);
     }
 
-    public function test_admin_cannot_delete_report_with_invalid_id()
+    public function test_admin_deleting_report_does_not_delete_other_reports()
     {
-        $deleteReportResponse = $this->postJson('/api/delete-report', [
-            'reportid' => 69,
+        $reportA = LaporanUpload::factory()
+            ->jenis_laporan('ampera')
+            ->periode(10, 2026)
+            ->withSalesHarian()
+            ->withDataTransaksi()
+            ->withMemberCount()
+            ->create();
+
+        $reportB = LaporanUpload::factory()
+            ->jenis_laporan('pal')
+            ->periode(11, 2026)
+            ->withSalesHarian()
+            ->withDataTransaksi()
+            ->withMemberCount()
+            ->create();
+
+        $response = $this->postJson('/api/delete-report', [
+            'reportid' => $reportA->id,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $deleteReportResponse->assertUnprocessable();
+
+        $response->assertOk()
+            ->assertJson([
+                'message' => 'Laporan berhasil dihapus',
+            ]);
+
+        // Report A and its related records should be deleted
+        $this->assertDatabaseMissing('laporan_uploads', ['id' => $reportA->id]);
+        $this->assertDatabaseMissing('data_transaksi', ['upload_id' => $reportA->id]);
+        $this->assertDatabaseMissing('sales_harian', ['upload_id' => $reportA->id]);
+        $this->assertDatabaseMissing('total_member', ['upload_id' => $reportA->id]);
+
+        // Report B and its related records must still exist
+        $this->assertDatabaseHas('laporan_uploads', ['id' => $reportB->id]);
+        $this->assertDatabaseHas('data_transaksi', ['upload_id' => $reportB->id]);
+        $this->assertDatabaseHas('sales_harian', ['upload_id' => $reportB->id]);
+        $this->assertDatabaseHas('total_member', ['upload_id' => $reportB->id]);
     }
 
     public function test_admin_cannot_delete_report_without_report_id()
     {
-        $deleteReportResponse = $this->postJson('/api/delete-report', [], [
+        $response = $this->postJson('/api/delete-report', [], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $deleteReportResponse->assertUnprocessable();
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('reportid');
     }
 
-    #[DataProvider('deleteInvalidUserIdProvider')]
-    public function test_admin_cannot_delete_report_with_report_id(mixed $reportId)
+    public function test_admin_cannot_delete_report_with_non_existent_id()
     {
-        $deleteAccountResponse = $this->postJson('/api/delete-report', [
-            'reportid' => $reportId,
+        $nonExistentId = (LaporanUpload::max('id') ?? 0) + 999;
+
+        $response = $this->postJson('/api/delete-report', [
+            'reportid' => $nonExistentId,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $deleteAccountResponse->assertUnprocessable();
-        $deleteAccountResponse->assertJsonValidationErrors('reportid');
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('reportid');
     }
 
-    public function test_admin_cannot_delete_report_with_nonexist3nt_report()
+    #[DataProvider('invalidReportIdProvider')]
+    public function test_admin_cannot_delete_report_with_invalid_id_type(mixed $invalidId)
     {
-        $reportId = (LaporanUpload::max('id') ?? 0) + 1;
-
-        $deleteAccountResponse = $this->postJson('/api/delete-report', [
-            'reportid' => $reportId,
+        $response = $this->postJson('/api/delete-report', [
+            'reportid' => $invalidId,
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $deleteAccountResponse->assertUnprocessable();
-        $deleteAccountResponse->assertJsonValidationErrors('reportid');
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('reportid');
     }
 
     public function test_cannot_delete_report_if_user_is_not_admin()
@@ -147,15 +191,25 @@ class DeleteReportTest extends TestCase
         $worstProductsCount = 5;
         $supplierCount = 5;
 
-        $report = LaporanUpload::factory()->jenis_laporan('ampera')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->withSalesHarian()->withDataTransaksi()->withMemberCount()->withProdukPenjualan(5, 5)->withSupplierPenjualan(5)->create();
+        $report = LaporanUpload::factory()
+            ->jenis_laporan('ampera')
+            ->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)
+            ->withSalesHarian()
+            ->withDataTransaksi()
+            ->withMemberCount()
+            ->withProdukPenjualan($topProductsCount, $worstProductsCount)
+            ->withSupplierPenjualan($supplierCount)
+            ->create();
+
         $reportId = $report->id;
 
-        $deleteReportResponse = $this->postJson('/api/delete-report', [
+        $response = $this->postJson('/api/delete-report', [
             'reportid' => $reportId,
         ], [
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
-        $deleteReportResponse->assertForbidden();
+
+        $response->assertForbidden();
 
         $this->assertDatabaseHas('laporan_uploads', [
             'id' => $reportId,
@@ -177,14 +231,14 @@ class DeleteReportTest extends TestCase
             'upload_id' => $reportId,
         ]);
 
-        $this->assertTrue(ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'tertinggi')->count() === $topProductsCount);
-        $this->assertTrue(ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'terendah')->count() === $worstProductsCount);
+        $this->assertEquals($topProductsCount, ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'tertinggi')->count());
+        $this->assertEquals($worstProductsCount, ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'terendah')->count());
 
         $this->assertDatabaseHas('supplier_penjualan', [
             'upload_id' => $reportId,
         ]);
 
-        $this->assertTrue(SupplierPenjualan::where('upload_id', $reportId)->count() === $supplierCount);
+        $this->assertEquals($supplierCount, SupplierPenjualan::where('upload_id', $reportId)->count());
     }
 
     public function test_cannot_delete_report_if_user_is_not_logged_in()
@@ -193,14 +247,23 @@ class DeleteReportTest extends TestCase
         $worstProductsCount = 5;
         $supplierCount = 5;
 
-        $report = LaporanUpload::factory()->jenis_laporan('ampera')->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)->withSalesHarian()->withDataTransaksi()->withMemberCount()->withProdukPenjualan($topProductsCount, $worstProductsCount)->withSupplierPenjualan($supplierCount)->create();
+        $report = LaporanUpload::factory()
+            ->jenis_laporan('ampera')
+            ->periode(self::REPORT_TEST_MONTH, self::REPORT_TEST_YEAR)
+            ->withSalesHarian()
+            ->withDataTransaksi()
+            ->withMemberCount()
+            ->withProdukPenjualan($topProductsCount, $worstProductsCount)
+            ->withSupplierPenjualan($supplierCount)
+            ->create();
 
         $reportId = $report->id;
 
-        $deleteReportResponse = $this->postJson('/api/delete-report', [
+        $response = $this->postJson('/api/delete-report', [
             'reportid' => $reportId,
         ]);
-        $deleteReportResponse->assertUnauthorized();
+
+        $response->assertUnauthorized();
 
         $this->assertDatabaseHas('laporan_uploads', [
             'id' => $reportId,
@@ -222,11 +285,13 @@ class DeleteReportTest extends TestCase
             'upload_id' => $reportId,
         ]);
 
-        $this->assertTrue(ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'tertinggi')->count() === $topProductsCount);
-        $this->assertTrue(ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'terendah')->count() === $worstProductsCount);
+        $this->assertEquals($topProductsCount, ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'tertinggi')->count());
+        $this->assertEquals($worstProductsCount, ProdukPenjualan::where('upload_id', $reportId)->where('kategori', 'terendah')->count());
 
         $this->assertDatabaseHas('supplier_penjualan', [
             'upload_id' => $reportId,
         ]);
+
+        $this->assertEquals($supplierCount, SupplierPenjualan::where('upload_id', $reportId)->count());
     }
 }

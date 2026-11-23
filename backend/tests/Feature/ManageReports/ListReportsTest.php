@@ -13,214 +13,396 @@ class ListReportsTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $seed = true;
-
-    private int $fakeReportsCount = 70;
-
     private string $adminToken;
 
     private string $ownerToken;
-
-    private const OUTCOME_SUCCESS = 0;
-
-    private const OUTCOME_NOT_FOUND = 1;
-
-    private const OUTCOME_INVALID_INPUT = 2;
-
-    private const OUTCOME_NOT_INVALID_INPUT = 3;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $date = Carbon::create(2026, 11);
-
-        for ($i = 0; $i < $this->fakeReportsCount; $i++) {
-            LaporanUpload::factory()->periode($date->month, $date->year)->create();
-            $date->addMonthNoOverflow();
-        }
-
         $this->adminToken = User::factory()->create([
             'role' => 'it_staff',
         ])->createToken('auth_token')->plainTextToken;
+
         $this->ownerToken = User::factory()->create([
             'role' => 'owner',
         ])->createToken('auth_token')->plainTextToken;
     }
 
-    public static function reportsPerPageParamsProvider(): array
+    /**
+     * Helper to seed a diverse collection of reports across types, years, and months.
+     */
+    private function seedSampleReports(): void
+    {
+        // 5 Ampera reports (2026, months 1 to 5)
+        for ($m = 1; $m <= 5; $m++) {
+            LaporanUpload::factory()
+                ->jenis_laporan('ampera')
+                ->periode($m, 2026)
+                ->create();
+        }
+
+        // 5 Pal reports (2026, months 6 to 10)
+        for ($m = 6; $m <= 10; $m++) {
+            LaporanUpload::factory()
+                ->jenis_laporan('pal')
+                ->periode($m, 2026)
+                ->create();
+        }
+
+        // 15 Gabungan reports (2025: months 1 to 12; 2026: months 11 to 12; 2027: month 1)
+        for ($m = 1; $m <= 12; $m++) {
+            LaporanUpload::factory()
+                ->jenis_laporan('gabungan')
+                ->periode($m, 2025)
+                ->create();
+        }
+        for ($m = 11; $m <= 12; $m++) {
+            LaporanUpload::factory()
+                ->jenis_laporan('gabungan')
+                ->periode($m, 2026)
+                ->create();
+        }
+        LaporanUpload::factory()
+            ->jenis_laporan('gabungan')
+            ->periode(1, 2027)
+            ->create();
+    }
+
+    public static function validPerPageProvider(): array
     {
         return [
-            '-10 report (rejected)' => [-10, self::OUTCOME_INVALID_INPUT],
-            '-1 report (rejected)' => [-1, self::OUTCOME_INVALID_INPUT],
-            '0 reports (accepted)' => [0, self::OUTCOME_INVALID_INPUT],
-            '10 reports (accepted)' => [10, self::OUTCOME_NOT_INVALID_INPUT],
-            '20 reports (accepted)' => [20, self::OUTCOME_NOT_INVALID_INPUT],
-            '40 reports (rejected)' => [40, self::OUTCOME_INVALID_INPUT],
-            '50 reports (accepted)' => [50, self::OUTCOME_NOT_INVALID_INPUT],
-            '2000000000 reports (rejected)' => [2000000000, self::OUTCOME_INVALID_INPUT],
+            '10 reports per page' => [10],
+            '20 reports per page' => [20],
+            '50 reports per page' => [50],
         ];
     }
 
-    public static function monthInputDataProvider(): array
+    public static function invalidPerPageProvider(): array
     {
-        $monthAcceptedInputCases = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-        $monthInvalidInputCases = array_merge([0, -1, 13, -12, 'a', '', '#']);
-
-        $cases = [];
-
-        foreach ($monthAcceptedInputCases as $value) {
-            $cases["periode_bulan has '{$value}' symbol (accepted)"] = [
-                $value,
-                self::OUTCOME_NOT_INVALID_INPUT,
-            ];
-        }
-
-        foreach ($monthInvalidInputCases as $value) {
-            $cases["periode_bulan has '{$value}' symbol (rejected)"] = [
-                $value,
-                self::OUTCOME_INVALID_INPUT,
-            ];
-        }
-
-        return $cases;
+        return [
+            '-10 reports (negative)' => [-10],
+            '-1 reports (negative)' => [-1],
+            '0 reports (zero)' => [0],
+            '15 reports (not in allowed list)' => [15],
+            '40 reports (not in allowed list)' => [40],
+            '100 reports (not in allowed list)' => [100],
+            '2000000000 reports (too large)' => [2000000000],
+            'string value' => ['abc'],
+        ];
     }
 
-    public static function yearInputDataProvider(): array
+    public static function invalidPageProvider(): array
     {
-        $monthAcceptedInputCases = [2026, 2025, 1000, 9, 50000];
-        $monthInvalidInputCases = array_merge([-1, -12, -2026, 'a', '', '@']);
-
-        $cases = [];
-
-        foreach ($monthAcceptedInputCases as $value) {
-            $cases["periode_tahun has '{$value}' symbol (accepted)"] = [
-                $value,
-                self::OUTCOME_NOT_INVALID_INPUT,
-            ];
-        }
-
-        foreach ($monthInvalidInputCases as $value) {
-            $cases["periode_tahun has '{$value}' symbol (rejected)"] = [
-                $value,
-                self::OUTCOME_INVALID_INPUT,
-            ];
-        }
-
-        return $cases;
+        return [
+            'page -1' => [-1],
+            'page 0' => [0],
+            'string page' => ['abc'],
+        ];
     }
 
-    public static function jenisLaporanInputDataProvider(): array
+    public static function validJenisLaporanProvider(): array
     {
-        $jenisLaporanAcceptedInputCases = ['ampera', 'pal', 'gabungan'];
-        $jenisLaporanInvalidInputCases = ['ampera1', 'paI', 1];
-
-        $cases = [];
-
-        foreach ($jenisLaporanAcceptedInputCases as $value) {
-            $cases["jenis_laporan has '{$value}' symbol (accepted)"] = [
-                $value,
-                self::OUTCOME_NOT_INVALID_INPUT,
-            ];
-        }
-
-        foreach ($jenisLaporanInvalidInputCases as $value) {
-            $cases["jenis_laporan has '{$value}' symbol (rejected)"] = [
-                $value,
-                self::OUTCOME_INVALID_INPUT,
-            ];
-        }
-
-        return $cases;
+        return [
+            'ampera' => ['ampera', 5],
+            'pal' => ['pal', 5],
+            'gabungan' => ['gabungan', 15],
+        ];
     }
 
-    public function test_list_reports()
+    public static function invalidJenisLaporanProvider(): array
     {
-        $readAccountsResponse = $this->getJson('/api/list-reports', [
+        return [
+            'invalid string' => ['invalid'],
+            'ampera with suffix' => ['ampera1'],
+            'uppercase' => ['AMPERA'],
+            'numeric' => [123],
+        ];
+    }
+
+    public static function validMonthProvider(): array
+    {
+        return [
+            'month 1' => [1],
+            'month 5' => [5],
+            'month 6' => [6],
+            'month 12' => [12],
+        ];
+    }
+
+    public static function invalidMonthProvider(): array
+    {
+        return [
+            'month 0' => [0],
+            'month 13' => [13],
+            'month -1' => [-1],
+            'string month' => ['abc'],
+            'empty string' => [''],
+            'special symbol' => ['#'],
+        ];
+    }
+
+    public static function validYearProvider(): array
+    {
+        return [
+            'year 2025' => [2025, 12],
+            'year 2026' => [2026, 12],
+            'year 2027' => [2027, 1],
+        ];
+    }
+
+    public static function invalidYearProvider(): array
+    {
+        return [
+            'year -1' => [-1],
+            'year 65536' => [65536],
+            'string year' => ['abc'],
+            'empty string' => [''],
+            'special symbol' => ['@'],
+        ];
+    }
+
+    public function test_list_reports_default_pagination_and_structure()
+    {
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $readAccountsResponse->assertOk();
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'jenis_laporan',
+                        'periode_bulan',
+                        'periode_tahun',
+                        'jumlah_hari',
+                        'format_data',
+                        'catatan',
+                    ],
+                ],
+                'current_page',
+                'per_page',
+                'total',
+                'last_page',
+            ]);
+
+        $this->assertEquals(1, $response->json('current_page'));
+        $this->assertEquals(10, $response->json('per_page'));
+        $this->assertEquals(25, $response->json('total'));
+        $this->assertCount(10, $response->json('data'));
     }
 
-    #[DataProvider('reportsPerPageParamsProvider')]
-    public function test_list_reports_per_page(int $perPage, int $exptectedOutcome)
+    public function test_list_reports_ordered_by_descending_year_and_month()
     {
-        $listAccountsResponse = $this->getJson('/api/list-reports?per_page='.($perPage), [
+        LaporanUpload::factory()->create(['periode_tahun' => 2025, 'periode_bulan' => 12]);
+        LaporanUpload::factory()->create(['periode_tahun' => 2026, 'periode_bulan' => 3]);
+        LaporanUpload::factory()->create(['periode_tahun' => 2026, 'periode_bulan' => 8]);
+
+        $response = $this->getJson('/api/list-reports', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $listAccountsResponse->assertOk()->assertJsonCount($perPage, 'data');
-        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $listAccountsResponse->assertUnprocessable();
-        } else {
-            $this->fail('Unexpected outcome');
-        }
+
+        $response->assertOk();
+        $data = $response->json('data');
+
+        $this->assertEquals(2026, $data[0]['periode_tahun']);
+        $this->assertEquals(8, $data[0]['periode_bulan']);
+
+        $this->assertEquals(2026, $data[1]['periode_tahun']);
+        $this->assertEquals(3, $data[1]['periode_bulan']);
+
+        $this->assertEquals(2025, $data[2]['periode_tahun']);
+        $this->assertEquals(12, $data[2]['periode_bulan']);
     }
 
-    #[DataProvider('monthInputDataProvider')]
-    public function test_list_reports_month_filter(mixed $bulan, int $exptectedOutcome)
+    #[DataProvider('validPerPageProvider')]
+    public function test_list_reports_valid_per_page(int $perPage)
     {
-        $listAccountsResponse = $this->getJson('/api/list-reports?periode_bulan='.($bulan), [
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports?per_page='.$perPage, [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $listAccountsResponse->assertOk();
-            // Extract the data and convert to a Laravel Collection
-            $reports = collect($listAccountsResponse->json('data'));
 
-            // Assert that EVERY item matches the filter
-            $this->assertTrue(
-                $reports->every(fn ($report) => $report['periode_bulan'] == $bulan),
-                "Response contains reports that do not match the month filter: {$bulan}"
-            );
-        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $listAccountsResponse->assertUnprocessable();
-        } else {
-            $this->fail('Unexpected outcome');
-        }
+        $response->assertOk();
+        $this->assertEquals($perPage, $response->json('per_page'));
+
+        $expectedCount = min($perPage, 25);
+        $this->assertCount($expectedCount, $response->json('data'));
     }
 
-    #[DataProvider('yearInputDataProvider')]
-    public function test_list_reports_year_filter(mixed $tahun, int $exptectedOutcome)
+    #[DataProvider('invalidPerPageProvider')]
+    public function test_list_reports_invalid_per_page(mixed $perPage)
     {
-        $listAccountsResponse = $this->getJson('/api/list-reports?periode_tahun='.($tahun), [
+        $response = $this->getJson('/api/list-reports?per_page='.$perPage, [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $listAccountsResponse->assertOk();
-        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $listAccountsResponse->assertUnprocessable();
-        } else {
-            $this->fail('Unexpected outcome');
-        }
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('per_page');
     }
 
-    #[DataProvider('jenisLaporanInputDataProvider')]
-    public function test_list_reports_jenis_laporan_filter(mixed $jenis_laporan, int $exptectedOutcome)
+    public function test_list_reports_page_navigation()
     {
-        $listAccountsResponse = $this->getJson('/api/list-reports?jenis_laporan='.($jenis_laporan), [
+        $this->seedSampleReports();
+
+        $responsePage1 = $this->getJson('/api/list-reports?per_page=10&page=1', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        if ($exptectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $listAccountsResponse->assertOk();
-        } elseif ($exptectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $listAccountsResponse->assertUnprocessable();
-        } else {
-            $this->fail('Unexpected outcome');
-        }
+        $responsePage2 = $this->getJson('/api/list-reports?per_page=10&page=2', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $responsePage1->assertOk();
+        $responsePage2->assertOk();
+
+        $page1Ids = collect($responsePage1->json('data'))->pluck('id');
+        $page2Ids = collect($responsePage2->json('data'))->pluck('id');
+
+        $this->assertEquals(1, $responsePage1->json('current_page'));
+        $this->assertEquals(2, $responsePage2->json('current_page'));
+
+        $this->assertCount(10, $page1Ids);
+        $this->assertCount(10, $page2Ids);
+        $this->assertEmpty($page1Ids->intersect($page2Ids), 'Page 1 and Page 2 should not share reports.');
+    }
+
+    #[DataProvider('invalidPageProvider')]
+    public function test_list_reports_invalid_page(mixed $page)
+    {
+        $response = $this->getJson('/api/list-reports?page='.$page, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('page');
+    }
+
+    #[DataProvider('validJenisLaporanProvider')]
+    public function test_list_reports_filter_by_valid_jenis_laporan(string $jenis, int $expectedTotal)
+    {
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports?per_page=50&jenis_laporan='.$jenis, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertOk();
+        $reports = collect($response->json('data'));
+
+        $this->assertCount($expectedTotal, $reports);
+        $this->assertTrue(
+            $reports->every(fn ($report) => $report['jenis_laporan'] === $jenis),
+            "Expected all returned reports to have jenis_laporan '{$jenis}'"
+        );
+    }
+
+    #[DataProvider('invalidJenisLaporanProvider')]
+    public function test_list_reports_filter_by_invalid_jenis_laporan(mixed $jenis)
+    {
+        $response = $this->getJson('/api/list-reports?jenis_laporan='.$jenis, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('jenis_laporan');
+    }
+
+    #[DataProvider('validMonthProvider')]
+    public function test_list_reports_filter_by_valid_month(int $bulan)
+    {
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports?per_page=50&periode_bulan='.$bulan, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertOk();
+        $reports = collect($response->json('data'));
+
+        $this->assertNotEmpty($reports, "Reports for month {$bulan} should not be empty.");
+        $this->assertTrue(
+            $reports->every(fn ($report) => (int) $report['periode_bulan'] === $bulan),
+            "Expected all returned reports to match month {$bulan}"
+        );
+    }
+
+    #[DataProvider('invalidMonthProvider')]
+    public function test_list_reports_filter_by_invalid_month(mixed $bulan)
+    {
+        $response = $this->getJson('/api/list-reports?periode_bulan='.$bulan, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('periode_bulan');
+    }
+
+    #[DataProvider('validYearProvider')]
+    public function test_list_reports_filter_by_valid_year(int $tahun, int $expectedCount)
+    {
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports?per_page=50&periode_tahun='.$tahun, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertOk();
+        $reports = collect($response->json('data'));
+
+        $this->assertCount($expectedCount, $reports);
+        $this->assertTrue(
+            $reports->every(fn ($report) => (int) $report['periode_tahun'] === $tahun),
+            "Expected all returned reports to match year {$tahun}"
+        );
+    }
+
+    #[DataProvider('invalidYearProvider')]
+    public function test_list_reports_filter_by_invalid_year(mixed $tahun)
+    {
+        $response = $this->getJson('/api/list-reports?periode_tahun='.$tahun, [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors('periode_tahun');
+    }
+
+    public function test_list_reports_combined_filters()
+    {
+        $this->seedSampleReports();
+
+        $response = $this->getJson('/api/list-reports?jenis_laporan=ampera&periode_tahun=2026&periode_bulan=3', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertOk();
+        $reports = collect($response->json('data'));
+
+        $this->assertCount(1, $reports);
+        $report = $reports->first();
+        $this->assertEquals('ampera', $report['jenis_laporan']);
+        $this->assertEquals(2026, $report['periode_tahun']);
+        $this->assertEquals(3, $report['periode_bulan']);
     }
 
     public function test_cannot_list_reports_if_user_is_not_admin()
     {
-        $readAccountsResponse = $this->getJson('/api/list-reports', [
+        $response = $this->getJson('/api/list-reports', [
             'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
-        $readAccountsResponse->assertForbidden();
+
+        $response->assertForbidden();
     }
 
     public function test_cannot_list_reports_if_user_is_not_logged_in()
     {
-        $readAccountsResponse = $this->getJson('/api/list-reports');
-        $readAccountsResponse->assertUnauthorized();
+        $response = $this->getJson('/api/list-reports');
+
+        $response->assertUnauthorized();
     }
 }
