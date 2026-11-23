@@ -66,13 +66,13 @@ class AuthController extends Controller
 
         $currentToken = $request->user()->currentAccessToken();
 
-        if (method_exists($currentToken, 'delete')) {
+        if ($currentToken) {
             $currentToken->update([
                 'expires_at' => now()->subSecond(),
             ]);
-        } else {
-            Auth::guard('web')->logout(); // SPA Cookie Session
         }
+
+        Auth::guard('web')->logout();
 
         return response()->json([
             'message' => 'anda telah keluar',
