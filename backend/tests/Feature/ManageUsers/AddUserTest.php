@@ -49,6 +49,11 @@ class AddUserTest extends TestCase
                 self::CREATE_ACCOUNT_PASSWORD.'#!',
                 self::OUTCOME_SUCCESS,
             ],
+            'password too short (rejected)' => [
+                self::CREATE_ACCOUNT_USERNAME,
+                'abc',
+                self::OUTCOME_INVALID_INPUT,
+            ],
             'username empty (rejected)' => [
                 null,
                 self::CREATE_ACCOUNT_PASSWORD,
@@ -259,12 +264,8 @@ class AddUserTest extends TestCase
             'user.username',
             self::CREATE_ACCOUNT_USERNAME,
         );
-        $createAccountResponse->assertJsonPath('user.enabled', function ($value) {
-            return is_bool($value);
-        });
-        $createAccountResponse->assertJsonPath('user.role', function ($value) {
-            return in_array($value, ['owner', 'it_staff']);
-        });
+        $createAccountResponse->assertJsonPath('user.enabled', true);
+        $createAccountResponse->assertJsonPath('user.role', 'owner');
 
         $this->assertDatabaseHas('users', [
             'id' => $createAccountResponseJson['user']['id'],
@@ -276,8 +277,8 @@ class AddUserTest extends TestCase
 
         $this->assertTrue(Hash::check(self::CREATE_ACCOUNT_PASSWORD, $newUser->password));
 
-        $this->assertTrue(is_bool($newUser->enabled));
-        $this->assertTrue(in_array($newUser->role, ['owner', 'it_staff']));
+        $this->assertTrue($newUser->enabled);
+        $this->assertEquals('owner', $newUser->role);
     }
 
     #[DataProvider('createAccountInfoProvider')]
@@ -426,5 +427,22 @@ class AddUserTest extends TestCase
         $this->assertDatabaseMissing('users', [
             'username' => self::CREATE_ACCOUNT_USERNAME,
         ]);
+    }
+
+    public function test_cannot_create_account_with_duplicate_username()
+    {
+        User::factory()->create([
+            'username' => 'existing_user',
+        ]);
+
+        $response = $this->postJson('/api/add-user', [
+            'username' => 'existing_user',
+            'password' => 'secret123',
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors('username');
     }
 }

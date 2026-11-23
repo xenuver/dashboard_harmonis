@@ -15,7 +15,7 @@ class ListUsersTest extends TestCase
 
     private string $ownerToken;
 
-    private int $fakeUsersCount = 200;
+    private int $fakeUsersCount = 60;
 
     protected function setUp(): void
     {
@@ -27,9 +27,11 @@ class ListUsersTest extends TestCase
         ])->create();
 
         $this->adminToken = User::factory()->create([
+            'username' => 'sys_admin_tester',
             'role' => 'it_staff',
         ])->createToken('auth_token')->plainTextToken;
         $this->ownerToken = User::factory()->create([
+            'username' => 'sys_owner_tester',
             'role' => 'owner',
         ])->createToken('auth_token')->plainTextToken;
     }
@@ -59,12 +61,12 @@ class ListUsersTest extends TestCase
 
     public static function searchUsersParamsProvider(): array
     {
-        // asumsi ada 200 pengguna
+        // asumsi ada 60 pengguna
         return [
-            'user_ (200 hasil)' => ['user_', 200],
-            'user_1 (111 hasil)' => ['user_1', 111],
+            'user_ (60 hasil)' => ['user_', 60],
+            'user_1 (11 hasil)' => ['user_1', 11],
             'user_456 (0 hasil)' => ['user_456', 0],
-            'ser_200 (1 hasil)' => ['ser_200', 1],
+            'ser_60 (1 hasil)' => ['ser_60', 1],
         ];
     }
 
@@ -84,7 +86,31 @@ class ListUsersTest extends TestCase
         $readAccountsResponse = $this->getJson('/api/list-users', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $readAccountsResponse->assertOk();
+        $readAccountsResponse->assertOk()
+            ->assertJsonStructure([
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'username',
+                        'role',
+                        'enabled',
+                    ],
+                ],
+                'first_page_url',
+                'from',
+                'last_page',
+                'per_page',
+                'to',
+                'total',
+            ]);
+
+        $responseData = $readAccountsResponse->json('data');
+        $this->assertNotEmpty($responseData);
+        foreach ($responseData as $userItem) {
+            $this->assertArrayNotHasKey('password', $userItem);
+            $this->assertArrayNotHasKey('remember_token', $userItem);
+        }
     }
 
     #[DataProvider('usersPerPageParamsProvider')]
@@ -130,8 +156,42 @@ class ListUsersTest extends TestCase
         ]);
         if ($shouldSuccess) {
             $listAccountsResponse->assertOk();
+            $data = $listAccountsResponse->json('data');
+            $this->assertNotEmpty($data);
+            foreach ($data as $item) {
+                $this->assertSame($role, $item['role']);
+            }
         } else {
             $listAccountsResponse->assertUnprocessable();
+        }
+    }
+
+    public function test_list_accounts_sorted_by_username_ascending()
+    {
+        $response = $this->getJson('/api/list-users?per_page=50', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $response->assertOk();
+
+        $usernames = array_column($response->json('data'), 'username');
+        $sortedUsernames = $usernames;
+        sort($sortedUsernames);
+
+        $this->assertSame($sortedUsernames, $usernames);
+    }
+
+    public function test_list_accounts_with_combined_filters()
+    {
+        $response = $this->getJson('/api/list-users?usernamelike=user_&role=owner', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $response->assertOk();
+
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $item) {
+            $this->assertSame('owner', $item['role']);
+            $this->assertStringContainsString('user_', $item['username']);
         }
     }
 

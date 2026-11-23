@@ -4,6 +4,7 @@ namespace Tests\Feature\ManageUsers;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -73,10 +74,7 @@ class DeleteUserTest extends TestCase
 
     public function test_admin_cannot_delete_user_with_invalid_id()
     {
-        $userId = 1;
-        do {
-            $userId = rand(1, 100);
-        } while ($userId === $this->adminUser->id || $userId === $this->ownerUser->id);
+        $userId = User::max('id') + 9999;
 
         $deleteAccountResponse = $this->postJson('/api/delete-user', [
             'userid' => $userId,
@@ -84,6 +82,7 @@ class DeleteUserTest extends TestCase
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $deleteAccountResponse->assertUnprocessable();
+        $deleteAccountResponse->assertJsonValidationErrors('userid');
     }
 
     public function test_admin_cannot_delete_user_without_user_id()
@@ -154,5 +153,36 @@ class DeleteUserTest extends TestCase
         $this->assertDatabaseHas('users', [
             'id' => $someone->id,
         ]);
+    }
+
+    public function test_user_tokens_are_revoked_when_user_is_deleted()
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        // Verify user can authenticate initially
+        $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$token,
+        ])->assertOk();
+
+        // Forget auth guards so Sanctum authenticates the admin token
+        Auth::forgetGuards();
+
+        // Admin deletes user
+        $deleteResponse = $this->postJson('/api/delete-user', [
+            'userid' => $user->id,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $deleteResponse->assertOk();
+
+        // Forget auth guards so Sanctum re-evaluates the token
+        Auth::forgetGuards();
+
+        // Request with the deleted user's token must be rejected
+        $response = $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$token,
+        ]);
+        $response->assertUnauthorized();
     }
 }

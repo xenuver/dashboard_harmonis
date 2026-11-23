@@ -371,7 +371,7 @@ class UpdateUserTest extends TestCase
             'userid' => $userId,
             'role' => 'owner',
         ], [
-            'Authorization' => 'Bearer '.$this->ownerToken,
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $updateAccountResponse->assertUnprocessable();
     }
@@ -418,5 +418,80 @@ class UpdateUserTest extends TestCase
         $someone->refresh();
         $this->assertFalse(Hash::check($newPassword, $someone->password));
         $this->assertTrue(Hash::check($oldPassword, $someone->password));
+    }
+
+    public function test_cannot_update_username_to_already_taken_username()
+    {
+        $userA = User::factory()->create(['username' => 'user_alpha']);
+        $userB = User::factory()->create(['username' => 'user_beta']);
+
+        $response = $this->postJson('/api/update-user', [
+            'userid' => $userB->id,
+            'username' => 'user_alpha',
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertStatus(409)
+            ->assertJson([
+                'message' => 'Nama pengguna sudah digunakan',
+            ]);
+
+        $userB->refresh();
+        $this->assertEquals('user_beta', $userB->username);
+    }
+
+    public function test_can_update_user_keeping_own_username()
+    {
+        $user = User::factory()->create(['username' => 'my_same_username', 'role' => 'owner']);
+
+        $response = $this->postJson('/api/update-user', [
+            'userid' => $user->id,
+            'username' => 'my_same_username',
+            'role' => 'it_staff',
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertOk();
+        $user->refresh();
+        $this->assertEquals('my_same_username', $user->username);
+        $this->assertEquals('it_staff', $user->role);
+    }
+
+    public function test_cannot_disable_self()
+    {
+        $me = $this->getJson('/api/whoami', [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+        $userId = $me->json('id');
+
+        $response = $this->postJson('/api/update-user', [
+            'userid' => $userId,
+            'enabled' => false,
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJson([
+                'message' => 'Tidak dapat mengaktifkan/menonaktifkan akun sendiri',
+            ]);
+
+        $admin = User::findOrFail($userId);
+        $this->assertTrue($admin->enabled);
+    }
+
+    public function test_cannot_update_non_existent_user()
+    {
+        $response = $this->postJson('/api/update-user', [
+            'userid' => User::max('id') + 9999,
+            'username' => 'validname',
+        ], [
+            'Authorization' => 'Bearer '.$this->adminToken,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['userid']);
     }
 }
