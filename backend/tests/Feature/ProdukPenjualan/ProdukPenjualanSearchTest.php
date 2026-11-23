@@ -66,18 +66,6 @@ class ProdukPenjualanSearchTest extends TestCase
         ]);
     }
 
-    private function createLaporanWith(array $overrides = []): LaporanUpload
-    {
-        $laporan = LaporanUpload::factory()->jenis_laporan('gabungan')->create();
-
-        ProdukPenjualan::factory()
-            ->upload_id($laporan->id)
-            ->kategori('tertinggi')
-            ->create($overrides);
-
-        return $laporan;
-    }
-
     // ── Search by field ────────────────────────────────────
 
     public function test_search_by_nama_brg_returns_matching_records(): void
