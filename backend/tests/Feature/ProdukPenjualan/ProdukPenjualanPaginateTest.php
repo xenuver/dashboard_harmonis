@@ -176,15 +176,15 @@ class ProdukPenjualanPaginateTest extends TestCase
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, $itemCount)->create();
         $perPage = 10;
 
-        $exptectedLastPage = ceil($itemCount / $perPage);
-        $exptectedLastPageItemCount = $itemCount % $perPage;
+        $expectedLastPage = ceil($itemCount / $perPage);
+        $expectedLastPageItemCount = $itemCount % $perPage;
 
-        if ($exptectedLastPage !== 0 && $exptectedLastPageItemCount === 0) {
-            $exptectedLastPageItemCount = $perPage;
+        if ($expectedLastPage !== 0 && $expectedLastPageItemCount === 0) {
+            $expectedLastPageItemCount = $perPage;
         }
 
         $requestParams = [
-            'page' => $exptectedLastPage,
+            'page' => $expectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
@@ -205,7 +205,143 @@ class ProdukPenjualanPaginateTest extends TestCase
         $getProdukPenjualanResponse->assertJsonStructure(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
         $getProdukPenjualanResponseJson = $getProdukPenjualanResponse->json();
 
-        $this->assertEquals($exptectedLastPageItemCount, count($getProdukPenjualanResponseJson['data']));
+        $this->assertEquals($expectedLastPageItemCount, count($getProdukPenjualanResponseJson['data']));
+    }
+
+    public static function produkPenjualanAcceptedPerPageProvider(): array
+    {
+        return [
+            "per_page set to '10' (accepted)" => [10],
+            "per_page set to '20' (accepted)" => [20],
+            "per_page set to '50' (accepted)" => [50],
+        ];
+    }
+
+    public static function produkPenjualanRejectedPerPageProvider(): array
+    {
+        $rejectedValues = [1, 5, 100, 0, -10, 'sepuluh', ''];
+
+        $cases = [];
+        foreach ($rejectedValues as $value) {
+            $cases["per_page set to '{$value}' (rejected)"] = [$value];
+        }
+
+        return $cases;
+    }
+
+    #[DataProvider('produkPenjualanAcceptedPerPageProvider')]
+    public function test_can_set_per_page(int $perPage): void
+    {
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 60)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'per_page' => $perPage,
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'terendah',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertOk();
+        $getProdukPenjualanResponse->assertJsonPath('per_page', $perPage);
+    }
+
+    #[DataProvider('produkPenjualanRejectedPerPageProvider')]
+    public function test_cannot_set_invalid_per_page(mixed $perPage): void
+    {
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 10)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'per_page' => $perPage,
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'terendah',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertUnprocessable();
+    }
+
+    public function test_kategori_tertinggi_only_returns_tertinggi_records(): void
+    {
+        $laporan = LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(5, 5)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'tertinggi',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertOk();
+        $data = $getProdukPenjualanResponse->json('data');
+
+        $this->assertNotEmpty($data);
+        foreach ($data as $item) {
+            $this->assertEquals('tertinggi', $item['kategori']);
+        }
+    }
+
+    public function test_kategori_terendah_only_returns_terendah_records(): void
+    {
+        LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(5, 5)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'terendah',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertOk();
+        $data = $getProdukPenjualanResponse->json('data');
+
+        $this->assertNotEmpty($data);
+        foreach ($data as $item) {
+            $this->assertEquals('terendah', $item['kategori']);
+        }
+    }
+
+    public function test_tertinggi_results_are_ordered_by_qty_descending(): void
+    {
+        $laporan = LaporanUpload::factory()->jenis_laporan('gabungan')->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(10)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(50)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(30)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(1)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'tertinggi',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertOk();
+        $qtys = collect($getProdukPenjualanResponse->json('data'))->pluck('qty')->values()->all();
+
+        $this->assertEquals([50, 30, 10], $qtys);
+    }
+
+    public function test_terendah_results_are_ordered_by_qty_ascending(): void
+    {
+        $laporan = LaporanUpload::factory()->jenis_laporan('gabungan')->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(30)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(5)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(20)->create();
+        ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(100)->create();
+
+        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+            'jenis_laporan' => 'gabungan',
+            'kategori' => 'terendah',
+        ]), [
+            'Authorization' => 'Bearer '.($this->ownerToken),
+        ]);
+
+        $getProdukPenjualanResponse->assertOk();
+        $qtys = collect($getProdukPenjualanResponse->json('data'))->pluck('qty')->values()->all();
+
+        $this->assertEquals([5, 20, 30], $qtys);
     }
 
     public function test_return_no_data_beyond_last_page(): void
@@ -214,10 +350,9 @@ class ProdukPenjualanPaginateTest extends TestCase
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, $itemCount)->create();
         $perPage = 10;
 
-        $exptectedLastPage = ceil($itemCount / $perPage) + 5;
-
+        $expectedLastPage = ceil($itemCount / $perPage) + 5;
         $requestParams = [
-            'page' => $exptectedLastPage,
+            'page' => $expectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',

@@ -27,10 +27,6 @@ class ProdukPenjualanMainTest extends TestCase
 
     private const REPORT_TEST_KATEGORI = 'tertinggi';
 
-    private const OUTCOME_SUCCESS = 0;
-
-    private const OUTCOME_NOT_FOUND = 1;
-
     private const OUTCOME_INVALID_INPUT = 2;
 
     private const OUTCOME_NOT_INVALID_INPUT = 3;
@@ -260,6 +256,7 @@ class ProdukPenjualanMainTest extends TestCase
         ]);
 
         $getProdukPenjualanResponse->assertOk();
+        $getProdukPenjualanResponse->assertJsonStructure(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);
     }
 
     public function test_can_get_produk_penjualan_as_owner(): void
@@ -282,11 +279,11 @@ class ProdukPenjualanMainTest extends TestCase
         $lastMonth = $prevMonthDate->month;
         $lastYear = $prevMonthDate->year;
 
-        $getSupplierPenjualanResponse = $this->getJson("/api/supplier-penjualan?periode_bulan={$lastMonth}&periode_tahun={$lastYear}", [
+        $getProdukPenjualanResponse = $this->getJson("/api/produk-penjualan?periode_bulan={$lastMonth}&periode_tahun={$lastYear}&kategori=".self::REPORT_TEST_KATEGORI, [
             'Authorization' => 'Bearer '.($this->adminToken),
         ]);
 
-        $getSupplierPenjualanResponse->assertNotFound();
+        $getProdukPenjualanResponse->assertNotFound();
     }
 
     public function test_cannot_get_produk_penjualan_while_logged_out(): void
