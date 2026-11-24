@@ -13,7 +13,6 @@ class SupplierPenjualanController extends Controller
             'jenis_laporan' => 'gabungan',
             'periode_bulan' => date('n'),
             'periode_tahun' => date('Y'),
-            'kategori' => 'tertinggi',
             'per_page' => 10,
             'page' => 1,
         ]);
@@ -34,7 +33,7 @@ class SupplierPenjualanController extends Controller
             'periode_tahun.required' => 'Periode tahun harus diisi',
             'periode_tahun.integer' => 'Periode tahun harus merupakan angka dalam format integer',
             'periode_tahun.between' => 'Periode tahun harus berupa angka antara 0 sampai 65535',
-            'search.string' => 'Format kategori laporan harus merupakan string',
+            'search.string' => 'Format pencarian laporan harus merupakan string',
             'per_page.integer' => 'format data per halaman harus merupakan angka dalam integer',
             'per_page.in' => 'jumlah data per halaman hanya menerima nilai 10, 20, dan 50',
             'page.required' => 'halaman harus diisi',
