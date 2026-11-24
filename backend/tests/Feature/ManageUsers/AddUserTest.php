@@ -218,9 +218,7 @@ class AddUserTest extends TestCase
             'user.username',
             $username,
         );
-        $createAccountResponse->assertJsonPath('user.enabled', function ($value) {
-            return is_bool($value);
-        });
+        $createAccountResponse->assertJsonPath('user.enabled', true);
         $createAccountResponse->assertJsonPath('user.role', function ($value) {
             return in_array($value, ['owner', 'it_staff']);
         });
