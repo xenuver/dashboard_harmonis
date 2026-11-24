@@ -12,8 +12,7 @@ use Tests\TestCase;
 class SupplierPenjualanMainTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected $seed = true;
+    use SupplierPenjualanTestHelpers;
 
     private string $adminToken;
 
@@ -25,38 +24,9 @@ class SupplierPenjualanMainTest extends TestCase
 
     private const REPORT_TEST_YEAR = 2026;
 
-    private const OUTCOME_SUCCESS = 0;
-
-    private const OUTCOME_NOT_FOUND = 1;
-
     private const OUTCOME_INVALID_INPUT = 2;
 
     private const OUTCOME_NOT_INVALID_INPUT = 3;
-
-    private const FETCH_SUPPLIER_PENJUALAN_JSON_STRUCTURE = [
-        'current_page',
-        'data' => [
-            '*' => [
-                'id',
-                'upload_id',
-                'kode_supp',
-                'nama_supp',
-                'gross_total',
-                'net_sales_total',
-            ],
-        ],
-        'first_page_url',
-        'from',
-        'last_page',
-        'last_page_url',
-        'links',
-        'next_page_url',
-        'path',
-        'per_page',
-        'prev_page_url',
-        'to',
-        'total',
-    ];
 
     protected function setUp(): void
     {
@@ -186,20 +156,14 @@ class SupplierPenjualanMainTest extends TestCase
             $requestParams['periode_tahun'] = $periodeTahun;
         }
 
-        $url = '/api/supplier-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getSupplierPenjualanResponse = $this->getJson($url, [
+        $response = $this->getJson($this->supplierUrl($requestParams), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
-            $getSupplierPenjualanResponse->assertUnprocessable();
+            $response->assertUnprocessable();
         } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $status = $getSupplierPenjualanResponse->status();
+            $status = $response->status();
             $this->assertNotEquals(422, $status);
             $this->assertFalse($status >= 500 && $status <= 599);
         } else {
@@ -211,23 +175,24 @@ class SupplierPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
-        $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
-            'Authorization' => 'Bearer '.($this->adminToken),
+        $response = $this->getJson($this->supplierUrl(), [
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
-        $getSupplierPenjualanResponse->assertOk();
+        $response->assertOk();
+        $response->assertJsonStructure(self::FETCH_SUPPLIER_PENJUALAN_JSON_STRUCTURE);
     }
 
     public function test_can_get_supplier_penjualan_as_owner(): void
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
-        $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan', [
-            'Authorization' => 'Bearer '.($this->ownerToken),
+        $response = $this->getJson($this->supplierUrl(), [
+            'Authorization' => 'Bearer '.$this->ownerToken,
         ]);
 
-        $getSupplierPenjualanResponse->assertOk();
-        $getSupplierPenjualanResponse->assertJsonStructure(self::FETCH_SUPPLIER_PENJUALAN_JSON_STRUCTURE);
+        $response->assertOk();
+        $response->assertJsonStructure(self::FETCH_SUPPLIER_PENJUALAN_JSON_STRUCTURE);
     }
 
     public function test_return_not_found_if_report_not_found(): void
@@ -238,20 +203,23 @@ class SupplierPenjualanMainTest extends TestCase
         $lastMonth = $prevMonthDate->month;
         $lastYear = $prevMonthDate->year;
 
-        $getSupplierPenjualanResponse = $this->getJson("/api/supplier-penjualan?periode_bulan={$lastMonth}&periode_tahun={$lastYear}", [
-            'Authorization' => 'Bearer '.($this->adminToken),
+        $response = $this->getJson($this->supplierUrl([
+            'periode_bulan' => $lastMonth,
+            'periode_tahun' => $lastYear,
+        ]), [
+            'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
-        $getSupplierPenjualanResponse->assertNotFound();
+        $response->assertNotFound();
     }
 
     public function test_cannot_get_supplier_penjualan_while_logged_out(): void
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withSupplierPenjualan(5)->create();
 
-        $getSupplierPenjualanResponse = $this->getJson('/api/supplier-penjualan');
+        $response = $this->getJson($this->supplierUrl());
 
-        $getSupplierPenjualanResponse->assertUnauthorized();
-        $getSupplierPenjualanResponse->assertJsonMissing(self::FETCH_SUPPLIER_PENJUALAN_JSON_STRUCTURE);
+        $response->assertUnauthorized();
+        $response->assertJsonMissingPath('data');
     }
 }
