@@ -12,6 +12,7 @@ use Tests\TestCase;
 class ProdukPenjualanMainTest extends TestCase
 {
     use RefreshDatabase;
+    use ProdukPenjualanTestHelpers;
 
     private string $adminToken;
 
@@ -28,36 +29,6 @@ class ProdukPenjualanMainTest extends TestCase
     private const OUTCOME_INVALID_INPUT = 2;
 
     private const OUTCOME_NOT_INVALID_INPUT = 3;
-
-    private const FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE = [
-        'current_page',
-        'data' => [
-            '*' => [
-                'id',
-                'upload_id',
-                'kategori',
-                'barcode',
-                'kode_brg',
-                'nama_brg',
-                'satuan',
-                'harga_jual',
-                'jumlah',
-                'qty',
-                'stok',
-            ],
-        ],
-        'first_page_url',
-        'from',
-        'last_page',
-        'last_page_url',
-        'links',
-        'next_page_url',
-        'path',
-        'per_page',
-        'prev_page_url',
-        'to',
-        'total',
-    ];
 
     protected function setUp(): void
     {
@@ -224,13 +195,7 @@ class ProdukPenjualanMainTest extends TestCase
             $requestParams['kategori'] = $kategori;
         }
 
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl($requestParams), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
 
@@ -247,7 +212,7 @@ class ProdukPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl(), [
             'Authorization' => 'Bearer '.($this->adminToken),
         ]);
 
@@ -259,7 +224,7 @@ class ProdukPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan', [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl(), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
@@ -275,7 +240,11 @@ class ProdukPenjualanMainTest extends TestCase
         $lastMonth = $prevMonthDate->month;
         $lastYear = $prevMonthDate->year;
 
-        $getProdukPenjualanResponse = $this->getJson("/api/produk-penjualan?periode_bulan={$lastMonth}&periode_tahun={$lastYear}&kategori=".self::REPORT_TEST_KATEGORI, [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
+            'periode_bulan' => $lastMonth,
+            'periode_tahun' => $lastYear,
+            'kategori' => self::REPORT_TEST_KATEGORI,
+        ]), [
             'Authorization' => 'Bearer '.($this->adminToken),
         ]);
 
@@ -286,7 +255,7 @@ class ProdukPenjualanMainTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(10, 10)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan');
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl());
 
         $getProdukPenjualanResponse->assertUnauthorized();
         $getProdukPenjualanResponse->assertJsonMissing(self::FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE);

@@ -11,38 +11,9 @@ use Tests\TestCase;
 class ProdukPenjualanSearchTest extends TestCase
 {
     use RefreshDatabase;
+    use ProdukPenjualanTestHelpers;
 
     private string $ownerToken;
-
-    private const FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE = [
-        'current_page',
-        'data' => [
-            '*' => [
-                'id',
-                'upload_id',
-                'kategori',
-                'barcode',
-                'kode_brg',
-                'nama_brg',
-                'satuan',
-                'harga_jual',
-                'jumlah',
-                'qty',
-                'stok',
-            ],
-        ],
-        'first_page_url',
-        'from',
-        'last_page',
-        'last_page_url',
-        'links',
-        'next_page_url',
-        'path',
-        'per_page',
-        'prev_page_url',
-        'to',
-        'total',
-    ];
 
     protected function setUp(): void
     {
@@ -57,7 +28,7 @@ class ProdukPenjualanSearchTest extends TestCase
 
     private function searchUrl(string $keyword, string $kategori = 'tertinggi'): string
     {
-        return '/api/produk-penjualan?'.http_build_query([
+        return $this->produkUrl([
             'jenis_laporan' => 'gabungan',
             'kategori'      => $kategori,
             'search'        => $keyword,

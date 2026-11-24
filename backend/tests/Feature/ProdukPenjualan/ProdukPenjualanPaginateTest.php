@@ -12,38 +12,9 @@ use Tests\TestCase;
 class ProdukPenjualanPaginateTest extends TestCase
 {
     use RefreshDatabase;
+    use ProdukPenjualanTestHelpers;
 
     private string $ownerToken;
-
-    private const FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE = [
-        'current_page',
-        'data' => [
-            '*' => [
-                'id',
-                'upload_id',
-                'kategori',
-                'barcode',
-                'kode_brg',
-                'nama_brg',
-                'satuan',
-                'harga_jual',
-                'jumlah',
-                'qty',
-                'stok',
-            ],
-        ],
-        'first_page_url',
-        'from',
-        'last_page',
-        'last_page_url',
-        'links',
-        'next_page_url',
-        'path',
-        'per_page',
-        'prev_page_url',
-        'to',
-        'total',
-    ];
 
     protected function setUp(): void
     {
@@ -90,19 +61,11 @@ class ProdukPenjualanPaginateTest extends TestCase
         $newLaporan = LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 300)->create();
         $itemCount = ProdukPenjualan::where('upload_id', $newLaporan->id)->where('kategori', 'terendah')->count();
 
-        $requestParams = [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'page' => $page,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
-        ];
-
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        ]), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
@@ -119,19 +82,11 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 300)->create();
 
-        $requestParams = [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'page' => $page,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
-        ];
-
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        ]), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
@@ -144,19 +99,11 @@ class ProdukPenjualanPaginateTest extends TestCase
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, $itemCount)->create();
         $perPage = 10;
 
-        $requestParams = [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
-        ];
-
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        ]), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
@@ -181,20 +128,12 @@ class ProdukPenjualanPaginateTest extends TestCase
             $expectedLastPageItemCount = $perPage;
         }
 
-        $requestParams = [
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'page' => $expectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
-        ];
-
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        ]), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
@@ -232,7 +171,7 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 60)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
@@ -249,7 +188,7 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(1, 10)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
@@ -264,7 +203,7 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         $laporan = LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(5, 5)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'jenis_laporan' => 'gabungan',
             'kategori' => 'tertinggi',
         ]), [
@@ -284,7 +223,7 @@ class ProdukPenjualanPaginateTest extends TestCase
     {
         LaporanUpload::factory()->jenis_laporan('gabungan')->withProdukPenjualan(5, 5)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
         ]), [
@@ -308,7 +247,7 @@ class ProdukPenjualanPaginateTest extends TestCase
         ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(30)->create();
         ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(1)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'jenis_laporan' => 'gabungan',
             'kategori' => 'tertinggi',
         ]), [
@@ -329,7 +268,7 @@ class ProdukPenjualanPaginateTest extends TestCase
         ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('terendah')->qty(20)->create();
         ProdukPenjualan::factory()->upload_id($laporan->id)->kategori('tertinggi')->qty(100)->create();
 
-        $getProdukPenjualanResponse = $this->getJson('/api/produk-penjualan?'.http_build_query([
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
         ]), [
@@ -349,20 +288,13 @@ class ProdukPenjualanPaginateTest extends TestCase
         $perPage = 10;
 
         $expectedLastPage = ceil($itemCount / $perPage) + 5;
-        $requestParams = [
+
+        $getProdukPenjualanResponse = $this->getJson($this->produkUrl([
             'page' => $expectedLastPage,
             'per_page' => $perPage,
             'jenis_laporan' => 'gabungan',
             'kategori' => 'terendah',
-        ];
-
-        $url = '/api/produk-penjualan';
-
-        if (! empty($requestParams)) {
-            $url = $url.'?'.http_build_query($requestParams);
-        }
-
-        $getProdukPenjualanResponse = $this->getJson($url, [
+        ]), [
             'Authorization' => 'Bearer '.($this->ownerToken),
         ]);
 
