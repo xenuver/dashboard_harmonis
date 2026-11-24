@@ -270,9 +270,7 @@ class DashboardTest extends TestCase
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $getDashboardResponse->assertUnprocessable();
         } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $status = $getDashboardResponse->status();
-            $this->assertNotEquals(422, $status);
-            $this->assertFalse($status >= 500 && $status <= 599);
+            $getDashboardResponse->assertNotFound();
         } else {
             $this->fail('Unexpected outcome');
         }

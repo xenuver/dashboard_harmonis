@@ -373,7 +373,10 @@ class UpdateUserTest extends TestCase
         ], [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
-        $updateAccountResponse->assertUnprocessable();
+        $updateAccountResponse->assertUnprocessable()
+            ->assertJson([
+                'message' => 'Tidak dapat menurunkan hak akses akun sendiri',
+            ]);
     }
 
     public function test_cannot_update_account_if_user_is_not_admin()

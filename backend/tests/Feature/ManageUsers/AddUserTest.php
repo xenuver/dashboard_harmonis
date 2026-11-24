@@ -219,9 +219,7 @@ class AddUserTest extends TestCase
             $username,
         );
         $createAccountResponse->assertJsonPath('user.enabled', true);
-        $createAccountResponse->assertJsonPath('user.role', function ($value) {
-            return in_array($value, ['owner', 'it_staff']);
-        });
+        $createAccountResponse->assertJsonPath('user.role', 'owner');
 
         $this->assertDatabaseHas('users', [
             'id' => $createAccountResponseJson['user']['id'],
@@ -233,8 +231,8 @@ class AddUserTest extends TestCase
 
         $this->assertTrue(Hash::check(self::CREATE_ACCOUNT_PASSWORD, $newUser->password));
 
-        $this->assertTrue(is_bool($newUser->enabled));
-        $this->assertTrue(in_array($newUser->role, ['owner', 'it_staff']));
+        $this->assertTrue($newUser->enabled);
+        $this->assertEquals('owner', $newUser->role);
     }
 
     public function test_create_account_with_only_required()

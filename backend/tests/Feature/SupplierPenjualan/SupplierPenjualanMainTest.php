@@ -163,9 +163,7 @@ class SupplierPenjualanMainTest extends TestCase
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $response->assertUnprocessable();
         } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $status = $response->status();
-            $this->assertNotEquals(422, $status);
-            $this->assertFalse($status >= 500 && $status <= 599);
+            $response->assertNotFound();
         } else {
             $this->fail('Unexpected outcome');
         }

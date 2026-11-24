@@ -237,9 +237,7 @@ class ProdukPenjualanMainTest extends TestCase
         if ($expectedOutcome === self::OUTCOME_INVALID_INPUT) {
             $getProdukPenjualanResponse->assertUnprocessable();
         } elseif ($expectedOutcome === self::OUTCOME_NOT_INVALID_INPUT) {
-            $status = $getProdukPenjualanResponse->status();
-            $this->assertNotEquals(422, $status);
-            $this->assertFalse($status >= 500 && $status <= 599);
+            $getProdukPenjualanResponse->assertNotFound();
         } else {
             $this->fail('Unexpected outcome');
         }
