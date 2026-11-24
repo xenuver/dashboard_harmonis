@@ -14,8 +14,6 @@ class DeleteReportTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $seed = true;
-
     private User $adminUser;
 
     private User $ownerUser;

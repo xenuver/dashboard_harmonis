@@ -13,8 +13,6 @@ class ProdukPenjualanPaginateTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $seed = true;
-
     private string $ownerToken;
 
     private const FETCH_PRODUK_PENJUALAN_JSON_STRUCTURE = [

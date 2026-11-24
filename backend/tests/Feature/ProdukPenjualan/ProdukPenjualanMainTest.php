@@ -13,8 +13,6 @@ class ProdukPenjualanMainTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $seed = true;
-
     private string $adminToken;
 
     private string $ownerToken;
