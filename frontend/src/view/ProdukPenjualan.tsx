@@ -82,7 +82,7 @@ export function ProdukPenjualan() {
   });
   const [sortirTingkatProduk, setSortirTingkatProduk] = reactUseState<string>(function() {
     const kategori = searchParams.get("kategori");
-    return (kategori === "teringgi"|| kategori === "terendah") ? kategori : "tertinggi";
+    return (kategori === "tertinggi"|| kategori === "terendah") ? kategori : "tertinggi";
   });
   const [productPerPage, setProductPerPage] = reactUseState(10);
   const [daftarProduk, setDaftarProduk] = reactUseState < Product[] > ([]);
