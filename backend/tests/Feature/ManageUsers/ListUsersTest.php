@@ -15,16 +15,9 @@ class ListUsersTest extends TestCase
 
     private string $ownerToken;
 
-    private int $fakeUsersCount = 60;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        User::factory()->count($this->fakeUsersCount)->sequence(fn ($sequence) => [
-            'username' => 'user_'.($sequence->index + 1),
-            'role' => fake()->randomElement(['owner', 'it_staff']),
-        ])->create();
 
         $this->adminToken = User::factory()->create([
             'username' => 'sys_admin_tester',
@@ -34,6 +27,14 @@ class ListUsersTest extends TestCase
             'username' => 'sys_owner_tester',
             'role' => 'owner',
         ])->createToken('auth_token')->plainTextToken;
+    }
+
+    private function seedUsers(int $count): void
+    {
+        User::factory()->count($count)->sequence(fn ($sequence) => [
+            'username' => 'user_'.($sequence->index + 1),
+            'role' => $sequence->index % 2 === 0 ? 'owner' : 'it_staff',
+        ])->create();
     }
 
     public static function usersPerPageParamsProvider(): array
@@ -72,7 +73,6 @@ class ListUsersTest extends TestCase
 
     public static function filterRoleParamsProvider(): array
     {
-        // asumsi ada 200 pengguna
         return [
             'it_staff (accepted)' => ['it_staff', true],
             'staf_it (rejected)' => ['staf_it', false],
@@ -116,6 +116,10 @@ class ListUsersTest extends TestCase
     #[DataProvider('usersPerPageParamsProvider')]
     public function test_list_accounts_per_page(int $perPage, bool $shouldSuccess)
     {
+        if ($shouldSuccess) {
+            $this->seedUsers($perPage);
+        }
+
         $listAccountsResponse = $this->getJson('/api/list-users?per_page='.($perPage), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -142,6 +146,8 @@ class ListUsersTest extends TestCase
     #[DataProvider('searchUsersParamsProvider')]
     public function test_search_accounts(string $keyword, int $expectedResultsCount)
     {
+        $this->seedUsers(60);
+
         $listAccountsResponse = $this->getJson('/api/list-users?usernamelike='.($keyword), [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -168,6 +174,8 @@ class ListUsersTest extends TestCase
 
     public function test_list_accounts_sorted_by_username_ascending()
     {
+        $this->seedUsers(10);
+
         $response = $this->getJson('/api/list-users?per_page=50', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
@@ -182,17 +190,18 @@ class ListUsersTest extends TestCase
 
     public function test_list_accounts_with_combined_filters()
     {
+        User::factory()->create(['username' => 'user_owner_match', 'role' => 'owner']);
+        User::factory()->create(['username' => 'user_staff_nonmatch', 'role' => 'it_staff']);
+
         $response = $this->getJson('/api/list-users?usernamelike=user_&role=owner', [
             'Authorization' => 'Bearer '.$this->adminToken,
         ]);
         $response->assertOk();
 
         $data = $response->json('data');
-        $this->assertNotEmpty($data);
-        foreach ($data as $item) {
-            $this->assertSame('owner', $item['role']);
-            $this->assertStringContainsString('user_', $item['username']);
-        }
+        $this->assertCount(1, $data);
+        $this->assertSame('user_owner_match', $data[0]['username']);
+        $this->assertSame('owner', $data[0]['role']);
     }
 
     public function test_cannot_list_accounts_if_user_is_not_admin()
