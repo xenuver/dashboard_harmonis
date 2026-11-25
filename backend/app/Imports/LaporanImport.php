@@ -110,7 +110,7 @@ class LaporanImport implements Import, SkipsUnknownSheets, WithMultipleSheets
         }
 
         if (! empty($this->topHighestSheet->getErrors())) {
-            $data['PRODUK_TERINGGI'] = $this->topHighestSheet->getErrors();
+            $data['PRODUK_TERTINGGI'] = $this->topHighestSheet->getErrors();
         }
 
         if (! empty($this->topLowestSheet->getErrors())) {
