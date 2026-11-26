@@ -29,7 +29,6 @@ class LaporanUploadFactory extends Factory
             },
             'format_data' => 'DATA MENTAH v2',
             'catatan' => null,
-            'status' => 'berhasil',
         ];
     }
 
@@ -67,17 +66,6 @@ class LaporanUploadFactory extends Factory
     {
         return $this->state([
             'format_data' => $value,
-        ]);
-    }
-
-    public function status(string $value)
-    {
-        if (! in_array($value, ['berhasil', 'gagal'])) {
-            throw new InvalidArgumentException('Status upload hanya menerima berhasil dan gagal');
-        }
-
-        return $this->state([
-            'status' => $value,
         ]);
     }
 

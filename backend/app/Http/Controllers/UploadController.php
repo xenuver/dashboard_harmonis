@@ -115,7 +115,6 @@ class UploadController extends Controller
                 'jumlah_hari' => $infoParserData['jumlah_hari'],
                 'format_data' => $infoParserData['format'],
                 'catatan' => $infoParserData['catatan'] ?? null,
-                'status' => 'berhasil',
             ]);
 
             $cabangAmpera = Cabang::where('kode', 'AMPERA')->firstOrFail();

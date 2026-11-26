@@ -19,7 +19,6 @@ class LaporanUpload extends Model
         'jumlah_hari',
         'format_data',
         'catatan',
-        'status', // berhasil | gagal
     ];
 
     protected function casts(): array

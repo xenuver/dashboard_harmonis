@@ -331,7 +331,6 @@ class UploadReportTest extends TestCase
         $this->assertSame(30, $upload->jumlah_hari);
         $this->assertSame('DATA MENTAH v2', $upload->format_data);
         $this->assertSame('Laporan gabungan bulan November', $upload->catatan);
-        $this->assertSame('berhasil', $upload->status);
 
         $cabangAmpera = Cabang::where('kode', 'AMPERA')->firstOrFail();
         $cabangPal = Cabang::where('kode', 'PAL')->firstOrFail();
@@ -457,7 +456,6 @@ class UploadReportTest extends TestCase
             'periode_bulan' => $bulan,
             'periode_tahun' => $tahun,
             'jumlah_hari' => $expectedDays,
-            'status' => 'berhasil',
         ]);
 
         $salesRows = SalesHarian::where('upload_id', $uploadId)->get();
