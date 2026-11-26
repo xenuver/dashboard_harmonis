@@ -92,6 +92,8 @@ export function LoginScreen() {
 
         if (status === 401) {
           setLoginMessageText("username atau password salah");
+        } else if (status === 429) {
+          setLoginMessageText("anda membuat permintaan login terlalu cepat. mohon coba login lagi setelah beberapa saat");
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
