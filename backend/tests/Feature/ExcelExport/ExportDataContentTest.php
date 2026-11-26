@@ -625,9 +625,17 @@ class ExportDataContentTest extends TestCase
 
         // Single-branch with prev month: prev is A..B, curr is D..E, summary is G..J
         $data = $spreadsheet->getSheetByName('DATA');
+        $this->assertSame('OKTOBER 2026', $data->getCell('A1')->getValue());
+        $this->assertSame([1, 1_000_000], [$data->getCell('A3')->getValue(), $data->getCell('B3')->getValue()]);
+        $this->assertSame([31_000_000, 31_000_000], [$data->getCell('H4')->getValue(), $data->getCell('I4')->getValue()]);
         $this->assertSame('SALES GROWTH', $data->getCell('G9')->getValue());
         $this->assertNotNull($data->getCell('H9')->getValue());
         $this->assertEqualsWithDelta(0.0, (float) $data->getCell('H9')->getValue(), 0.00001);
+
+        $this->assertSame([250, 250], [$data->getCell('H13')->getValue(), $data->getCell('I13')->getValue()]);
+        $this->assertSame([150, 150], [$data->getCell('H14')->getValue(), $data->getCell('I14')->getValue()]);
+        $this->assertSame([400, 400], [$data->getCell('H15')->getValue(), $data->getCell('I15')->getValue()]);
+        $this->assertSame([40, 40], [$data->getCell('G19')->getValue(), $data->getCell('H19')->getValue()]);
 
         $this->assertNotNull($data->getCell('J13')->getValue());
         $this->assertNotNull($data->getCell('J14')->getValue());
@@ -660,10 +668,26 @@ class ExportDataContentTest extends TestCase
         $this->assertSame(-10_000_000, (int) $view->getCell('L10')->getValue());
 
         $data = $spreadsheet->getSheetByName('DATA');
+        $this->assertSame('OKTOBER 2026', $data->getCell('A1')->getValue());
+        $this->assertSame(['HARI', 'TOTAL'], [$data->getCell('A2')->getValue(), $data->getCell('B2')->getValue()]);
+        $this->assertSame([1, 10_000_000], [$data->getCell('A3')->getValue(), $data->getCell('B3')->getValue()]);
+
+        $this->assertSame(['TOTAL', 40_000_000, 30_000_000], [$data->getCell('G4')->getValue(), $data->getCell('H4')->getValue(), $data->getCell('I4')->getValue()]);
+        $this->assertSame(['LOWEST', 1_000_000, 1_000_000], [$data->getCell('G5')->getValue(), $data->getCell('H5')->getValue(), $data->getCell('I5')->getValue()]);
+        $this->assertSame(['HIGHEST', 10_000_000, 1_000_000], [$data->getCell('G6')->getValue(), $data->getCell('H6')->getValue(), $data->getCell('I6')->getValue()]);
+        $this->assertEqualsWithDelta(40_000_000 / 31, (float) $data->getCell('H7')->getValue(), 0.01);
+        $this->assertEquals(1_000_000, $data->getCell('I7')->getValue());
+
         $this->assertEqualsWithDelta(-0.25, (float) $data->getCell('H9')->getValue(), 0.0001);
+
+        $this->assertSame(['MEMBER', 500, 400], [$data->getCell('G13')->getValue(), $data->getCell('H13')->getValue(), $data->getCell('I13')->getValue()]);
+        $this->assertSame(['NON-MEMBER', 300, 240], [$data->getCell('G14')->getValue(), $data->getCell('H14')->getValue(), $data->getCell('I14')->getValue()]);
+        $this->assertSame(['TOTAL', 800, 640], [$data->getCell('G15')->getValue(), $data->getCell('H15')->getValue(), $data->getCell('I15')->getValue()]);
         $this->assertEqualsWithDelta(-0.20, (float) $data->getCell('J13')->getValue(), 0.0001);
         $this->assertEqualsWithDelta(-0.20, (float) $data->getCell('J14')->getValue(), 0.0001);
         $this->assertEqualsWithDelta(-0.20, (float) $data->getCell('J15')->getValue(), 0.0001);
+
+        $this->assertSame([80, 40], [$data->getCell('G19')->getValue(), $data->getCell('H19')->getValue()]);
         $this->assertEqualsWithDelta(-0.50, (float) $data->getCell('I19')->getValue(), 0.0001);
     }
 
@@ -1068,5 +1092,44 @@ class ExportDataContentTest extends TestCase
 
         $daily = $spreadsheet->getSheetByName('PENJUALAN HARIAN');
         $this->assertSame(['HARI', 'APRIL 2026', 'MEI 2026'], $daily->rangeToArray('A1:C1', null, true, false)[0]);
+    }
+
+    public function test_previous_month_from_different_jenis_laporan_is_ignored(): void
+    {
+        // Seed prior-month reports ONLY in pal and gabungan (none in ampera)
+        $octPalSales = $this->buildMonthlyDailySales('pal', 10, 2026, 1_000_000);
+        $this->seedReportWithDailySales('pal', 10, 2026, $octPalSales, 200, 100, 25);
+
+        $octGabunganSales = $this->buildMonthlyDailySales('gabungan', 10, 2026, 1_000_000, 1_000_000);
+        $this->seedReportWithDailySales('gabungan', 10, 2026, $octGabunganSales, 400, 200, 50);
+
+        // Seed Nov 2026 in ampera: should behave as single-month with no prior month
+        $novAmperaSales = $this->buildMonthlyDailySales('ampera', 11, 2026, 1_500_000);
+        $novLaporan = $this->seedReportWithDailySales('ampera', 11, 2026, $novAmperaSales, 300, 150, 45);
+
+        $spreadsheet = $this->loadExportedSpreadsheet($novLaporan);
+
+        $view = $spreadsheet->getSheetByName('VIEW');
+        $this->assertSame(45_000_000, $view->getCell('G7')->getValue());
+        $this->assertSame('---', $view->getCell('L7')->getValue());
+        $this->assertSame('---', $view->getCell('L10')->getValue());
+        $this->assertNull($view->getCell('P13')->getValue());
+        $this->assertNull($view->getCell('Q13')->getValue());
+        $this->assertNull($view->getCell('B31')->getValue());
+        $this->assertNull($view->getCell('K53')->getValue());
+        $this->assertNull($view->getCell('L53')->getValue());
+
+        $data = $spreadsheet->getSheetByName('DATA');
+        $this->assertSame('NOVEMBER 2026', $data->getCell('A1')->getValue());
+        $this->assertSame(['HARI', 'TOTAL'], [$data->getCell('A2')->getValue(), $data->getCell('B2')->getValue()]);
+        $this->assertSame('TOTAL PENJUALAN', $data->getCell('D2')->getValue());
+        $this->assertSame(['TOTAL', 45_000_000], [$data->getCell('D4')->getValue(), $data->getCell('E4')->getValue()]);
+        $this->assertSame('TRANSACTION COUNT', $data->getCell('D9')->getValue());
+        $this->assertSame(['GROWTH MEMBER', 45], [$data->getCell('D15')->getValue(), $data->getCell('E15')->getValue()]);
+
+        $daily = $spreadsheet->getSheetByName('PENJUALAN HARIAN');
+        $this->assertSame(['HARI', 'NOVEMBER 2026'], $daily->rangeToArray('A1:B1', null, true, false)[0]);
+        $this->assertNull($daily->getCell('C1')->getValue());
+        $this->assertSame(31, $daily->getHighestDataRow());
     }
 }
