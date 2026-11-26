@@ -18,6 +18,7 @@ const months = [
 const EXPORT_MESSAGE_NOTHING = 0;
 const EXPORT_MESSAGE_SUCCESS = 1;
 const EXPORT_MESSAGE_FAIL = 2;
+const EXPORT_MESSAGE_FORBIDDEN = 3;
 
 export function EksporData() {
   const yearNow = new Date().getFullYear();
@@ -135,6 +136,11 @@ export function EksporData() {
         if (err.status === 404) {
           setExportMessageText("Data belum tersedia");
           setExportMessageState(EXPORT_MESSAGE_FAIL);
+          setRestrictFormChange(false);
+          return;
+        } if (err.status === 403) {
+          setExportMessageText("Tidak diperbolehkan untuk mengekspor data");
+          setExportMessageState(EXPORT_MESSAGE_FORBIDDEN);
           setRestrictFormChange(false);
           return;
         } else if (err.status === 422) {

@@ -26,6 +26,7 @@ import type { Supplier } from "../../types/Models/Supplier";
 
 import '../styles/dashboard.css';
 import type { DashboardMemberVsNonMemberData } from "../../types/DashboardMemberVsNonMemberData";
+import { NotAllowedCard } from "@/components/errorcards/NotAllowedCard";
 
 const months = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -36,6 +37,7 @@ const ERROR_CODE_DASHBOARD_NO_ERROR = 0;
 const ERROR_CODE_DASHBOARD_NO_DATA = 1;
 const ERROR_CODE_DASHBOARD_CONNECTION_ERROR = 2;
 const ERROR_CODE_DASHBOARD_UNKNOWN_ERROR = 3;
+const ERROR_CODE_DASHBOARD_FORBIDDEN_VIEW = 4;
 const PIE_CHART_COLORS = [
   '#007A55',
   '#FFA500',
@@ -277,6 +279,9 @@ export function Dashboard() {
           if(err.status === 404) {
             setErrorCode(ERROR_CODE_DASHBOARD_NO_DATA);
             return;
+          } else if(err.status === 403) {
+            setErrorCode(ERROR_CODE_DASHBOARD_FORBIDDEN_VIEW);
+            return;
           }
           console.error(err);
           setErrorCode(ERROR_CODE_DASHBOARD_CONNECTION_ERROR);
@@ -338,6 +343,10 @@ export function Dashboard() {
 
       { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&
         <NoConnectionCard className="m-5" retryTrigger={handleRetryApi} />
+      }
+
+      { errorCode === ERROR_CODE_DASHBOARD_FORBIDDEN_VIEW &&
+        <NotAllowedCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_UNKNOWN_ERROR &&

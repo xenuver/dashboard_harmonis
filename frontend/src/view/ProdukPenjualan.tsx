@@ -17,6 +17,7 @@ import { ReportUnavailableCard } from "@/components/errorcards/ReportUnavailable
 import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
 import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
 import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
+import { NotAllowedCard } from "@/components/errorcards/NotAllowedCard";
 
 import type { ProductSearchResponse } from "../../types/ProductSearchResponse";
 import type { Product } from "../../types/Models/Product";
@@ -31,6 +32,7 @@ const ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE = 1; // request valid, tapi laporan
 const ERROR_CODE_SEARCH_NO_DATA = 2;
 const ERROR_CODE_SEARCH_CONNECTION_ERROR = 3;
 const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 4;
+const ERROR_CODE_SEARCH_FORBIDDEN_VIEW = 5;
 
 export function ProdukPenjualan() {
   const searchHasMounted = useRef(false);
@@ -154,6 +156,9 @@ export function ProdukPenjualan() {
           if (err.status === 404) {
             setErrorCode(ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE);
             return;
+          } else if (err.status === 403) {
+            setErrorCode(ERROR_CODE_SEARCH_FORBIDDEN_VIEW);
+            return;
           }
           console.error(err);
           setErrorCode(ERROR_CODE_SEARCH_CONNECTION_ERROR);
@@ -261,6 +266,10 @@ export function ProdukPenjualan() {
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
         <ReportUnavailableCard className="m-5" />
+      }
+
+      { errorCode === ERROR_CODE_SEARCH_FORBIDDEN_VIEW && 
+        <NotAllowedCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_SEARCH_UNKNOWN_ERROR &&

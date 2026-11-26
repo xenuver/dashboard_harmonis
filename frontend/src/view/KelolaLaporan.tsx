@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NoConnectionCard } from "@/components/errorcards/NoConnectionCard";
 import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
 import { NoDataFoundCard } from "@/components/errorcards/NoDataFoundCard";
+import { NotAllowedCard } from "@/components/errorcards/NotAllowedCard";
 
 import type { LaporanSearchResponse } from "../../types/LaporanSearchResponse";
 import type { Laporan } from "../../types/Models/Laporan";
@@ -28,6 +29,7 @@ const ERROR_CODE_SEARCH_NO_ERROR = 0;
 const ERROR_CODE_SEARCH_NO_DATA = 1;
 const ERROR_CODE_SEARCH_CONNECTION_ERROR = 2;
 const ERROR_CODE_SEARCH_UNKNOWN_ERROR = 3;
+const ERROR_CODE_SEARCH_FORBIDDEN_VIEW = 4;
 
 export function KelolaLaporan() {
   const searchHasMounted = useRef(false);
@@ -123,6 +125,10 @@ export function KelolaLaporan() {
 
         if (isAxiosError(err)) {
           console.error(err);
+          if (err.status === 403) {
+            setErrorCode(ERROR_CODE_SEARCH_FORBIDDEN_VIEW);
+            return;
+          }
           setErrorCode(ERROR_CODE_SEARCH_CONNECTION_ERROR);
         } else {
           console.error(err);
@@ -194,6 +200,10 @@ export function KelolaLaporan() {
 
       { errorCode === ERROR_CODE_SEARCH_NO_DATA && 
         <NoDataFoundCard className="m-5" />
+      }
+
+      { errorCode === ERROR_CODE_SEARCH_FORBIDDEN_VIEW && 
+        <NotAllowedCard className="m-5" />
       }
 
       { errorCode === ERROR_CODE_SEARCH_UNKNOWN_ERROR &&

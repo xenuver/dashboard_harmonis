@@ -172,6 +172,9 @@ export function Upload() {
         } else if(status === 413) {
           setUploadMessageState(UPLOAD_MESSAGE_FAIL);
           setUploadMessageText("File/permintaan yang diunggah terlalu besar");
+        } else if(status === 403) {
+          setUploadMessageState(UPLOAD_MESSAGE_FAIL);
+          setUploadMessageText("Anda tidak diperbolehkan untuk mengunggah data");
         } else if (e.code === "ERR_NETWORK") {
           console.error(e);
           console.warn("Terjadi kesalahan dalam mendapatkan respon dari server");
