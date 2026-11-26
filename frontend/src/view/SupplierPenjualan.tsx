@@ -2,6 +2,7 @@ import { useState as reactUseState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
+import sessionManager from "@/services/sessionManager";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { formatRupiah } from "../services/formatters";
 
@@ -251,7 +252,7 @@ export function SupplierPenjualan() {
       }
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
-        <ReportUnavailableCard className="m-5" />
+        <ReportUnavailableCard className="m-5" shouldShowUploadCta={sessionManager.getIdentity()?.role === "it_staff"} />
       }
 
       { errorCode === ERROR_CODE_SEARCH_FORBIDDEN_VIEW && 

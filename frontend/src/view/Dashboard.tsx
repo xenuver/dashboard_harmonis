@@ -16,6 +16,7 @@ import { UnknownErrorCard } from "@/components/errorcards/UnknownErrorCard";
 
 import { api } from "../services/api";
 import { formatAngka, formatAngkaSingkat, formatDate, formatRupiah, formatRupiahSingkat } from "../services/formatters";
+import sessionManager from "../services/sessionManager";
 
 import type { DashboardResponseData } from "../../types/DashboardResponseData";
 import type { Kpi } from "../../types/Models/Kpi";
@@ -338,7 +339,7 @@ export function Dashboard() {
       </Card>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
-        <ReportUnavailableCard className="m-5" />
+        <ReportUnavailableCard className="m-5" shouldShowUploadCta={sessionManager.getIdentity()?.role === "it_staff"} />
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&

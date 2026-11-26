@@ -4,6 +4,7 @@ import { isAxiosError, isCancel as axiosIsCancel } from "axios";
 import { api } from "../services/api";
 import { formatAngka, formatRupiah } from "../services/formatters";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
+import sessionManager from "@/services/sessionManager";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -265,7 +266,7 @@ export function ProdukPenjualan() {
       }
 
       { errorCode === ERROR_CODE_SEARCH_REPORT_NOT_AVAILABLE && 
-        <ReportUnavailableCard className="m-5" />
+        <ReportUnavailableCard className="m-5" shouldShowUploadCta={sessionManager.getIdentity()?.role === "it_staff"} />
       }
 
       { errorCode === ERROR_CODE_SEARCH_FORBIDDEN_VIEW && 
