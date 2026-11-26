@@ -102,6 +102,9 @@ services:
    docker compose exec backend php artisan db:seed
    ```
 
+   > [!WARNING]
+   > `db:seed` membuat akun default `it_staff` dengan kredensial `admin` / `admin`. Segera amankan akun ini setelah seeding (lihat bagian [Keamanan Akun Default Setelah Seeding](#keamanan-akun-default-setelah-seeding)).
+
 ---
 
 ## Metode 2: Deployment Langsung (Tanpa Docker)
@@ -136,6 +139,9 @@ Web server yang digunakan pada metode ini (**Nginx** dan **IIS**) hanyalah conto
    php artisan db:seed
    sudo chown -R www-data:www-data storage bootstrap/cache
    ```
+
+   > [!WARNING]
+   > `db:seed` membuat akun default `it_staff` dengan kredensial `admin` / `admin`. Segera amankan akun ini setelah deployment selesai (lihat [Keamanan Akun Default Setelah Seeding](#keamanan-akun-default-setelah-seeding)).
 
    *(Sesuaikan `upload_max_filesize` dan `post_max_size` di `php.ini` PHP-FPM sesuai kebutuhan unggahan, lalu restart layanan `php8.3-fpm`. Jika memilih **Opsi 2**, arahkan `APP_URL` ke URL/port backend dan pastikan konfigurasi CORS Laravel mengizinkan origin frontend beserta header `Authorization` serta method `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`.)*
 
@@ -258,6 +264,9 @@ server {
    php artisan db:seed
    ```
 
+   > [!WARNING]
+   > `db:seed` membuat akun default `it_staff` dengan kredensial `admin` / `admin`. Segera amankan akun ini setelah deployment selesai (lihat [Keamanan Akun Default Setelah Seeding](#keamanan-akun-default-setelah-seeding)).
+
 2. **Build Frontend (`frontend\`)**:
 
    *(Jika memilih **Opsi 2**, atur variabel `VITE_BACKEND_PROTOCOL`, `VITE_BACKEND_HOSTNAME`, dan `VITE_BACKEND_PORT` terlebih dahulu sebelum `npm run build` seperti pada bagian Linux di atas.)*
@@ -309,6 +318,34 @@ Kedua contoh web server di bawah (**Nginx for Windows** dan **IIS**) berkomunika
    - **Opsi 2 (Origin dan/atau Port Terpisah)**:
      - Buat **Site Frontend** mengarah ke `frontend\dist` pada port/binding frontend, lalu pasang aturan **URL Rewrite** SPA fallback ke `/index.html`.
      - Buat **Site Backend** terpisah pada port/binding backend mengarah ke `backend\public`, aktifkan Handler Mapping `*.php` ke `php-cgi.exe`, pasang aturan **URL Rewrite** Laravel ke `index.php`, dan sesuaikan `maxAllowedContentLength` sesuai kebutuhan.
+
+---
+
+## Keamanan Akun Default Setelah Seeding
+
+Perintah `php artisan db:seed` (`DatabaseSeeder`) akan membuat akun bawaan dengan role **Staf IT** (`it_staff`), `username` = `admin`, dan `password` = `admin` apabila belum ada pengguna ber-role `it_staff` di database. **Jangan biarkan kredensial bawaan ini aktif di lingkungan produksi.**
+
+Untuk memulai, login ke aplikasi menggunakan akun `admin` / `admin`, lalu buka menu **Kelola Pengguna** di sidebar dan pilih salah satu dari dua opsi pengamanan berikut:
+
+### Opsi A: Ubah Kata Sandi (dan Opsional Username) Akun `admin`
+
+1. Pada baris pengguna `admin`, klik tombol ubah (ikon edit) untuk membuka dialog **Ubah Informasi Pengguna**.
+2. Isi kolom **Password** dengan kata sandi baru yang kuat (minimal 4 karakter; disarankan kombinasi huruf besar, huruf kecil, angka, dan simbol).
+3. *(Opsional)* Ubah **Username** sesuai kebutuhan (hanya menerima huruf, angka, `-`, dan `_`).
+4. Pastikan checkbox **Pengguna Aktif** tetap tercentang dan **Role** tetap **Staf IT** *(sistem mencegah akun yang sedang login menonaktifkan atau menurunkan role dirinya sendiri)*.
+5. Klik **Ubah Pengguna**, lalu logout dan uji login ulang menggunakan kredensial baru tersebut.
+
+### Opsi B (Alternatif): Buat Akun Staf IT Baru lalu Nonaktifkan atau Hapus Akun `admin`
+
+1. Pada halaman **Kelola Pengguna**, klik tombol **Tambahkan Pengguna Baru**.
+2. Isi **Username** (huruf, angka, `-`, atau `_`) dan **Password** yang kuat (minimal 4 karakter), pilih **Role** = **Staf IT**, pastikan checkbox **Pengguna Aktif** tercentang, lalu klik **Tambahkan Pengguna**.
+3. **Logout** dari akun `admin`, lalu **login ulang menggunakan akun Staf IT baru** tersebut *(wajib dilakukan karena pengguna yang sedang aktif tidak dapat menonaktifkan atau menghapus akunnya sendiri)*.
+4. Buka kembali menu **Kelola Pengguna**, cari baris `admin`, lalu pilih salah satu tindakan berikut:
+   - **Nonaktifkan akun `admin`**: Klik tombol ubah (ikon edit), hapus centang **Pengguna Aktif**, lalu klik **Ubah Pengguna**.
+   - **Hapus akun `admin`**: Klik tombol hapus (ikon tempat sampah), lalu konfirmasi dengan menekan **Hapus Pengguna**.
+
+> [!NOTE]
+> **Catatan Khusus Seed Ulang (`php artisan db:seed`)**: Seeder memeriksa keberadaan pengguna dengan role `it_staff` di database, bukan hanya username `admin`. Selama masih ada minimal satu akun dengan role `it_staff` (misalnya akun Staf IT baru dari Opsi B, atau akun `admin` yang hanya dinonaktifkan), menjalankan `php artisan db:seed` ulang **tidak** akan membuat akun `admin` lagi. Namun, jika tidak ada satu pun akun ber-role `it_staff` yang tersisa di database (misalnya seluruh akun `it_staff` terhapus atau database di-reset), menjalankan `php artisan db:seed` ulang akan otomatis membuat kembali akun `admin` dengan kata sandi default `admin`.
 
 ---
 
