@@ -6,6 +6,7 @@ use App\Exports\SalesDashboardExport;
 use App\Models\LaporanUpload;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as Excel1;
 
 class ExportDataController extends Controller
 {
@@ -34,7 +35,7 @@ class ExportDataController extends Controller
             return response()->json(['message' => 'Data tidak ditemukan'], 404); // -> state Kosong
         }
 
-        $response = Excel::download(new SalesDashboardExport($upload), 'sales-report-'.$validated['jenis_laporan'].'-'.$validated['periode_bulan'].'-'.$validated['periode_tahun'].'.xlsx');
+        $response = Excel::download(new SalesDashboardExport($upload), 'sales-report-'.$validated['jenis_laporan'].'-'.$validated['periode_bulan'].'-'.$validated['periode_tahun'].'.xlsx', Excel1::XLSX);
         $response->headers->set('Access-Control-Expose-Headers', 'Content-Disposition');
 
         return $response;
