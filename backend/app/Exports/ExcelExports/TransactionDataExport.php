@@ -24,7 +24,7 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
     protected ?LaporanUpload $laporanPrev;
 
     protected array $monthList = [
-        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MAY', 'JUNI',
+        'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
         'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER',
     ];
 
@@ -136,10 +136,12 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
             'align' => Alignment::HORIZONTAL_CENTER,
         ];
 
-        $this->requestNumberFormat[] = [
-            'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
-            'formatCode' => '[$Rp-421] #,##0',
-        ];
+        if ($tableSizeY > 2) {
+            $this->requestNumberFormat[] = [
+                'cells' => Coordinate::stringFromColumnIndex($coordStartX + 2).($coordStartY + 3).':'.Coordinate::stringFromColumnIndex($coordStartX + $tableSizeX).($coordStartY + $tableSizeY),
+                'formatCode' => '[$Rp-421] #,##0',
+            ];
+        }
 
         // render data
         return [
@@ -165,20 +167,20 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         $dailySummary = DB::query()->fromSub($dailyTotalQuery, 'daily_summary');
 
-        $totalSales = (clone $dailySummary)->sum('daily_total');
-        $minSales = (clone $dailySummary)->min('daily_total');
-        $maxSales = (clone $dailySummary)->max('daily_total');
-        $avgSales = (clone $dailySummary)->avg('daily_total');
+        $totalSales = (int) ((clone $dailySummary)->sum('daily_total') ?? 0);
+        $minSales = (int) ((clone $dailySummary)->min('daily_total') ?? 0);
+        $maxSales = (int) ((clone $dailySummary)->max('daily_total') ?? 0);
+        $avgSales = (float) ((clone $dailySummary)->avg('daily_total') ?? 0);
 
         if ($this->laporanPrev) {
             $dailyTotalQueryPrev = SalesHarian::where('upload_id', $this->laporanPrev->id)->select('tanggal', DB::raw('SUM(total_penjualan) as daily_total'))->groupBy('tanggal');
 
             $dailySummaryPrev = DB::query()->fromSub($dailyTotalQueryPrev, 'daily_summary');
 
-            $totalSalesPrev = (clone $dailySummaryPrev)->sum('daily_total');
-            $minSalesPrev = (clone $dailySummaryPrev)->min('daily_total');
-            $maxSalesPrev = (clone $dailySummaryPrev)->max('daily_total');
-            $avgSalesPrev = (clone $dailySummaryPrev)->avg('daily_total');
+            $totalSalesPrev = (int) ((clone $dailySummaryPrev)->sum('daily_total') ?? 0);
+            $minSalesPrev = (int) ((clone $dailySummaryPrev)->min('daily_total') ?? 0);
+            $maxSalesPrev = (int) ((clone $dailySummaryPrev)->max('daily_total') ?? 0);
+            $avgSalesPrev = (float) ((clone $dailySummaryPrev)->avg('daily_total') ?? 0);
         }
 
         // render heading
@@ -258,7 +260,11 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
         $this->requestEnableColAutoWidth[] = $coordStartX;
         $this->requestEnableColAutoWidth[] = $coordStartX + 1;
 
-        $finalTable = [['SALES GROWTH', (($totalSales - $totalSalesPrev) / $totalSalesPrev)]];
+        $salesGrowth = $totalSalesPrev != 0
+            ? (($totalSales - $totalSalesPrev) / $totalSalesPrev)
+            : '---';
+
+        $finalTable = [['SALES GROWTH', $salesGrowth]];
         $tableSizeX = max(array_map('count', $finalTable));
         $tableSizeY = count($finalTable);
 
@@ -282,18 +288,20 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
     protected function renderTransactionCountTable(int $coordStartX = 0, int $coordStartY = 0)
     {
-        $memberTransactionCount = $this->laporan->getDataTransaksi->getTotalMemberTransaction();
-        $nonMemberTransactionCount = $this->laporan->getDataTransaksi->getTotalNonMemberTransaction();
-        $totalTransactionCount = $this->laporan->getDataTransaksi->getTotalTransaction();
+        $dataTransaksi = $this->laporan->getDataTransaksi;
+        $memberTransactionCount = $dataTransaksi?->getTotalMemberTransaction() ?? 0;
+        $nonMemberTransactionCount = $dataTransaksi?->getTotalNonMemberTransaction() ?? 0;
+        $totalTransactionCount = $dataTransaksi?->getTotalTransaction() ?? 0;
 
         $memberTransactionCountPrev = 0;
         $nonMemberTransactionCountPrev = 0;
         $totalTransactionCountPrev = 0;
 
         if ($this->laporanPrev) {
-            $memberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalMemberTransaction();
-            $nonMemberTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalNonMemberTransaction();
-            $totalTransactionCountPrev = $this->laporanPrev->getDataTransaksi->getTotalTransaction();
+            $dataTransaksiPrev = $this->laporanPrev->getDataTransaksi;
+            $memberTransactionCountPrev = $dataTransaksiPrev?->getTotalMemberTransaction() ?? 0;
+            $nonMemberTransactionCountPrev = $dataTransaksiPrev?->getTotalNonMemberTransaction() ?? 0;
+            $totalTransactionCountPrev = $dataTransaksiPrev?->getTotalTransaction() ?? 0;
         }
 
         // render heading
@@ -328,9 +336,19 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
         // render data
         if ($this->laporanPrev) {
-            $tableData[] = ['MEMBER', $memberTransactionCountPrev, $memberTransactionCount, (($memberTransactionCount - $memberTransactionCountPrev) / $memberTransactionCountPrev)];
-            $tableData[] = ['NON-MEMBER', $nonMemberTransactionCountPrev, $nonMemberTransactionCount, (($nonMemberTransactionCount - $nonMemberTransactionCountPrev) / $nonMemberTransactionCountPrev)];
-            $tableData[] = ['TOTAL', $totalTransactionCountPrev, $totalTransactionCount, (($totalTransactionCount - $totalTransactionCountPrev) / $totalTransactionCountPrev)];
+            $memberDiff = $memberTransactionCountPrev != 0
+                ? (($memberTransactionCount - $memberTransactionCountPrev) / $memberTransactionCountPrev)
+                : '---';
+            $nonMemberDiff = $nonMemberTransactionCountPrev != 0
+                ? (($nonMemberTransactionCount - $nonMemberTransactionCountPrev) / $nonMemberTransactionCountPrev)
+                : '---';
+            $totalDiff = $totalTransactionCountPrev != 0
+                ? (($totalTransactionCount - $totalTransactionCountPrev) / $totalTransactionCountPrev)
+                : '---';
+
+            $tableData[] = ['MEMBER', $memberTransactionCountPrev, $memberTransactionCount, $memberDiff];
+            $tableData[] = ['NON-MEMBER', $nonMemberTransactionCountPrev, $nonMemberTransactionCount, $nonMemberDiff];
+            $tableData[] = ['TOTAL', $totalTransactionCountPrev, $totalTransactionCount, $totalDiff];
         } else {
             $tableData[] = ['MEMBER', $memberTransactionCount];
             $tableData[] = ['NON-MEMBER', $nonMemberTransactionCount];
@@ -376,13 +394,15 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
     protected function renderMemberGrowthTable(int $coordStartX = 0, int $coordStartY = 0)
     {
-        $memberGrowth = $this->laporan->getMemberCount->getNewMemberCount();
+        $memberGrowth = $this->laporan->getMemberCount?->getNewMemberCount() ?? 0;
         $memberGrowthPrev = 0;
         $memberGrowthDiff = 0;
 
         if ($this->laporanPrev) {
-            $memberGrowthPrev = $this->laporanPrev->getMemberCount->getNewMemberCount();
-            $memberGrowthDiff = ($memberGrowth - $memberGrowthPrev) / $memberGrowthPrev;
+            $memberGrowthPrev = $this->laporanPrev->getMemberCount?->getNewMemberCount() ?? 0;
+            $memberGrowthDiff = $memberGrowthPrev != 0
+                ? (($memberGrowth - $memberGrowthPrev) / $memberGrowthPrev)
+                : '---';
         }
 
         // render heading
@@ -473,37 +493,37 @@ class TransactionDataExport extends DefaultValueBinder implements FromArray, Wit
 
                 if ($this->laporanPrev) {
                     $penjualanTablePrev = $this->renderPenjualanHarianTable($this->laporanPrev, $coordStartX, $coordStartY);
-                    $sheet->fromArray($penjualanTablePrev['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                    $sheet->fromArray($penjualanTablePrev['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
                     $coordStartX = $coordStartX + $penjualanTablePrev['sizeX'] + 1;
                 }
 
                 $penjualanTable = $this->renderPenjualanHarianTable($this->laporan, $coordStartX, $coordStartY);
-                $sheet->fromArray($penjualanTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                $sheet->fromArray($penjualanTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
                 $coordStartX = $coordStartX + $penjualanTable['sizeX'] + 1;
 
                 $coordStartY = $coordStartY + 1;
 
                 $totalPenjualanTable = $this->renderTotalPenjualanTable($coordStartX, $coordStartY);
-                $sheet->fromArray($totalPenjualanTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                $sheet->fromArray($totalPenjualanTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
                 $coordStartY = $coordStartY + $totalPenjualanTable['sizeY'] + 1;
 
                 if ($this->laporanPrev) {
                     $salesGrowthTable = $this->renderSalesGrowthTable($coordStartX, $coordStartY);
-                    $sheet->fromArray($salesGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                    $sheet->fromArray($salesGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
                     $coordStartY = $coordStartY + $salesGrowthTable['sizeY'] + 1;
                 }
 
                 $transactionCountTable = $this->renderTransactionCountTable($coordStartX, $coordStartY);
-                $sheet->fromArray($transactionCountTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                $sheet->fromArray($transactionCountTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
                 $coordStartY = $coordStartY + $transactionCountTable['sizeY'] + 1;
 
                 $memberGrowthTable = $this->renderMemberGrowthTable($coordStartX, $coordStartY);
-                $sheet->fromArray($memberGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1));
+                $sheet->fromArray($memberGrowthTable['table'] ?? [], null, Coordinate::stringFromColumnIndex($coordStartX + 1).($coordStartY + 1), true);
 
             },
             AfterSheet::class => function (AfterSheet $event) {

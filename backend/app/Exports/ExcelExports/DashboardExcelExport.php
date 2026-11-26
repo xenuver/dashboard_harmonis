@@ -37,9 +37,9 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected ?LaporanUpload $laporanPrev;
 
-    protected DataTransaksi $dataTransaksi;
+    protected ?DataTransaksi $dataTransaksi;
 
-    protected MemberCount $memberCount;
+    protected ?MemberCount $memberCount;
 
     protected Builder $salesHarian;
 
@@ -47,7 +47,7 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected int $kpiTotalPenjualanPrev;
 
-    protected string $kpiTotalGrowthDiff;
+    protected int|string $kpiTotalGrowthDiff;
 
     protected string $sheetName = 'VIEW';
 
@@ -67,13 +67,13 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
 
     protected int $kpiGrowthMember;
 
-    protected float $avgTransactionPerDay;
+    protected float|string $avgTransactionPerDay;
 
-    protected float $avgTransactionCountPerDay;
+    protected float|string $avgTransactionCountPerDay;
 
-    protected float $basketSizeThisMonth;
+    protected float|string $basketSizeThisMonth;
 
-    protected float $avgGrowthPerDay;
+    protected float|string $avgGrowthPerDay;
 
     protected int $minSalesThisMonth;
 
@@ -118,12 +118,12 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             $this->tahunLaporanPrev = $this->laporanPrev->periode_tahun;
         }
 
-        $this->kpiTotalPenjualan = $this->salesHarian->sum('total_penjualan');
+        $this->kpiTotalPenjualan = (int) $this->salesHarian->sum('total_penjualan');
         if ($this->laporanPrev) {
-            $this->kpiTotalPenjualanPrev = $this->salesHarianPrev->sum('total_penjualan');
+            $this->kpiTotalPenjualanPrev = (int) $this->salesHarianPrev->sum('total_penjualan');
         }
 
-        if ($this->laporanPrev) {
+        if ($this->laporanPrev && $this->kpiTotalPenjualanPrev != 0) {
             $this->kpiTotalGrowth = ($this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev) / $this->kpiTotalPenjualanPrev;
             $this->kpiTotalGrowthDiff = $this->kpiTotalPenjualan - $this->kpiTotalPenjualanPrev;
         } else {
@@ -131,19 +131,20 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             $this->kpiTotalGrowthDiff = '---';
         }
 
-        $this->kpiJumlahTransaksi = $this->dataTransaksi->getTotalTransaction();
+        $this->kpiJumlahTransaksi = $this->dataTransaksi?->getTotalTransaction() ?? 0;
 
-        $this->kpiGrowthMember = $this->laporan->getMemberCount->getNewMemberCount();
+        $this->kpiGrowthMember = $this->memberCount?->getNewMemberCount() ?? 0;
 
-        $this->avgTransactionPerDay = $this->salesHarian->sum('total_penjualan') / $this->laporan->jumlah_hari;
-        $this->avgTransactionCountPerDay = $this->dataTransaksi->getTotalTransaction() / $this->laporan->jumlah_hari;
-        $this->basketSizeThisMonth = $this->salesHarian->sum('total_penjualan') / $this->dataTransaksi->getTotalTransaction();
-        $this->avgGrowthPerDay = $this->laporan->getMemberCount->getNewMemberCount() / $this->laporan->jumlah_hari;
+        $jumlahHari = $this->laporan->jumlah_hari;
+        $this->avgTransactionPerDay = $jumlahHari != 0 ? $this->kpiTotalPenjualan / $jumlahHari : '---';
+        $this->avgTransactionCountPerDay = $jumlahHari != 0 ? $this->kpiJumlahTransaksi / $jumlahHari : '---';
+        $this->basketSizeThisMonth = $this->kpiJumlahTransaksi != 0 ? $this->kpiTotalPenjualan / $this->kpiJumlahTransaksi : '---';
+        $this->avgGrowthPerDay = $jumlahHari != 0 ? $this->kpiGrowthMember / $jumlahHari : '---';
 
         $dailyTotalQuery = (clone $this->salesHarian)->newQuery()->select('tanggal', DB::raw('SUM(total_penjualan) as daily_total'))->groupBy('tanggal');
 
-        $this->minSalesThisMonth = DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->min('daily_total');
-        $this->maxSalesThisMonth = DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->max('daily_total');
+        $this->minSalesThisMonth = (int) (DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->min('daily_total') ?? 0);
+        $this->maxSalesThisMonth = (int) (DB::query()->fromSub($dailyTotalQuery, 'daily_summary')->max('daily_total') ?? 0);
     }
 
     private function getColorGoodOrBad(float|int $number): string
@@ -191,8 +192,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null, $this->laporanPrev ? ($this->bulanLaporanPrev).' '.($this->tahunLaporanPrev) : null],
             [null, ($this->bulanLaporan).' '.($this->tahunLaporan)],
             [null],
-            [null, 'NON-MEMBER', $this->laporan->getDataTransaksi->getTotalNonMemberTransaction(), null, null, null, null, null, null, null, null, null, "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
-            [null, 'MEMBER', $this->laporan->getDataTransaksi->getTotalMemberTransaction(), null, null, null, null, null, null, null],
+            [null, 'NON-MEMBER', $this->dataTransaksi?->getTotalNonMemberTransaction() ?? 0, null, null, null, null, null, null, null, null, null, "MEMBER\nBARU", null, null, null, null, null, null, 'TOP 300 HIGHEST', null, null, null, 'VIEW'],
+            [null, 'MEMBER', $this->dataTransaksi?->getTotalMemberTransaction() ?? 0, null, null, null, null, null, null, null],
             [null],
             [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 'TOP 300 LOWEST', null, null, null, 'VIEW'],
             [null],
@@ -210,8 +211,8 @@ class DashboardExcelExport implements FromArray, WithCharts, WithEvents, WithStr
             [null], // 50
             [null],
             [null],
-            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? $this->laporanPrev->getMemberCount->getNewMemberCount() : null],
-            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->laporan->getMemberCount->getNewMemberCount()],
+            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporanPrev ?? null, isset($this->laporanPrev) ? ($this->laporanPrev->getMemberCount?->getNewMemberCount() ?? 0) : null],
+            [null, null, null, null, null, null, null, null, null, null, $this->bulanLaporan, $this->kpiGrowthMember],
         ];
     }
 
