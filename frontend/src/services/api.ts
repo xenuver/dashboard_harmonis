@@ -25,13 +25,7 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.request.use((config) => {
-  const accept = config.headers.get('Accept');
-
-  const expectsJson =
-      config.responseType === 'json' || (typeof accept === 'string' && accept.includes('application/json'));
-
-  if (expectsJson) {
-    config.responseType = 'json';
+  if (config.responseType === 'json') {
 
     config.transitional = {
       ...config.transitional,
