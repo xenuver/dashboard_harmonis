@@ -39,8 +39,6 @@ class ExportDataContentTest extends TestCase
     {
         parent::setUp();
 
-        Storage::fake('local');
-
         // DatabaseSeeder creates Cabang rows (AMPERA, PAL) needed for SalesHarian
         $this->seed();
     }
@@ -63,10 +61,11 @@ class ExportDataContentTest extends TestCase
             $laporan->periode_tahun,
         );
 
-        Storage::disk('local')->put($filename, $rawBinary);
-        Storage::disk('local')->assertExists($filename);
+        $storage = Storage::fake('local');
+        $storage->put($filename, $rawBinary);
+        $storage->assertExists($filename);
 
-        return IOFactory::load(Storage::disk('local')->path($filename));
+        return IOFactory::load($storage->path($filename));
     }
 
     /**
