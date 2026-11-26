@@ -7,8 +7,12 @@
 !.env.example
 !.env.docker
 
+/.npmrc
+/package.json
+
 /vendor
 /node_modules
+/vite.config.js
 
 /storage/*.key
 /storage/framework/cache/*
@@ -27,6 +31,7 @@
 /.styleci.yml
 /.pint.json
 
+.devcontainer
 .idea
 .vscode
 *.swp
@@ -47,6 +52,7 @@ Thumbs.db
 *.cache
 /database/*.sqlite*
 
+.dockerignore
 docker-compose.yml
 docker-compose.*.yml
 Dockerfile*
