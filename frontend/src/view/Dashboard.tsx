@@ -407,7 +407,7 @@ export function Dashboard() {
                   <div className="w-full h-80">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        { (isLoaded === true && (pickedJenisLaporan === "gabungan" || pickedJenisLaporan === "pal" )) &&
+                        { isLoaded === true &&
                           <Pie
                             dataKey="value"
                             data={memberNonMemberCount}
