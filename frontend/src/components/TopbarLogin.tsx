@@ -31,13 +31,15 @@ export function TopbarLogin({ titleBar = "Dashboard" }: TopbarLoginProps) {
 
       <div className="flex items-center gap-3">
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{sessionManager.getIdentity()?.username.slice(0,1).toUpperCase() || "S"}</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>{sessionManager.getIdentity()?.username.slice(0,1).toUpperCase() || "S"}</AvatarFallback>
+                </Avatar>
+              </Button>
+            }
+          />
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Masuk sebagai {sessionManager.getIdentity()?.username || "seseorang"}</DropdownMenuLabel>
