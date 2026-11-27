@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 class ProdukPenjualanSearchTest extends TestCase
 {
-    use RefreshDatabase;
     use ProdukPenjualanTestHelpers;
+    use RefreshDatabase;
 
     private string $ownerToken;
 
@@ -30,8 +30,8 @@ class ProdukPenjualanSearchTest extends TestCase
     {
         return $this->produkUrl([
             'jenis_laporan' => 'gabungan',
-            'kategori'      => $kategori,
-            'search'        => $keyword,
+            'kategori' => $kategori,
+            'search' => $keyword,
         ]);
     }
 

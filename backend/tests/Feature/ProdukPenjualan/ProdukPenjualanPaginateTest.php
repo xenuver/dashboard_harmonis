@@ -11,8 +11,8 @@ use Tests\TestCase;
 
 class ProdukPenjualanPaginateTest extends TestCase
 {
-    use RefreshDatabase;
     use ProdukPenjualanTestHelpers;
+    use RefreshDatabase;
 
     private string $ownerToken;
 

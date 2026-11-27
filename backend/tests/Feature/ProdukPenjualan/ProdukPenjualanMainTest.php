@@ -11,8 +11,8 @@ use Tests\TestCase;
 
 class ProdukPenjualanMainTest extends TestCase
 {
-    use RefreshDatabase;
     use ProdukPenjualanTestHelpers;
+    use RefreshDatabase;
 
     private string $adminToken;
 

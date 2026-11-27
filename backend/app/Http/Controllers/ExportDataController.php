@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Exports\SalesDashboardExport;
 use App\Models\LaporanUpload;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Excel as Excel1;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExportDataController extends Controller
 {

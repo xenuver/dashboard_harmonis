@@ -55,7 +55,7 @@ class ExportDataTest extends TestCase
 
         $query = http_build_query(array_merge($defaults, $params));
 
-        return self::EXPORT_URL . '?' . $query;
+        return self::EXPORT_URL.'?'.$query;
     }
 
     private function createLaporan(
@@ -111,7 +111,7 @@ class ExportDataTest extends TestCase
 
         // When Excel is faked the real file stream is suppressed, so we verify
         // the correct export class and filename were dispatched instead.
-        $expectedFilename = 'sales-report-' . self::TEST_JENIS . '-' . self::TEST_BULAN . '-' . self::TEST_TAHUN . '.xlsx';
+        $expectedFilename = 'sales-report-'.self::TEST_JENIS.'-'.self::TEST_BULAN.'-'.self::TEST_TAHUN.'.xlsx';
         Excel::assertDownloaded($expectedFilename);
     }
 
@@ -125,7 +125,7 @@ class ExportDataTest extends TestCase
             ->get($this->exportUrl())
             ->assertOk();
 
-        $expectedFilename = 'sales-report-' . self::TEST_JENIS . '-' . self::TEST_BULAN . '-' . self::TEST_TAHUN . '.xlsx';
+        $expectedFilename = 'sales-report-'.self::TEST_JENIS.'-'.self::TEST_BULAN.'-'.self::TEST_TAHUN.'.xlsx';
         Excel::assertDownloaded($expectedFilename);
     }
 
@@ -139,7 +139,7 @@ class ExportDataTest extends TestCase
             ->get($this->exportUrl())
             ->assertOk();
 
-        $expectedFilename = 'sales-report-' . self::TEST_JENIS . '-' . self::TEST_BULAN . '-' . self::TEST_TAHUN . '.xlsx';
+        $expectedFilename = 'sales-report-'.self::TEST_JENIS.'-'.self::TEST_BULAN.'-'.self::TEST_TAHUN.'.xlsx';
         Excel::assertDownloaded($expectedFilename);
     }
 
@@ -238,13 +238,13 @@ class ExportDataTest extends TestCase
     public static function invalidInputProvider(): array
     {
         return [
-            'jenis_laporan missing'       => [['jenis_laporan' => null]],
+            'jenis_laporan missing' => [['jenis_laporan' => null]],
             'jenis_laporan invalid value' => [['jenis_laporan' => 'unknown']],
-            'periode_bulan missing'       => [['periode_bulan' => null]],
-            'periode_bulan too low (0)'   => [['periode_bulan' => 0]],
+            'periode_bulan missing' => [['periode_bulan' => null]],
+            'periode_bulan too low (0)' => [['periode_bulan' => 0]],
             'periode_bulan too high (13)' => [['periode_bulan' => 13]],
-            'periode_tahun missing'       => [['periode_tahun' => null]],
-            'periode_tahun too low (-1)'  => [['periode_tahun' => -1]],
+            'periode_tahun missing' => [['periode_tahun' => null]],
+            'periode_tahun too low (-1)' => [['periode_tahun' => -1]],
             'periode_tahun too high (65536)' => [['periode_tahun' => 65536]],
         ];
     }

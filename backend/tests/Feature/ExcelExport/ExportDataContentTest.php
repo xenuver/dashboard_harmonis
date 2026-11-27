@@ -417,7 +417,7 @@ class ExportDataContentTest extends TestCase
 
         // November 2026 (30 days):
         // Day 1: 1,500,000 (750k + 750k), Day 30: 3,500,000 (2,000k + 1,500k), 28 days * 2,500,000 (1,500k + 1,000k) = 70,000,000
-        //Wait: 1,500,000 + 3,500,000 + 70,000,000 = 75,000,000
+        // Wait: 1,500,000 + 3,500,000 + 70,000,000 = 75,000,000
         // Make Total = 77,500,000 (+25% over 62,000,000; diff = +15,500,000) by setting Day 10 = 5,000,000 (3,000k + 2,000k) instead of 2,500,000
         $novSales = $this->buildMonthlyDailySales('gabungan', 11, 2026, 1_500_000, 1_000_000, [
             1 => ['ampera' => 750_000, 'pal' => 750_000],      // 1,500,000 (min)
