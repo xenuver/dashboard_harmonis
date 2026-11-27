@@ -1,6 +1,7 @@
-import { useState as reactUseState, useRef as reactUseRef } from "react";
+import { useState as reactUseState, useRef as reactUseRef, useEffect } from "react";
 import { api } from "../services/api";
 import { isAxiosError } from "axios";
+import { useSearchParams } from "react-router-dom";
 
 import type { SubmitEvent as ReactSubmitEvent } from "react";
 import type ReportUploadValidationErrorResponse from '../../types/ReportUploadValidationErrorResponse';
@@ -29,12 +30,39 @@ const months = [
 ];
 
 export function Upload() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const yearNow = new Date().getFullYear();
   const monthNow = new Date().getMonth() + 1;
 
   const [restrictFormChange, setRestrictFormChange] = reactUseState<boolean>(false);
 
   const uploadFormRef = reactUseRef<HTMLFormElement | null>(null);
+
+  let defaultJenisLaporan = searchParams.get("jenis_laporan");
+  if (defaultJenisLaporan !== "ampera" && defaultJenisLaporan !== "pal" && defaultJenisLaporan !== "gabungan") {
+    defaultJenisLaporan = null;
+  }
+
+  let defaultMonth: number | string | null = searchParams.get("periode_bulan");
+  if (defaultMonth !== null) {
+    const parsedMonth = parseInt(defaultMonth, 10);
+    if (!Number.isNaN(parsedMonth) && parsedMonth > 0 && parsedMonth <= 12) {
+      defaultMonth = parsedMonth;
+    } else {
+      defaultMonth = null;
+    }
+  }
+
+  let defaultYear: number | string | null = searchParams.get("periode_tahun");
+  if (defaultYear !== null) {
+    const parsedYear = parseInt(defaultYear, 10);
+    if (!Number.isNaN(parsedYear) && parsedYear > 0 && parsedYear <= 65535) {
+      defaultYear = parsedYear;
+    } else {
+      defaultYear = null;
+    }
+  }
 
   const [uploadMessageText, setUploadMessageText] = reactUseState<string>("");
   const [uploadMessageState, setUploadMessageState] = reactUseState<number>(0);
@@ -54,6 +82,23 @@ export function Upload() {
     }
     yearOptions.push(yearNow - i);
   }
+
+  useEffect(function(){
+    function handleUrlParams() {
+      if(searchParams.get("jenis_laporan") !== null) {
+        searchParams.delete("jenis_laporan");
+      }
+      if(searchParams.get("periode_bulan") !== null) {
+        searchParams.delete("periode_bulan");
+      }
+      if(searchParams.get("periode_tahun") !== null) {
+        searchParams.delete("periode_tahun");
+      }
+      setSearchParams(searchParams, { replace: true });
+    }
+
+    handleUrlParams();
+  },[]);
 
   const clearAttachedFile = function() {
     setAttachedFile(null); // Clears the file from parent state!
@@ -215,7 +260,7 @@ export function Upload() {
             <FieldGroup className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               <Field>
                 <FieldLabel>Jenis Laporan:</FieldLabel>
-                <NativeSelect required={true} name="jenis_laporan" defaultValue="gabungan" disabled={restrictFormChange}>
+                <NativeSelect required={true} name="jenis_laporan" defaultValue={defaultJenisLaporan !== null ? defaultJenisLaporan : "gabungan"} disabled={restrictFormChange}>
                     {
                       ["ampera", "pal", "gabungan"].map((value, index) => (
                         <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -225,7 +270,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Bulan Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} disabled={restrictFormChange}>
+                <NativeSelect required={true} name="periode_bulan" defaultValue={defaultMonth !== null ? defaultMonth : monthNow} disabled={restrictFormChange}>
                   {months.map((value, index) => (
                     <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                   ))}
@@ -233,7 +278,7 @@ export function Upload() {
               </Field>
               <Field>
                 <FieldLabel>Tahun Laporan:</FieldLabel>
-                <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} disabled={restrictFormChange}>
+                <NativeSelect required={true} name="periode_tahun" defaultValue={defaultYear !== null ? defaultYear : yearNow} disabled={restrictFormChange}>
                   {
                     yearOptions.map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
