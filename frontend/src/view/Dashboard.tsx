@@ -339,7 +339,7 @@ export function Dashboard() {
       </Card>
 
       { errorCode === ERROR_CODE_DASHBOARD_NO_DATA &&
-        <ReportUnavailableCard className="m-5" shouldShowUploadCta={sessionManager.getIdentity()?.role === "it_staff"} />
+        <ReportUnavailableCard className="m-5" shouldShowUploadCta={sessionManager.getIdentity()?.role === "it_staff"} reportUploadShortcut={{jenis_laporan: pickedJenisLaporan, periode_bulan: pickedMonth, periode_tahun: pickedYear}} />
       }
 
       { errorCode === ERROR_CODE_DASHBOARD_CONNECTION_ERROR &&
