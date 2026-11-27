@@ -195,7 +195,7 @@ export function ProdukPenjualan() {
           <FieldGroup className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
             <Field>
               <FieldLabel htmlFor="jenislaporan">Jenis laporan:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue={pickedJenisLaporan} value={pickedJenisLaporan} onChange={(event) => setPickedJenisLaporan(event.target.value)}>
+              <NativeSelect required={true} name="jenis_laporan" value={pickedJenisLaporan} onChange={(event) => setPickedJenisLaporan(event.target.value)}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -212,7 +212,7 @@ export function ProdukPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} value={pickedMonth} onChange={(event) => setPickedMonth(parseInt(event.target.value))}>
+              <NativeSelect required={true} name="periode_bulan" value={pickedMonth} onChange={(event) => setPickedMonth(parseInt(event.target.value))}>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                 ))}
@@ -220,7 +220,7 @@ export function ProdukPenjualan() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} value={pickedYear} onChange={(event) => setPickedYear(parseInt(event.target.value))}>
+              <NativeSelect required={true} name="periode_tahun" value={pickedYear} onChange={(event) => setPickedYear(parseInt(event.target.value))}>
                 {
                   yearOptions.map((value, index) => (
                     <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -242,7 +242,7 @@ export function ProdukPenjualan() {
                   onChange={(e) => setKataKunciPencarian(e.target.value)} 
                   placeholder="Masukkan barcode, kode barang atau nama barang di sini" 
                   onKeyUp={(e) => (e.key === 'Enter' || e.keyCode === 13) && resetSearchNow()} 
-                  value={kataKunciPencarian}
+                  value={kataKunciPencarian ?? ""}
                 />
                 <Button 
                   onClick={resetSearchNow} 

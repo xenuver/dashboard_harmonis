@@ -308,7 +308,7 @@ export function Dashboard() {
           <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Field>
               <FieldLabel>Jenis Laporan:</FieldLabel>
-              <NativeSelect required={true} name="jenis_laporan" defaultValue={pickedJenisLaporan} onChange={(event) => { setPickedJenisLaporan(event.target.value); handleRetryApi(); }}>
+              <NativeSelect required={true} name="jenis_laporan" value={pickedJenisLaporan} onChange={(event) => { setPickedJenisLaporan(event.target.value); handleRetryApi(); }}>
                   {
                     ["ampera", "pal", "gabungan"].map((value, index) => (
                       <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
@@ -318,7 +318,7 @@ export function Dashboard() {
             </Field>
             <Field>
               <FieldLabel>Bulan Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_bulan" defaultValue={monthNow} value={pickedMonth} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); handleRetryApi(); }}>
+              <NativeSelect required={true} name="periode_bulan" value={pickedMonth} onChange={(event) => { setPickedMonth(parseInt(event.target.value)); handleRetryApi(); }}>
                 {months.map((value, index) => (
                   <NativeSelectOption value={(index + 1).toString()} key={index}>{value}</NativeSelectOption>
                 ))}
@@ -326,7 +326,7 @@ export function Dashboard() {
             </Field>
             <Field>
               <FieldLabel>Tahun Laporan:</FieldLabel>
-              <NativeSelect required={true} name="periode_tahun" defaultValue={yearNow} value={pickedYear} onChange={(event) => { setPickedYear(parseInt(event.target.value)); handleRetryApi(); }}>
+              <NativeSelect required={true} name="periode_tahun" value={pickedYear} onChange={(event) => { setPickedYear(parseInt(event.target.value)); handleRetryApi(); }}>
                 {
                   yearOptions.map((value, index) => (
                     <NativeSelectOption tabIndex={index + 1} value={value} key={index}>{value}</NativeSelectOption>
