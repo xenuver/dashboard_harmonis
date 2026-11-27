@@ -5,7 +5,7 @@ COPY --from=mlocati/php-extension-installer:2 \
 
 RUN IPE_SAVE_PERMDEPS_TO=/tmp/php-runtime-deps.txt \
     install-php-extensions \
-        gd pdo_mysql xml zip # curl mbstring pdo_sqlite sqlite3 opcache
+        gd pdo_mysql zip # curl mbstring pdo_sqlite sqlite3 xml opcache
 
 
 FROM php-extension-builder AS composer-builder
